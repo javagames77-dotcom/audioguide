@@ -1251,7 +1251,6 @@ input[type=range]::-webkit-slider-thumb {
           <thead>
             <tr>
               <th id="t-th-name"></th>
-              <th>Email</th>
               <th id="t-th-phone"></th>
               <th id="t-th-city-wish"></th>
               <th id="t-th-status"></th>
@@ -1260,7 +1259,7 @@ input[type=range]::-webkit-slider-thumb {
             </tr>
           </thead>
           <tbody id="requests-tbody">
-            <tr><td colspan="7"><div class="loading-row"><div class="spinner-sm"></div></div></td></tr>
+            <tr><td colspan="6"><div class="loading-row"><div class="spinner-sm"></div></div></td></tr>
           </tbody>
         </table>
       </div>
@@ -2246,7 +2245,7 @@ let requestFilter = 'all';
 
 async function loadRequests() {
   document.getElementById('requests-tbody').innerHTML =
-    `<tr><td colspan="7"><div class="loading-row"><div class="spinner-sm"></div></div></td></tr>`;
+    `<tr><td colspan="6"><div class="loading-row"><div class="spinner-sm"></div></div></td></tr>`;
   try {
     const res = await apiMain('users', 'list', { status: 'all' });
     allRequests   = res.users || [];
@@ -2268,7 +2267,7 @@ function filterRequests(f) {
 function renderRequestsTable(rows) {
   const tb = document.getElementById('requests-tbody');
   if (!rows.length) {
-    tb.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-title">${t('no-requests')}</div></div></td></tr>`;
+    tb.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-title">${t('no-requests')}</div></div></td></tr>`;
     return;
   }
   tb.innerHTML = rows.map(r => `
