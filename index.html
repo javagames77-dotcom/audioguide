@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whispr.city — Місто шепоче. Ти слухаєш.</title>
+<meta name="description" content="Геолокаційний аудіогід нового покоління. Безкоштовно. Для кожного міста України та світу.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,600;1,9..144,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════
+   TOKENS
+═══════════════════════════════════ */
+:root {
+  --ink:      #0d0d0b;
+  --ink2:     #3d3d38;
+  --ink3:     #7a7a72;
+  --paper:    #f7f4ef;
+  --paper2:   #eeeae2;
+  --paper3:   #e4dfd5;
+  --night:    #080c14;
+  --night2:   #0e1520;
+  --night3:   #1a2235;
+  --accent:   #c8622a;
+  --accent-h: #b05520;
+  --amber:    #e89e22;
+  --green:    #2db86a;
+  --blue:     #6496dc;
+  --purple:   #a064d2;
+  --serif:    'Fraunces', Georgia, serif;
+  --sans:     'DM Sans', system-ui, sans-serif;
+  --mono:     'DM Mono', 'Courier New', monospace;
+  --nav-h:    60px;
+  --tr:       .2s ease;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════
+   NAV
+═══════════════════════════════════ */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  background: rgba(8,12,20,.96);
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 200;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: background var(--tr);
+}
+
+.nav-logo {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -.4px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.nav-logo-dot { color: var(--accent); }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-link {
+  font-size: 13px;
+  color: rgba(255,255,255,.45);
+  text-decoration: none;
+  padding: 7px 14px;
+  border-radius: 6px;
+  transition: all var(--tr);
+  font-weight: 400;
+}
+.nav-link:hover { color: rgba(255,255,255,.85); background: rgba(255,255,255,.06); }
+
+.nav-cta {
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 7px;
+  text-decoration: none;
+  transition: background var(--tr);
+  margin-left: 8px;
+}
+.nav-cta:hover { background: var(--accent-h); }
+
+.lang-sw {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+  margin-left: 16px;
+}
+.lang-btn {
+  background: none;
+  border: none;
+  padding: 4px 9px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255,255,255,.35);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all var(--tr);
+  letter-spacing: .5px;
+}
+.lang-btn:hover { color: rgba(255,255,255,.7); }
+.lang-btn.active { background: var(--accent); color: #fff; }
+
+/* hamburger */
+.nav-burger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+}
+.nav-burger span {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: rgba(255,255,255,.6);
+  border-radius: 2px;
+  transition: all .25s;
+}
+
+/* mobile menu */
+.nav-mobile {
+  display: none;
+  position: fixed;
+  top: var(--nav-h);
+  left: 0; right: 0;
+  background: rgba(8,12,20,.98);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  padding: 20px 24px 28px;
+  z-index: 199;
+  flex-direction: column;
+  gap: 4px;
+}
+.nav-mobile.open { display: flex; }
+.nav-mobile .nav-link {
+  font-size: 15px;
+  padding: 10px 14px;
+  color: rgba(255,255,255,.6);
+}
+.nav-mobile .nav-cta {
+  margin: 8px 0 0;
+  text-align: center;
+  padding: 12px;
+  font-size: 14px;
+}
+.nav-mobile .lang-sw {
+  margin: 12px 0 0;
+  align-self: flex-start;
+}
+
+/* ═══════════════════════════════════
+   SECTIONS COMMON
+═══════════════════════════════════ */
+section { position: relative; }
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.eyebrow::before {
+  content: '';
+  width: 28px; height: 1px;
+  background: var(--accent);
+  opacity: .6;
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -1px;
+  line-height: 1.08;
+  margin-bottom: 18px;
+}
+.section-title em { font-style: italic; color: var(--accent); }
+
+.section-sub {
+  font-size: 16px;
+  color: var(--ink3);
+  font-weight: 300;
+  max-width: 560px;
+  line-height: 1.65;
+}
+
+/* ═══════════════════════════════════
+   HERO
+═══════════════════════════════════ */
+.hero {
+  background: var(--night);
+  min-height: 100vh;
+  padding-top: var(--nav-h);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* dot grid texture */
+.hero-texture {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(232,158,34,.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+/* glow */
+.hero-glow {
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,98,42,.1) 0%, transparent 60%);
+  top: -200px; right: -100px;
+  pointer-events: none;
+}
+.hero-glow2 {
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,158,34,.06) 0%, transparent 60%);
+  bottom: -100px; left: -50px;
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 80px 40px 80px;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 60px;
+  align-items: center;
+}
+
+.hero-left {}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(200,98,42,.12);
+  border: 1px solid rgba(200,98,42,.25);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+.hero-tag-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .4; transform: scale(.7); }
+}
+
+.hero-h1 {
+  font-family: var(--serif);
+  font-size: clamp(48px, 6.5vw, 88px);
+  font-weight: 900;
+  color: #fff;
+  line-height: .95;
+  letter-spacing: -2.5px;
+  margin-bottom: 28px;
+}
+.hero-h1 em { font-style: italic; color: var(--amber); }
+
+.hero-desc {
+  font-size: 17px;
+  color: rgba(255,255,255,.4);
+  font-weight: 300;
+  line-height: 1.65;
+  max-width: 480px;
+  margin-bottom: 44px;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 56px;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background var(--tr), transform .1s;
+  letter-spacing: .01em;
+}
+.btn-primary:hover { background: var(--accent-h); }
+.btn-primary:active { transform: scale(.98); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  background: transparent;
+  color: rgba(255,255,255,.6);
+  text-decoration: none;
+  border: 1.5px solid rgba(255,255,255,.15);
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 400;
+  transition: all var(--tr);
+}
+.btn-ghost:hover {
+  border-color: rgba(255,255,255,.35);
+  color: rgba(255,255,255,.9);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+.hero-stat-val {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+.hero-stat-label {
+  font-size: 11px;
+  color: rgba(255,255,255,.28);
+  margin-top: 4px;
+  font-family: var(--mono);
+  letter-spacing: .5px;
+}
+
+/* ═══════════════════════════════════
+   PHONE MOCKUP (hero right)
+═══════════════════════════════════ */
+.phone-frame {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.phone {
+  width: 240px;
+  background: var(--night);
+  border-radius: 36px;
+  border: 1.5px solid var(--night3);
+  overflow: hidden;
+  box-shadow:
+    0 0 0 6px rgba(255,255,255,.02),
+    0 40px 80px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.06);
+  position: relative;
+  z-index: 2;
+}
+
+/* second phone behind */
+.phone-bg {
+  position: absolute;
+  width: 220px;
+  right: -30px;
+  top: 40px;
+  background: var(--night2);
+  border-radius: 32px;
+  border: 1.5px solid var(--night3);
+  overflow: hidden;
+  opacity: .55;
+  z-index: 1;
+  box-shadow: 0 20px 60px rgba(0,0,0,.4);
+}
+
+.mp-statusbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 16px 6px;
+  background: var(--night);
+}
+.mp-time { font-family: var(--mono); font-size: 11px; font-weight: 500; color: #fff; }
+.mp-icons { display: flex; align-items: center; gap: 4px; }
+.mp-sig { display: flex; align-items: flex-end; gap: 1.5px; }
+.mp-sig span { background: rgba(255,255,255,.55); border-radius: 1px; width: 2.5px; display: block; }
+.mp-battery {
+  width: 15px; height: 8px;
+  border: 1.2px solid rgba(255,255,255,.4);
+  border-radius: 2px;
+  position: relative;
+  margin-left: 4px;
+}
+.mp-battery::after {
+  content: '';
+  position: absolute;
+  right: -3.5px; top: 50%;
+  transform: translateY(-50%);
+  width: 2px; height: 4px;
+  background: rgba(255,255,255,.4);
+  border-radius: 0 1px 1px 0;
+}
+.mp-battery-fill {
+  position: absolute;
+  left: 1.5px; top: 1.5px; bottom: 1.5px;
+  width: 65%;
+  background: rgba(255,255,255,.5);
+  border-radius: 1px;
+}
+
+.mp-topbar {
+  padding: 7px 14px 6px;
+  background: var(--night);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.mp-logo {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 700;
+  color: var(--amber);
+}
+.mp-menu { display: flex; flex-direction: column; gap: 3px; }
+.mp-menu span {
+  display: block;
+  height: 1.2px;
+  background: rgba(255,255,255,.35);
+  border-radius: 1px;
+}
+.mp-menu span:nth-child(2) { width: 70%; }
+
+/* map area */
+.mp-map {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+}
+
+/* bottom sheet */
+.mp-sheet {
+  background: var(--night);
+  border-top: 1px solid rgba(255,255,255,.06);
+  padding: 10px 14px 10px;
+}
+.mp-sheet-title {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-style: italic;
+  color: #fff;
+  margin-bottom: 1px;
+}
+.mp-sheet-coords {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: rgba(255,255,255,.2);
+  margin-bottom: 8px;
+}
+.mp-waveform {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 18px;
+  margin-bottom: 8px;
+}
+.mp-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mp-play {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--amber);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mp-progress { flex: 1; height: 2px; background: rgba(255,255,255,.08); border-radius: 2px; }
+.mp-progress-fill { height: 100%; width: 38%; background: var(--amber); border-radius: 2px; }
+.mp-time-stamp { font-family: var(--mono); font-size: 8px; color: rgba(255,255,255,.25); }
+
+/* second phone content (list screen) */
+.mp-list-header {
+  padding: 10px 14px;
+  background: var(--night2);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.7);
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.mp-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.mp-list-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.mp-list-name { font-size: 11px; color: rgba(255,255,255,.7); font-weight: 500; }
+.mp-list-dist { font-family: var(--mono); font-size: 9px; color: rgba(255,255,255,.25); margin-top: 1px; }
+
+/* ═══════════════════════════════════
+   HOW IT WORKS
+═══════════════════════════════════ */
+.how {
+  padding: 100px 0;
+  background: var(--paper);
+}
+
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-top: 56px;
+  background: var(--paper3);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.how-card {
+  background: var(--paper);
+  padding: 36px 32px;
+  transition: background var(--tr);
+}
+.how-card:hover { background: var(--paper2); }
+
+.how-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+.how-icon {
+  font-size: 32px;
+  margin-bottom: 16px;
+  display: block;
+}
+.how-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.4px;
+  margin-bottom: 10px;
+  line-height: 1.15;
+}
+.how-text {
+  font-size: 14px;
+  color: var(--ink3);
+  line-height: 1.65;
+  font-weight: 300;
+}
+
+/* ═══════════════════════════════════
+   FEATURES
+═══════════════════════════════════ */
+.features {
+  padding: 100px 0;
+  background: var(--night);
+  overflow: hidden;
+}
+
+.features .eyebrow { color: var(--amber); }
+.features .eyebrow::before { background: var(--amber); }
+.features .section-title { color: #fff; }
+.features .section-sub { color: rgba(255,255,255,.35); }
+
+.feat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5px;
+  margin-top: 56px;
+  background: rgba(255,255,255,.05);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.feat-card {
+  background: var(--night2);
+  padding: 32px;
+  transition: background var(--tr);
+}
+.feat-card:hover { background: var(--night3); }
+
+.feat-icon {
+  font-size: 28px;
+  margin-bottom: 16px;
+  display: block;
+}
+.feat-title {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -.3px;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+.feat-text {
+  font-size: 13px;
+  color: rgba(255,255,255,.35);
+  line-height: 1.65;
+  font-weight: 300;
+}
+
+/* ═══════════════════════════════════
+   ADMIN SECTION
+═══════════════════════════════════ */
+.admin-section {
+  padding: 100px 0;
+  background: var(--paper2);
+}
+
+.admin-inner {
+  display: grid;
+  grid-template-columns: 1fr 480px;
+  gap: 80px;
+  align-items: center;
+}
+
+.admin-steps {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.admin-step {
+  display: flex;
+  gap: 20px;
+  padding-bottom: 32px;
+  position: relative;
+}
+.admin-step::before {
+  content: '';
+  position: absolute;
+  left: 19px; top: 42px;
+  bottom: 0; width: 1px;
+  background: var(--paper3);
+}
+.admin-step:last-child::before { display: none; }
+.admin-step:last-child { padding-bottom: 0; }
+
+.step-num {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.step-num.accent { background: var(--accent); }
+.step-num.amber  { background: var(--amber); color: var(--ink); }
+.step-num.green  { background: #2ab87a; }
+
+.step-content { padding-top: 8px; }
+.step-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+  letter-spacing: -.2px;
+}
+.step-text { font-size: 14px; color: var(--ink3); line-height: 1.6; font-weight: 300; }
+
+/* Admin panel mockup */
+.admin-mockup {
+  background: var(--paper);
+  border: 1px solid var(--paper3);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(13,13,11,.08);
+}
+.adm-topbar {
+  background: var(--ink);
+  padding: 11px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.adm-logo { font-family: var(--serif); font-size: 15px; font-style: italic; color: var(--amber); }
+.adm-meta { font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,.25); }
+.adm-body { display: flex; min-height: 320px; }
+.adm-sidebar {
+  width: 160px;
+  background: #fff;
+  border-right: 1px solid var(--paper2);
+  padding: 14px 0;
+  flex-shrink: 0;
+}
+.adm-nav-group { padding: 0 12px; margin-bottom: 14px; }
+.adm-nav-lbl { font-family: var(--mono); font-size: 9px; color: var(--ink3); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 5px; }
+.adm-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink3);
+  margin-bottom: 2px;
+  cursor: pointer;
+}
+.adm-nav-item.active { background: rgba(200,98,42,.08); color: var(--accent); }
+.adm-nav-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.adm-content { flex: 1; padding: 16px; overflow: hidden; }
+.adm-content-title { font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.adm-content-sub { font-size: 11px; color: var(--ink3); font-family: var(--mono); margin-bottom: 14px; }
+.adm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(200,98,42,.08);
+  border: 1px solid rgba(200,98,42,.2);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.adm-table { width: 100%; border-collapse: collapse; }
+.adm-th { font-family: var(--mono); font-size: 9px; color: var(--ink3); text-transform: uppercase; letter-spacing: .5px; padding: 6px 8px; background: var(--paper2); text-align: left; }
+.adm-td { padding: 7px 8px; font-size: 11px; color: var(--ink2); border-bottom: 1px solid var(--paper2); }
+.adm-td:last-child { border-bottom: none; }
+.status-pill {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.s-pending  { background: #fef3c7; color: #b45309; }
+.s-active   { background: #dcfce7; color: #15803d; }
+.adm-btn-row { display: flex; gap: 6px; margin-top: 12px; }
+.adm-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--sans);
+  cursor: pointer;
+  border: none;
+}
+.adm-btn-primary { background: var(--accent); color: #fff; }
+.adm-btn-ghost { background: #fff; color: var(--ink2); border: 1px solid var(--paper3) !important; }
+
+/* ═══════════════════════════════════
+   APP DOWNLOAD
+═══════════════════════════════════ */
+.app-section {
+  padding: 100px 0;
+  background: var(--paper);
+}
+
+.app-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.app-badges {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 36px;
+}
+
+.app-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: var(--ink);
+  border: 1.5px solid rgba(255,255,255,.06);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background var(--tr), transform .1s;
+  cursor: default;
+  opacity: .6;
+  position: relative;
+}
+.app-badge.soon::after {
+  content: attr(data-soon);
+  position: absolute;
+  top: -9px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: .5px;
+  white-space: nowrap;
+}
+
+.app-badge-icon { font-size: 26px; }
+.app-badge-text {}
+.app-badge-sub { font-size: 10px; color: rgba(255,255,255,.35); font-family: var(--mono); }
+.app-badge-name { font-size: 15px; font-weight: 600; color: #fff; }
+
+.app-phones {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: -20px;
+  position: relative;
+  height: 380px;
+}
+
+.app-phone {
+  width: 180px;
+  background: var(--night);
+  border-radius: 28px;
+  border: 1.5px solid var(--night3);
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  position: absolute;
+}
+.app-phone-1 { left: 50%; transform: translateX(-60%) rotate(-6deg); bottom: 0; }
+.app-phone-2 { left: 50%; transform: translateX(-40%) rotate(4deg); bottom: 20px; z-index: 2; }
+
+/* ═══════════════════════════════════
+   CITIES
+═══════════════════════════════════ */
+.cities-section {
+  padding: 80px 0;
+  background: var(--paper2);
+  border-top: 1px solid var(--paper3);
+  border-bottom: 1px solid var(--paper3);
+}
+
+.cities-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 48px;
+}
+
+.city-card {
+  background: var(--white, #fff);
+  border: 1px solid var(--paper3);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: box-shadow var(--tr), transform var(--tr);
+}
+.city-card:hover {
+  box-shadow: 0 4px 20px rgba(13,13,11,.06);
+  transform: translateY(-2px);
+}
+
+.city-flag { font-size: 28px; margin-bottom: 10px; display: block; }
+.city-name {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -.2px;
+  margin-bottom: 4px;
+}
+.city-status {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .5px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-block;
+}
+.cs-active { background: #dcfce7; color: #15803d; }
+.cs-soon   { background: var(--paper2); color: var(--ink3); }
+
+/* ═══════════════════════════════════
+   CONTACT
+═══════════════════════════════════ */
+.contact-section {
+  padding: 100px 0;
+  background: var(--night);
+  text-align: center;
+}
+
+.contact-section .eyebrow { justify-content: center; }
+.contact-section .eyebrow::before { display: none; }
+.contact-section .section-title { color: #fff; margin: 0 auto 16px; }
+.contact-section .section-sub { color: rgba(255,255,255,.35); margin: 0 auto 48px; text-align: center; }
+
+.contact-cards {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.contact-card {
+  background: var(--night2);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px;
+  padding: 28px 32px;
+  text-align: left;
+  min-width: 260px;
+  transition: border-color var(--tr);
+}
+.contact-card:hover { border-color: rgba(255,255,255,.15); }
+
+.contact-card-icon { font-size: 24px; margin-bottom: 14px; display: block; }
+.contact-card-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.contact-card-text { font-size: 13px; color: rgba(255,255,255,.35); margin-bottom: 14px; line-height: 1.55; }
+.contact-card-link {
+  font-size: 13px;
+  color: var(--amber);
+  text-decoration: none;
+  font-family: var(--mono);
+  transition: color var(--tr);
+}
+.contact-card-link:hover { color: #fff; }
+
+/* ═══════════════════════════════════
+   FOOTER
+═══════════════════════════════════ */
+footer {
+  background: var(--night);
+  border-top: 1px solid rgba(255,255,255,.05);
+  padding: 32px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-logo {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -.3px;
+}
+.footer-logo span { color: var(--accent); }
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.footer-link {
+  font-size: 12px;
+  color: rgba(255,255,255,.3);
+  text-decoration: none;
+  font-family: var(--mono);
+  letter-spacing: .3px;
+  transition: color var(--tr);
+}
+.footer-link:hover { color: rgba(255,255,255,.6); }
+
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(255,255,255,.18);
+  letter-spacing: .3px;
+}
+
+/* ═══════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════ */
+@media (max-width: 1024px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 56px; padding: 60px 40px; }
+  .phone-frame { justify-content: flex-start; }
+  .admin-inner { grid-template-columns: 1fr; gap: 48px; }
+  .app-inner { grid-template-columns: 1fr; gap: 48px; }
+  .cities-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .nav-burger { display: flex; }
+  .container { padding: 0 20px; }
+
+  .hero-inner { padding: 48px 20px 60px; }
+  .hero-h1 { font-size: 44px; letter-spacing: -1.5px; }
+  .hero-desc { font-size: 15px; }
+  .hero-stats { gap: 28px; }
+
+  .phone-bg { display: none; }
+  .phone { width: 220px; }
+
+  .how { padding: 72px 0; }
+  .how-grid { grid-template-columns: 1fr; gap: 1px; }
+
+  .features { padding: 72px 0; }
+  .feat-grid { grid-template-columns: 1fr; gap: 1px; }
+
+  .admin-section { padding: 72px 0; }
+
+  .app-section { padding: 72px 0; }
+  .app-phones { display: none; }
+
+  .cities-section { padding: 60px 0; }
+  .cities-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .contact-section { padding: 72px 0; }
+  .contact-cards { flex-direction: column; align-items: stretch; max-width: 400px; margin: 0 auto; }
+  .contact-card { min-width: unset; }
+
+  footer { padding: 24px 20px; flex-direction: column; align-items: flex-start; gap: 20px; }
+}
+
+@media (max-width: 480px) {
+  .hero-h1 { font-size: 36px; }
+  .hero-btns { flex-direction: column; }
+  .btn-primary, .btn-ghost { justify-content: center; }
+  .cities-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .city-card { padding: 14px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo">🎙 Whispr<span class="nav-logo-dot">.</span>city</a>
+
+  <div class="nav-links">
+    <a href="#how" class="nav-link" id="t-nav-how"></a>
+    <a href="#features" class="nav-link" id="t-nav-feat"></a>
+    <a href="#admin" class="nav-link" id="t-nav-admin"></a>
+    <a href="#app" class="nav-link" id="t-nav-app"></a>
+    <a href="#contact" class="nav-link" id="t-nav-contact"></a>
+    <a href="login.html" class="nav-link" id="t-nav-login"></a>
+    <a href="register.html" class="nav-cta" id="t-nav-register"></a>
+    <div class="lang-sw">
+      <button class="lang-btn active" onclick="setLang('uk')">UA</button>
+      <button class="lang-btn" onclick="setLang('ru')">RU</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+
+  <button class="nav-burger" id="burger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="nav-mobile" id="navMobile">
+  <a href="#how" class="nav-link" onclick="toggleMenu()" id="t-mnav-how"></a>
+  <a href="#features" class="nav-link" onclick="toggleMenu()" id="t-mnav-feat"></a>
+  <a href="#admin" class="nav-link" onclick="toggleMenu()" id="t-mnav-admin"></a>
+  <a href="#app" class="nav-link" onclick="toggleMenu()" id="t-mnav-app"></a>
+  <a href="#contact" class="nav-link" onclick="toggleMenu()" id="t-mnav-contact"></a>
+  <a href="login.html" class="nav-link" id="t-mnav-login"></a>
+  <a href="register.html" class="nav-cta" id="t-mnav-register"></a>
+  <div class="lang-sw">
+    <button class="lang-btn active" onclick="setLang('uk');toggleMenu()">UA</button>
+    <button class="lang-btn" onclick="setLang('ru');toggleMenu()">RU</button>
+    <button class="lang-btn" onclick="setLang('en');toggleMenu()">EN</button>
+  </div>
+</div>
+
+<!-- ═══════ HERO ═══════ -->
+<section class="hero" id="top">
+  <div class="hero-texture"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-tag">
+        <div class="hero-tag-dot"></div>
+        <span id="t-hero-tag"></span>
+      </div>
+      <h1 class="hero-h1" id="t-hero-h1"></h1>
+      <p class="hero-desc" id="t-hero-desc"></p>
+      <div class="hero-btns">
+        <a href="#app" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 7l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="t-hero-btn1"></span>
+        </a>
+        <a href="register.html" class="btn-ghost">
+          <span id="t-hero-btn2"></span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-val">~$0</div>
+          <div class="hero-stat-label" id="t-stat1"></div>
+        </div>
+        <div>
+          <div class="hero-stat-val">3+</div>
+          <div class="hero-stat-label" id="t-stat2"></div>
+        </div>
+        <div>
+          <div class="hero-stat-val">∞</div>
+          <div class="hero-stat-label" id="t-stat3"></div>
+        </div>
+        <div>
+          <div class="hero-stat-val">AI</div>
+          <div class="hero-stat-label" id="t-stat4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHONE MOCKUP -->
+    <div class="phone-frame">
+      <!-- main phone -->
+      <div class="phone">
+        <div class="mp-statusbar">
+          <span class="mp-time">21:34</span>
+          <div class="mp-icons">
+            <div class="mp-sig">
+              <span style="height:3px"></span>
+              <span style="height:5px"></span>
+              <span style="height:7px"></span>
+              <span style="height:9px"></span>
+            </div>
+            <div class="mp-battery"><div class="mp-battery-fill"></div></div>
+          </div>
+        </div>
+        <div class="mp-topbar">
+          <span class="mp-logo">whispr.</span>
+          <div class="mp-menu">
+            <span style="width:16px"></span>
+            <span></span>
+          </div>
+        </div>
+        <!-- MAP SVG -->
+        <div class="mp-map">
+          <svg width="240" height="250" viewBox="0 0 240 250" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="250" fill="#101820"/>
+            <g stroke="#131e2c" stroke-width="1" fill="none">
+              <line x1="0" y1="42" x2="240" y2="42"/>
+              <line x1="0" y1="84" x2="240" y2="84"/>
+              <line x1="0" y1="126" x2="240" y2="126"/>
+              <line x1="0" y1="168" x2="240" y2="168"/>
+              <line x1="0" y1="210" x2="240" y2="210"/>
+              <line x1="42" y1="0" x2="42" y2="250"/>
+              <line x1="84" y1="0" x2="84" y2="250"/>
+              <line x1="126" y1="0" x2="126" y2="250"/>
+              <line x1="168" y1="0" x2="168" y2="250"/>
+              <line x1="210" y1="0" x2="210" y2="250"/>
+            </g>
+            <g stroke="#172030" stroke-width="2.5" fill="none">
+              <line x1="0" y1="96" x2="240" y2="96"/>
+              <line x1="120" y1="0" x2="120" y2="250"/>
+              <line x1="0" y1="40" x2="240" y2="170"/>
+              <line x1="80" y1="0" x2="180" y2="250"/>
+            </g>
+            <!-- buildings -->
+            <rect x="46" y="46" width="32" height="32" fill="#0d1a10" rx="3"/>
+            <rect x="88" y="88" width="30" height="30" fill="#0f1c0d" rx="3"/>
+            <rect x="130" y="46" width="32" height="32" fill="#0d1a10" rx="3"/>
+            <rect x="46" y="130" width="32" height="32" fill="#0f1c0d" rx="3"/>
+            <rect x="170" y="100" width="24" height="24" fill="#0d1a10" rx="3"/>
+            <rect x="130" y="130" width="28" height="28" fill="#0f1c0d" rx="3"/>
+            <!-- zones -->
+            <circle cx="62" cy="62" r="26" fill="rgba(232,158,34,0.07)" stroke="rgba(232,158,34,0.3)" stroke-width="1.2"/>
+            <circle cx="62" cy="62" r="38" fill="none" stroke="rgba(232,158,34,0.08)" stroke-width="0.8"/>
+            <circle cx="62" cy="62" r="5" fill="#e89e22"/>
+            <circle cx="120" cy="96" r="20" fill="rgba(45,184,106,0.05)" stroke="rgba(45,184,106,0.2)" stroke-width="1"/>
+            <circle cx="120" cy="96" r="4" fill="#2db86a"/>
+            <circle cx="146" cy="62" r="18" fill="rgba(100,150,220,0.05)" stroke="rgba(100,150,220,0.15)" stroke-width="1"/>
+            <circle cx="146" cy="62" r="3.5" fill="#6496dc"/>
+            <circle cx="62" cy="146" r="22" fill="rgba(160,100,210,0.05)" stroke="rgba(160,100,210,0.15)" stroke-width="1"/>
+            <circle cx="62" cy="146" r="4" fill="#a064d2"/>
+            <circle cx="182" cy="112" r="14" fill="rgba(220,80,80,0.05)" stroke="rgba(220,80,80,0.15)" stroke-width="1"/>
+            <circle cx="182" cy="112" r="3" fill="#dc5050"/>
+            <!-- user dot -->
+            <circle cx="84" cy="110" r="12" fill="rgba(37,99,235,0.18)" stroke="#2563eb" stroke-width="1.2"/>
+            <circle cx="84" cy="110" r="6" fill="rgba(37,99,235,0.45)"/>
+            <circle cx="84" cy="110" r="3.5" fill="#4f8ef7"/>
+            <!-- gradient fade bottom -->
+            <rect x="0" y="180" width="240" height="70" fill="url(#fg)"/>
+            <defs>
+              <linearGradient id="fg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#101820" stop-opacity="0"/>
+                <stop offset="100%" stop-color="#080c14" stop-opacity="1"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <!-- GPS pill -->
+          <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#0e1f14;border:1px solid #1d4a2a;border-radius:20px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:8px;color:#2db86a;display:flex;align-items:center;gap:5px;white-space:nowrap">
+            <div style="width:5px;height:5px;border-radius:50%;background:#2db86a;animation:pulse 2s ease-in-out infinite"></div>
+            GPS · 5 зон
+          </div>
+          <!-- chips bottom -->
+          <div style="position:absolute;bottom:0;left:0;right:0;padding:6px 8px 8px;display:flex;gap:5px;overflow:hidden">
+            <div style="background:#1a1200;border:1px solid rgba(232,158,34,0.45);border-radius:9px;padding:6px 8px;flex-shrink:0">
+              <div style="font-family:'DM Sans',sans-serif;font-size:8px;font-weight:600;color:#e89e22">Ринок ★</div>
+              <div style="font-family:'DM Mono',monospace;font-size:7px;color:rgba(232,158,34,0.5);margin-top:1px">42м · грає</div>
+            </div>
+            <div style="background:#0e1520;border:1px solid rgba(255,255,255,0.07);border-radius:9px;padding:6px 8px;flex-shrink:0">
+              <div style="font-family:'DM Sans',sans-serif;font-size:8px;font-weight:600;color:rgba(255,255,255,0.55)">Собор</div>
+              <div style="font-family:'DM Mono',monospace;font-size:7px;color:rgba(255,255,255,0.22);margin-top:1px">210м</div>
+            </div>
+            <div style="background:#0e1520;border:1px solid rgba(255,255,255,0.07);border-radius:9px;padding:6px 8px;flex-shrink:0">
+              <div style="font-family:'DM Sans',sans-serif;font-size:8px;font-weight:600;color:rgba(255,255,255,0.55)">Музей</div>
+              <div style="font-family:'DM Mono',monospace;font-size:7px;color:rgba(255,255,255,0.22);margin-top:1px">380м</div>
+            </div>
+          </div>
+        </div>
+        <!-- player -->
+        <div class="mp-sheet">
+          <div class="mp-sheet-title">Ринок Полтави</div>
+          <div class="mp-sheet-coords">49.5937° N · 34.5136° E</div>
+          <div class="mp-waveform" id="wf-hero"></div>
+          <div class="mp-controls">
+            <div class="mp-play">
+              <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
+                <path d="M2 1l7 5-7 5V1z" fill="#080c14"/>
+              </svg>
+            </div>
+            <div class="mp-progress"><div class="mp-progress-fill"></div></div>
+            <div class="mp-time-stamp">1:24</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- bg phone (list screen) -->
+      <div class="phone-bg" style="height:360px">
+        <div class="mp-statusbar" style="padding:7px 14px 5px">
+          <span class="mp-time" style="font-size:10px">21:34</span>
+          <div class="mp-icons">
+            <div class="mp-sig">
+              <span style="height:2px"></span><span style="height:4px"></span><span style="height:6px"></span>
+            </div>
+          </div>
+        </div>
+        <div class="mp-list-header">Об'єкти поряд</div>
+        <div class="mp-list-item">
+          <div class="mp-list-dot" style="background:#e89e22"></div>
+          <div><div class="mp-list-name">Ринок Полтави</div><div class="mp-list-dist">42м · грає ♪</div></div>
+        </div>
+        <div class="mp-list-item">
+          <div class="mp-list-dot" style="background:#2db86a"></div>
+          <div><div class="mp-list-name">Свято-Успенський собор</div><div class="mp-list-dist">210м</div></div>
+        </div>
+        <div class="mp-list-item">
+          <div class="mp-list-dot" style="background:#6496dc"></div>
+          <div><div class="mp-list-name">Краєзнавчий музей</div><div class="mp-list-dist">380м</div></div>
+        </div>
+        <div class="mp-list-item">
+          <div class="mp-list-dot" style="background:#a064d2"></div>
+          <div><div class="mp-list-name">Будинок Котляревського</div><div class="mp-list-dist">520м</div></div>
+        </div>
+        <div class="mp-list-item">
+          <div class="mp-list-dot" style="background:#dc5050"></div>
+          <div><div class="mp-list-name">Полтавська битва</div><div class="mp-list-dist">1.2км</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ HOW IT WORKS ═══════ -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="eyebrow" id="t-how-eyebrow"></div>
+    <h2 class="section-title" id="t-how-title"></h2>
+    <p class="section-sub" id="t-how-sub"></p>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-num">01</div>
+        <span class="how-icon">📱</span>
+        <div class="how-title" id="t-how1-title"></div>
+        <p class="how-text" id="t-how1-text"></p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">02</div>
+        <span class="how-icon">📍</span>
+        <div class="how-title" id="t-how2-title"></div>
+        <p class="how-text" id="t-how2-text"></p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">03</div>
+        <span class="how-icon">🔊</span>
+        <div class="how-title" id="t-how3-title"></div>
+        <p class="how-text" id="t-how3-text"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FEATURES ═══════ -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="eyebrow" id="t-feat-eyebrow"></div>
+    <h2 class="section-title" id="t-feat-title"></h2>
+    <p class="section-sub" id="t-feat-sub"></p>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <span class="feat-icon">🌍</span>
+        <div class="feat-title" id="t-f1-title"></div>
+        <p class="feat-text" id="t-f1-text"></p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🤖</span>
+        <div class="feat-title" id="t-f2-title"></div>
+        <p class="feat-text" id="t-f2-text"></p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">📶</span>
+        <div class="feat-title" id="t-f3-title"></div>
+        <p class="feat-text" id="t-f3-text"></p>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">❤️</span>
+        <div class="feat-title" id="t-f4-title"></div>
+        <p class="feat-text" id="t-f4-text"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ BECOME ADMIN ═══════ -->
+<section class="admin-section" id="admin">
+  <div class="container">
+    <div class="admin-inner">
+      <div>
+        <div class="eyebrow" id="t-adm-eyebrow"></div>
+        <h2 class="section-title" id="t-adm-title"></h2>
+        <p class="section-sub" id="t-adm-sub"></p>
+        <div class="admin-steps">
+          <div class="admin-step">
+            <div class="step-num accent">1</div>
+            <div class="step-content">
+              <div class="step-title" id="t-step1-title"></div>
+              <p class="step-text" id="t-step1-text"></p>
+            </div>
+          </div>
+          <div class="admin-step">
+            <div class="step-num amber">2</div>
+            <div class="step-content">
+              <div class="step-title" id="t-step2-title"></div>
+              <p class="step-text" id="t-step2-text"></p>
+            </div>
+          </div>
+          <div class="admin-step">
+            <div class="step-num green">3</div>
+            <div class="step-content">
+              <div class="step-title" id="t-step3-title"></div>
+              <p class="step-text" id="t-step3-text"></p>
+            </div>
+          </div>
+        </div>
+        <a href="register.html" class="btn-primary" style="margin-top:36px;display:inline-flex">
+          <span id="t-adm-btn"></span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <!-- Admin panel mockup -->
+      <div class="admin-mockup">
+        <div class="adm-topbar">
+          <span class="adm-logo">whispr.city</span>
+          <span class="adm-meta">superadmin</span>
+        </div>
+        <div class="adm-body">
+          <div class="adm-sidebar">
+            <div class="adm-nav-group">
+              <div class="adm-nav-lbl">Управління</div>
+              <div class="adm-nav-item active">
+                <div class="adm-nav-dot"></div>
+                <span id="t-adm-nav1"></span>
+              </div>
+              <div class="adm-nav-item">
+                <div class="adm-nav-dot"></div>
+                <span id="t-adm-nav2"></span>
+              </div>
+              <div class="adm-nav-item">
+                <div class="adm-nav-dot"></div>
+                <span id="t-adm-nav3"></span>
+              </div>
+            </div>
+          </div>
+          <div class="adm-content">
+            <div class="adm-content-title" id="t-adm-panel-title"></div>
+            <div class="adm-content-sub" id="t-adm-panel-sub"></div>
+            <div class="adm-badge">
+              <div style="width:5px;height:5px;border-radius:50%;background:var(--accent)"></div>
+              <span id="t-adm-pending"></span>
+            </div>
+            <table class="adm-table">
+              <thead>
+                <tr>
+                  <th class="adm-th" id="t-adm-th1"></th>
+                  <th class="adm-th" id="t-adm-th2"></th>
+                  <th class="adm-th" id="t-adm-th3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="adm-td">Іван Петренко</td>
+                  <td class="adm-td">Полтава</td>
+                  <td class="adm-td"><span class="status-pill s-pending" id="t-status-pending"></span></td>
+                </tr>
+                <tr>
+                  <td class="adm-td">Олена Коваль</td>
+                  <td class="adm-td">Київ</td>
+                  <td class="adm-td"><span class="status-pill s-active" id="t-status-active"></span></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="adm-btn-row">
+              <button class="adm-btn adm-btn-primary" id="t-adm-approve-btn"></button>
+              <button class="adm-btn adm-btn-ghost" id="t-adm-reject-btn"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ APP DOWNLOAD ═══════ -->
+<section class="app-section" id="app">
+  <div class="container">
+    <div class="app-inner">
+      <div>
+        <div class="eyebrow" id="t-app-eyebrow"></div>
+        <h2 class="section-title" id="t-app-title"></h2>
+        <p class="section-sub" id="t-app-sub"></p>
+        <div class="app-badges">
+          <div class="app-badge soon" id="t-badge-ios-attr">
+            <span class="app-badge-icon">🍎</span>
+            <div class="app-badge-text">
+              <div class="app-badge-sub" id="t-badge-ios-sub"></div>
+              <div class="app-badge-name">App Store</div>
+            </div>
+          </div>
+          <div class="app-badge soon" id="t-badge-android-attr">
+            <span class="app-badge-icon">🤖</span>
+            <div class="app-badge-text">
+              <div class="app-badge-sub" id="t-badge-android-sub"></div>
+              <div class="app-badge-name">Google Play</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two phones -->
+      <div class="app-phones">
+        <!-- phone 1: map -->
+        <div class="app-phone app-phone-1">
+          <div class="mp-statusbar" style="padding:7px 14px 5px">
+            <span class="mp-time" style="font-size:10px">21:34</span>
+          </div>
+          <div style="background:#080c14;padding:6px 12px 5px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:'Fraunces',Georgia,serif;font-size:12px;font-style:italic;color:#e89e22">whispr.</span>
+          </div>
+          <svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+            <rect width="180" height="180" fill="#101820"/>
+            <g stroke="#131e2c" stroke-width="1" fill="none">
+              <line x1="0" y1="36" x2="180" y2="36"/>
+              <line x1="0" y1="72" x2="180" y2="72"/>
+              <line x1="0" y1="108" x2="180" y2="108"/>
+              <line x1="0" y1="144" x2="180" y2="144"/>
+              <line x1="36" y1="0" x2="36" y2="180"/>
+              <line x1="72" y1="0" x2="72" y2="180"/>
+              <line x1="108" y1="0" x2="108" y2="180"/>
+              <line x1="144" y1="0" x2="144" y2="180"/>
+            </g>
+            <circle cx="50" cy="50" r="20" fill="rgba(232,158,34,0.08)" stroke="rgba(232,158,34,0.3)" stroke-width="1"/>
+            <circle cx="50" cy="50" r="4" fill="#e89e22"/>
+            <circle cx="95" cy="75" r="16" fill="rgba(45,184,106,0.05)" stroke="rgba(45,184,106,0.2)" stroke-width="1"/>
+            <circle cx="95" cy="75" r="3.5" fill="#2db86a"/>
+            <circle cx="65" cy="95" r="9" fill="rgba(37,99,235,0.18)" stroke="#2563eb" stroke-width="1"/>
+            <circle cx="65" cy="95" r="4.5" fill="rgba(37,99,235,0.45)"/>
+            <circle cx="65" cy="95" r="2.5" fill="#4f8ef7"/>
+          </svg>
+          <div style="background:#080c14;padding:8px 12px;border-top:1px solid rgba(255,255,255,0.06)">
+            <div style="font-family:'Fraunces',Georgia,serif;font-size:11px;font-style:italic;color:#fff;margin-bottom:5px">Ринок Полтави</div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <div style="width:22px;height:22px;border-radius:50%;background:#e89e22;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="8" height="9" viewBox="0 0 8 9"><path d="M1.5 0.5l5 4-5 4V0.5z" fill="#080c14"/></svg>
+              </div>
+              <div style="flex:1;height:2px;background:rgba(255,255,255,0.08);border-radius:2px">
+                <div style="width:40%;height:100%;background:#e89e22;border-radius:2px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- phone 2: list -->
+        <div class="app-phone app-phone-2">
+          <div class="mp-statusbar" style="padding:7px 14px 5px">
+            <span class="mp-time" style="font-size:10px">21:34</span>
+          </div>
+          <div class="mp-list-header" style="background:#0e1520;color:rgba(255,255,255,0.6)">Маршрут «Полтава»</div>
+          <div class="mp-list-item">
+            <div class="mp-list-dot" style="background:#e89e22"></div>
+            <div><div class="mp-list-name">Ринок</div><div class="mp-list-dist">1/8 · грає ♪</div></div>
+          </div>
+          <div class="mp-list-item">
+            <div class="mp-list-dot" style="background:#2db86a"></div>
+            <div><div class="mp-list-name">Успенський собор</div><div class="mp-list-dist">2/8</div></div>
+          </div>
+          <div class="mp-list-item" style="opacity:.5">
+            <div class="mp-list-dot" style="background:rgba(255,255,255,0.2)"></div>
+            <div><div class="mp-list-name" style="color:rgba(255,255,255,0.3)">Краєзнавчий музей</div><div class="mp-list-dist">3/8</div></div>
+          </div>
+          <div class="mp-list-item" style="opacity:.5">
+            <div class="mp-list-dot" style="background:rgba(255,255,255,0.2)"></div>
+            <div><div class="mp-list-name" style="color:rgba(255,255,255,0.3)">Будинок Мазепи</div><div class="mp-list-dist">4/8</div></div>
+          </div>
+          <div class="mp-list-item" style="opacity:.5">
+            <div class="mp-list-dot" style="background:rgba(255,255,255,0.2)"></div>
+            <div><div class="mp-list-name" style="color:rgba(255,255,255,0.3)">Поле Полтавської битви</div><div class="mp-list-dist">5/8</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ CITIES ═══════ -->
+<section class="cities-section" id="cities">
+  <div class="container">
+    <div class="eyebrow" id="t-cities-eyebrow"></div>
+    <h2 class="section-title" id="t-cities-title"></h2>
+    <div class="cities-grid">
+      <div class="city-card">
+        <span class="city-flag">🇺🇦</span>
+        <div class="city-name">Полтава</div>
+        <span class="city-status cs-active" id="t-cs-active"></span>
+      </div>
+      <div class="city-card">
+        <span class="city-flag">🇺🇦</span>
+        <div class="city-name">Київ</div>
+        <span class="city-status cs-soon" id="t-cs-soon1"></span>
+      </div>
+      <div class="city-card">
+        <span class="city-flag">🇺🇦</span>
+        <div class="city-name">Львів</div>
+        <span class="city-status cs-soon" id="t-cs-soon2"></span>
+      </div>
+      <div class="city-card">
+        <span class="city-flag">🌍</span>
+        <div class="city-name" id="t-your-city"></div>
+        <span class="city-status cs-soon" id="t-cs-you"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ CONTACT ═══════ -->
+<section class="contact-section" id="contact">
+  <div class="container">
+    <div class="eyebrow" id="t-contact-eyebrow"></div>
+    <h2 class="section-title" id="t-contact-title"></h2>
+    <p class="section-sub" id="t-contact-sub"></p>
+    <div class="contact-cards">
+      <div class="contact-card">
+        <span class="contact-card-icon">✉️</span>
+        <div class="contact-card-title" id="t-cc1-title"></div>
+        <p class="contact-card-text" id="t-cc1-text"></p>
+        <a href="mailto:admin@whispr.city" class="contact-card-link">admin@whispr.city</a>
+      </div>
+      <div class="contact-card">
+        <span class="contact-card-icon">👤</span>
+        <div class="contact-card-title" id="t-cc2-title"></div>
+        <p class="contact-card-text" id="t-cc2-text"></p>
+        <a href="register.html" class="contact-card-link" id="t-cc2-link"></a>
+      </div>
+      <div class="contact-card">
+        <span class="contact-card-icon">❤️</span>
+        <div class="contact-card-title" id="t-cc3-title"></div>
+        <p class="contact-card-text" id="t-cc3-text"></p>
+        <a href="mailto:admin@whispr.city" class="contact-card-link" id="t-cc3-link"></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Whispr<span>.</span>city</div>
+  <div class="footer-links">
+    <a href="register.html" class="footer-link" id="t-footer-reg"></a>
+    <a href="login.html" class="footer-link" id="t-footer-login"></a>
+    <a href="mailto:admin@whispr.city" class="footer-link">admin@whispr.city</a>
+  </div>
+  <div class="footer-copy" id="t-footer-copy"></div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════
+   I18N
+═══════════════════════════════════ */
+const i18n = {
+  uk: {
+    'nav-how':      'Як це працює',
+    'nav-feat':     'Можливості',
+    'nav-admin':    'Стати адміном',
+    'nav-app':      'Додаток',
+    'nav-contact':  'Контакт',
+    'nav-login':    'Увійти',
+    'nav-register': 'Реєстрація',
+    'hero-tag':     'Волонтерський проєкт · 2026',
+    'hero-h1':      'Місто<br><em>шепоче.</em><br>Ти слухаєш.',
+    'hero-desc':    'Геолокаційний аудіогід нового покоління. Підходиш до пам\'ятки — телефон автоматично розповідає її історію. Безкоштовно. Завжди.',
+    'hero-btn1':    'Завантажити додаток',
+    'hero-btn2':    'Стати адміном міста',
+    'stat1':        'стартовий бюджет',
+    'stat2':        'мови з коробки',
+    'stat3':        'міст потенційно',
+    'stat4':        'генерація текстів',
+    'how-eyebrow':  'Як це працює',
+    'how-title':    'Три кроки до <em>магії</em>',
+    'how-sub':      'Ніяких реєстрацій для слухача. Просто завантаж і йди гуляти.',
+    'how1-title':   'Завантаж додаток',
+    'how1-text':    'Встанови Whispr.city на iOS або Android. Вибери місто і мову — і все готово до прогулянки.',
+    'how2-title':   'Йди гуляти',
+    'how2-text':    'GPS відстежує твоє положення. Коли ти наближаєшся до об\'єкту в радіусі — додаток це відчуває.',
+    'how3-title':   'Слухай розповідь',
+    'how3-text':    'Аудіо запускається автоматично. Жива розповідь про місце — не сухий енциклопедичний текст.',
+    'feat-eyebrow': 'Можливості',
+    'feat-title':   'Не просто <em>аудіогід</em>',
+    'feat-sub':     'Технологія яка робить культурну спадщину живою і доступною для кожного.',
+    'f1-title':     'Будь-яке місто світу',
+    'f1-text':      'Волонтери наповнюють контентом. Відкрита реєстрація для адміністраторів будь-якого міста планети.',
+    'f2-title':     'ШІ-конвеєр',
+    'f2-text':      'Claude API генерує живі тексти, OpenAI TTS озвучує їх. Від точки на карті до готового аудіо за хвилини.',
+    'f3-title':     'Офлайн-режим',
+    'f3-text':      'Завантаж місто заздалегідь і слухай без інтернету. Ідеально для туристів і зон з поганим зв\'язком.',
+    'f4-title':     'Безкоштовно назавжди',
+    'f4-text':      'Для слухача — завжди безкоштовно. Проєкт волонтерський, фінансується через донати та гранти.',
+    'adm-eyebrow':  'Для адміністраторів',
+    'adm-title':    'Веди <em>своє</em> місто',
+    'adm-sub':      'Ти знаєш своє місто краще за всіх? Стань адміністратором і поділись цими знаннями зі світом.',
+    'step1-title':  'Зареєструйся',
+    'step1-text':   'Заповни форму реєстрації: ім\'я, email, пароль і місто яке хочеш вести.',
+    'step2-title':  'Дочекайся схвалення',
+    'step2-text':   'Суперадмін розгляне заявку і надасть доступ до панелі управління твого міста.',
+    'step3-title':  'Керуй аудіогідами',
+    'step3-text':   'Парсиш місця, редагуєш тексти, генеруєш аудіо. ШІ допомагає на кожному кроці.',
+    'adm-btn':      'Подати заявку',
+    'adm-nav1':     'Заявки',
+    'adm-nav2':     'Міста',
+    'adm-nav3':     'Статистика',
+    'adm-panel-title': 'Нові заявки',
+    'adm-panel-sub':   '2 на розгляді',
+    'adm-pending':  '2 заявки очікують',
+    'adm-th1':      'Ім\'я',
+    'adm-th2':      'Місто',
+    'adm-th3':      'Статус',
+    'status-pending': 'очікує',
+    'status-active':  'активний',
+    'adm-approve-btn': 'Схвалити',
+    'adm-reject-btn':  'Відхилити',
+    'app-eyebrow':  'Мобільний додаток',
+    'app-title':    'Завжди в <em>кишені</em>',
+    'app-sub':      'iOS та Android. Геолокація, офлайн-режим, вибір мови та категорій. Скоро в магазинах.',
+    'badge-ios-sub':     'Завантажити в',
+    'badge-android-sub': 'Доступно в',
+    'badge-soon':        'Скоро',
+    'cities-eyebrow': 'Міста',
+    'cities-title': 'Починаємо з <em>Полтави</em>',
+    'cs-active':    'активне',
+    'cs-soon':      'скоро',
+    'your-city':    'Ваше місто?',
+    'cs-you':       'реєструйтесь',
+    'contact-eyebrow': 'Контакт',
+    'contact-title':   'Зв\'яжіться з нами',
+    'contact-sub':     'Є питання? Хочете стати адміном або підтримати проєкт? Пишіть.',
+    'cc1-title':    'Email',
+    'cc1-text':     'Загальні питання, партнерство, гранти.',
+    'cc2-title':    'Стати адміном',
+    'cc2-text':     'Хочеш вести своє місто? Реєструйся через форму.',
+    'cc2-link':     '→ Форма реєстрації',
+    'cc3-title':    'Підтримати проєкт',
+    'cc3-text':     'Whispr.city — волонтерський проєкт. Ваша підтримка допомагає розвитку.',
+    'cc3-link':     '→ Написати нам',
+    'footer-reg':   'Реєстрація',
+    'footer-login': 'Вхід',
+    'footer-copy':  '© 2026 Whispr.city · Волонтерський проєкт',
+  },
+  ru: {
+    'nav-how':      'Как это работает',
+    'nav-feat':     'Возможности',
+    'nav-admin':    'Стать админом',
+    'nav-app':      'Приложение',
+    'nav-contact':  'Контакт',
+    'nav-login':    'Войти',
+    'nav-register': 'Регистрация',
+    'hero-tag':     'Волонтёрский проект · 2026',
+    'hero-h1':      'Город<br><em>шепчет.</em><br>Ты слушаешь.',
+    'hero-desc':    'Геолокационный аудиогид нового поколения. Подходишь к памятнику — телефон автоматически рассказывает его историю. Бесплатно. Всегда.',
+    'hero-btn1':    'Скачать приложение',
+    'hero-btn2':    'Стать админом города',
+    'stat1':        'стартовый бюджет',
+    'stat2':        'языка из коробки',
+    'stat3':        'городов потенциально',
+    'stat4':        'генерация текстов',
+    'how-eyebrow':  'Как это работает',
+    'how-title':    'Три шага до <em>магии</em>',
+    'how-sub':      'Никакой регистрации для слушателя. Просто скачай и иди гулять.',
+    'how1-title':   'Скачай приложение',
+    'how1-text':    'Установи Whispr.city на iOS или Android. Выбери город и язык — и всё готово к прогулке.',
+    'how2-title':   'Иди гулять',
+    'how2-text':    'GPS отслеживает твоё положение. Когда ты приближаешься к объекту в радиусе — приложение это чувствует.',
+    'how3-title':   'Слушай рассказ',
+    'how3-text':    'Аудио запускается автоматически. Живой рассказ о месте — не сухой энциклопедический текст.',
+    'feat-eyebrow': 'Возможности',
+    'feat-title':   'Не просто <em>аудиогид</em>',
+    'feat-sub':     'Технология которая делает культурное наследие живым и доступным для каждого.',
+    'f1-title':     'Любой город мира',
+    'f1-text':      'Волонтёры наполняют контентом. Открытая регистрация для администраторов любого города планеты.',
+    'f2-title':     'ИИ-конвейер',
+    'f2-text':      'Claude API генерирует живые тексты, OpenAI TTS озвучивает их. От точки на карте до готового аудио за минуты.',
+    'f3-title':     'Офлайн-режим',
+    'f3-text':      'Скачай город заранее и слушай без интернета. Идеально для туристов и зон с плохой связью.',
+    'f4-title':     'Бесплатно навсегда',
+    'f4-text':      'Для слушателя — всегда бесплатно. Проект волонтёрский, финансируется через донаты и гранты.',
+    'adm-eyebrow':  'Для администраторов',
+    'adm-title':    'Веди <em>свой</em> город',
+    'adm-sub':      'Ты знаешь свой город лучше всех? Стань администратором и поделись этими знаниями с миром.',
+    'step1-title':  'Зарегистрируйся',
+    'step1-text':   'Заполни форму регистрации: имя, email, пароль и город который хочешь вести.',
+    'step2-title':  'Дождись одобрения',
+    'step2-text':   'Суперадмин рассмотрит заявку и даст доступ к панели управления твоего города.',
+    'step3-title':  'Управляй аудиогидами',
+    'step3-text':   'Парсишь места, редактируешь тексты, генерируешь аудио. ИИ помогает на каждом шагу.',
+    'adm-btn':      'Подать заявку',
+    'adm-nav1':     'Заявки',
+    'adm-nav2':     'Города',
+    'adm-nav3':     'Статистика',
+    'adm-panel-title': 'Новые заявки',
+    'adm-panel-sub':   '2 на рассмотрении',
+    'adm-pending':  '2 заявки ожидают',
+    'adm-th1':      'Имя',
+    'adm-th2':      'Город',
+    'adm-th3':      'Статус',
+    'status-pending': 'ожидает',
+    'status-active':  'активный',
+    'adm-approve-btn': 'Одобрить',
+    'adm-reject-btn':  'Отклонить',
+    'app-eyebrow':  'Мобильное приложение',
+    'app-title':    'Всегда в <em>кармане</em>',
+    'app-sub':      'iOS и Android. Геолокация, офлайн-режим, выбор языка и категорий. Скоро в магазинах.',
+    'badge-ios-sub':     'Загрузить в',
+    'badge-android-sub': 'Доступно в',
+    'badge-soon':        'Скоро',
+    'cities-eyebrow': 'Города',
+    'cities-title': 'Начинаем с <em>Полтавы</em>',
+    'cs-active':    'активно',
+    'cs-soon':      'скоро',
+    'your-city':    'Ваш город?',
+    'cs-you':       'регистрируйтесь',
+    'contact-eyebrow': 'Контакт',
+    'contact-title':   'Свяжитесь с нами',
+    'contact-sub':     'Есть вопросы? Хотите стать админом или поддержать проект? Пишите.',
+    'cc1-title':    'Email',
+    'cc1-text':     'Общие вопросы, партнёрство, гранты.',
+    'cc2-title':    'Стать админом',
+    'cc2-text':     'Хочешь вести свой город? Регистрируйся через форму.',
+    'cc2-link':     '→ Форма регистрации',
+    'cc3-title':    'Поддержать проект',
+    'cc3-text':     'Whispr.city — волонтёрский проект. Ваша поддержка помогает развитию.',
+    'cc3-link':     '→ Написать нам',
+    'footer-reg':   'Регистрация',
+    'footer-login': 'Вход',
+    'footer-copy':  '© 2026 Whispr.city · Волонтёрский проект',
+  },
+  en: {
+    'nav-how':      'How it works',
+    'nav-feat':     'Features',
+    'nav-admin':    'Become admin',
+    'nav-app':      'App',
+    'nav-contact':  'Contact',
+    'nav-login':    'Sign in',
+    'nav-register': 'Register',
+    'hero-tag':     'Volunteer project · 2026',
+    'hero-h1':      'The city<br><em>whispers.</em><br>You listen.',
+    'hero-desc':    'Next-generation geolocation audio guide. Walk up to a landmark — your phone automatically tells its story. Free. Always.',
+    'hero-btn1':    'Download the app',
+    'hero-btn2':    'Become a city admin',
+    'stat1':        'starting budget',
+    'stat2':        'languages built-in',
+    'stat3':        'cities potential',
+    'stat4':        'AI text generation',
+    'how-eyebrow':  'How it works',
+    'how-title':    'Three steps to <em>magic</em>',
+    'how-sub':      'No sign-up required for listeners. Just download and start walking.',
+    'how1-title':   'Download the app',
+    'how1-text':    'Install Whispr.city on iOS or Android. Choose your city and language — ready to explore.',
+    'how2-title':   'Go for a walk',
+    'how2-text':    'GPS tracks your position. When you get close to a point of interest — the app knows.',
+    'how3-title':   'Listen to the story',
+    'how3-text':    'Audio plays automatically. A vivid, engaging story — not a dry encyclopedia entry.',
+    'feat-eyebrow': 'Features',
+    'feat-title':   'More than just a <em>guide</em>',
+    'feat-sub':     'Technology that makes cultural heritage alive and accessible to everyone.',
+    'f1-title':     'Any city in the world',
+    'f1-text':      'Volunteers fill in content. Open registration for admins of any city on the planet.',
+    'f2-title':     'AI pipeline',
+    'f2-text':      'Claude API generates engaging stories, OpenAI TTS voices them. From a map pin to finished audio in minutes.',
+    'f3-title':     'Offline mode',
+    'f3-text':      'Download a city in advance and listen without internet. Perfect for tourists and low-signal areas.',
+    'f4-title':     'Free forever',
+    'f4-text':      'Always free for listeners. Volunteer project funded by donations and grants.',
+    'adm-eyebrow':  'For administrators',
+    'adm-title':    'Lead <em>your</em> city',
+    'adm-sub':      'Know your city better than anyone? Become an admin and share that knowledge with the world.',
+    'step1-title':  'Register',
+    'step1-text':   'Fill out the registration form: name, email, password and the city you want to manage.',
+    'step2-title':  'Wait for approval',
+    'step2-text':   'The superadmin will review your application and grant access to your city\'s control panel.',
+    'step3-title':  'Manage audio guides',
+    'step3-text':   'Parse places, edit texts, generate audio. AI assists you at every step.',
+    'adm-btn':      'Submit application',
+    'adm-nav1':     'Applications',
+    'adm-nav2':     'Cities',
+    'adm-nav3':     'Statistics',
+    'adm-panel-title': 'New applications',
+    'adm-panel-sub':   '2 pending review',
+    'adm-pending':  '2 applications pending',
+    'adm-th1':      'Name',
+    'adm-th2':      'City',
+    'adm-th3':      'Status',
+    'status-pending': 'pending',
+    'status-active':  'active',
+    'adm-approve-btn': 'Approve',
+    'adm-reject-btn':  'Reject',
+    'app-eyebrow':  'Mobile app',
+    'app-title':    'Always in your <em>pocket</em>',
+    'app-sub':      'iOS and Android. Geolocation, offline mode, language and category selection. Coming soon to stores.',
+    'badge-ios-sub':     'Download on the',
+    'badge-android-sub': 'Get it on',
+    'badge-soon':        'Soon',
+    'cities-eyebrow': 'Cities',
+    'cities-title': 'Starting with <em>Poltava</em>',
+    'cs-active':    'active',
+    'cs-soon':      'coming soon',
+    'your-city':    'Your city?',
+    'cs-you':       'register now',
+    'contact-eyebrow': 'Contact',
+    'contact-title':   'Get in touch',
+    'contact-sub':     'Questions? Want to become an admin or support the project? Write to us.',
+    'cc1-title':    'Email',
+    'cc1-text':     'General inquiries, partnerships, grants.',
+    'cc2-title':    'Become an admin',
+    'cc2-text':     'Want to manage your city? Register via the form.',
+    'cc2-link':     '→ Registration form',
+    'cc3-title':    'Support the project',
+    'cc3-text':     'Whispr.city is a volunteer project. Your support helps us grow.',
+    'cc3-link':     '→ Contact us',
+    'footer-reg':   'Register',
+    'footer-login': 'Sign in',
+    'footer-copy':  '© 2026 Whispr.city · Volunteer project',
+  }
+};
+
+let lang = 'uk';
+function t(k) { return i18n[lang][k] || k; }
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    const match = l === 'uk' ? 'ua' : l;
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === match);
+  });
+  renderLang();
+}
+
+function renderLang() {
+  const ids = [
+    ['t-nav-how','nav-how'],['t-nav-feat','nav-feat'],['t-nav-admin','nav-admin'],
+    ['t-nav-app','nav-app'],['t-nav-contact','nav-contact'],['t-nav-login','nav-login'],
+    ['t-nav-register','nav-register'],
+    ['t-mnav-how','nav-how'],['t-mnav-feat','nav-feat'],['t-mnav-admin','nav-admin'],
+    ['t-mnav-app','nav-app'],['t-mnav-contact','nav-contact'],['t-mnav-login','nav-login'],
+    ['t-mnav-register','nav-register'],
+    ['t-hero-tag','hero-tag'],['t-hero-desc','hero-desc'],
+    ['t-hero-btn1','hero-btn1'],['t-hero-btn2','hero-btn2'],
+    ['t-stat1','stat1'],['t-stat2','stat2'],['t-stat3','stat3'],['t-stat4','stat4'],
+    ['t-how-eyebrow','how-eyebrow'],['t-how-sub','how-sub'],
+    ['t-how1-title','how1-title'],['t-how1-text','how1-text'],
+    ['t-how2-title','how2-title'],['t-how2-text','how2-text'],
+    ['t-how3-title','how3-title'],['t-how3-text','how3-text'],
+    ['t-feat-eyebrow','feat-eyebrow'],['t-feat-sub','feat-sub'],
+    ['t-f1-title','f1-title'],['t-f1-text','f1-text'],
+    ['t-f2-title','f2-title'],['t-f2-text','f2-text'],
+    ['t-f3-title','f3-title'],['t-f3-text','f3-text'],
+    ['t-f4-title','f4-title'],['t-f4-text','f4-text'],
+    ['t-adm-eyebrow','adm-eyebrow'],['t-adm-sub','adm-sub'],
+    ['t-step1-title','step1-title'],['t-step1-text','step1-text'],
+    ['t-step2-title','step2-title'],['t-step2-text','step2-text'],
+    ['t-step3-title','step3-title'],['t-step3-text','step3-text'],
+    ['t-adm-btn','adm-btn'],
+    ['t-adm-nav1','adm-nav1'],['t-adm-nav2','adm-nav2'],['t-adm-nav3','adm-nav3'],
+    ['t-adm-panel-title','adm-panel-title'],['t-adm-panel-sub','adm-panel-sub'],
+    ['t-adm-pending','adm-pending'],
+    ['t-adm-th1','adm-th1'],['t-adm-th2','adm-th2'],['t-adm-th3','adm-th3'],
+    ['t-status-pending','status-pending'],['t-status-active','status-active'],
+    ['t-adm-approve-btn','adm-approve-btn'],['t-adm-reject-btn','adm-reject-btn'],
+    ['t-app-eyebrow','app-eyebrow'],['t-app-sub','app-sub'],
+    ['t-badge-ios-sub','badge-ios-sub'],['t-badge-android-sub','badge-android-sub'],
+    ['t-cities-eyebrow','cities-eyebrow'],
+    ['t-cs-active','cs-active'],['t-cs-soon1','cs-soon'],['t-cs-soon2','cs-soon'],
+    ['t-your-city','your-city'],['t-cs-you','cs-you'],
+    ['t-contact-eyebrow','contact-eyebrow'],['t-contact-sub','contact-sub'],
+    ['t-cc1-title','cc1-title'],['t-cc1-text','cc1-text'],
+    ['t-cc2-title','cc2-title'],['t-cc2-text','cc2-text'],['t-cc2-link','cc2-link'],
+    ['t-cc3-title','cc3-title'],['t-cc3-text','cc3-text'],['t-cc3-link','cc3-link'],
+    ['t-footer-reg','footer-reg'],['t-footer-login','footer-login'],
+    ['t-footer-copy','footer-copy'],
+  ];
+  ids.forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t(key);
+  });
+  // innerHTML для тегов с em
+  ['t-hero-h1','t-how-title','t-feat-title','t-adm-title',
+   't-app-title','t-cities-title','t-contact-title','t-section-title-app'].forEach(id => {
+    const key = id.replace('t-','').replace(/-([a-z])/g, (_,c) => c.toUpperCase()).replace('heroH1','hero-h1');
+    const map = {
+      'tHeroH1':'hero-h1','tHowTitle':'how-title','tFeatTitle':'feat-title',
+      'tAdmTitle':'adm-title','tAppTitle':'app-title','tCitiesTitle':'cities-title',
+      'tContactTitle':'contact-title'
+    };
+  });
+  document.getElementById('t-hero-h1').innerHTML   = t('hero-h1');
+  document.getElementById('t-how-title').innerHTML  = t('how-title');
+  document.getElementById('t-feat-title').innerHTML = t('feat-title');
+  document.getElementById('t-adm-title').innerHTML  = t('adm-title');
+  document.getElementById('t-app-title').innerHTML  = t('app-title');
+  document.getElementById('t-cities-title').innerHTML = t('cities-title');
+  document.getElementById('t-contact-title').innerHTML = t('contact-title');
+
+  // App Store badges soon text
+  const soon = t('badge-soon');
+  document.querySelectorAll('.app-badge.soon').forEach(el => {
+    el.setAttribute('data-soon', soon);
+  });
+}
+
+/* ═══════════════════════════════════
+   MOBILE MENU
+═══════════════════════════════════ */
+function toggleMenu() {
+  const m = document.getElementById('navMobile');
+  m.classList.toggle('open');
+}
+
+/* ═══════════════════════════════════
+   WAVEFORM ANIMATION
+═══════════════════════════════════ */
+function initWaveform(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const heights = [4,7,12,18,14,20,16,10,18,22,14,9,16,20,12,6,13,18,10,15,19,13,7,11,17,21,13,8,14,18];
+  heights.forEach((h, i) => {
+    const b = document.createElement('div');
+    b.style.cssText = `width:2.5px;border-radius:2px;background:#e89e22;flex-shrink:0;animation:wfAnim 1.4s ease-in-out infinite;animation-delay:${(i * 0.055).toFixed(2)}s;height:${h}px`;
+    el.appendChild(b);
+  });
+}
+
+const wfStyle = document.createElement('style');
+wfStyle.textContent = '@keyframes wfAnim{0%,100%{transform:scaleY(0.25)}50%{transform:scaleY(1)}}';
+document.head.appendChild(wfStyle);
+
+/* ═══════════════════════════════════
+   INIT
+═══════════════════════════════════ */
+renderLang();
+initWaveform('wf-hero');
+</script>
+</body>
+</html>
