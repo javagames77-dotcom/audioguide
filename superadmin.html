@@ -1340,6 +1340,15 @@ input[type=range]::-webkit-slider-thumb {
                 <div class="check-group" id="categories-group" style="margin-top:8px"></div>
               </div>
 
+              <!-- Count -->
+              <div style="margin-top:14px">
+                <div class="form-label" id="t-count-label"></div>
+                <div class="range-wrap" style="margin-top:8px">
+                  <input type="range" id="count-slider" min="5" max="50" step="5" value="15" oninput="onCountChange()">
+                  <div class="range-val"><span id="count-val">15</span></div>
+                </div>
+              </div>
+
               <!-- Coords display -->
               <div style="margin-top:12px;padding:10px 12px;background:var(--bg3);border-radius:var(--radius-sm);font-family:var(--mono);font-size:11px;color:var(--text3)">
                 <span id="t-coords-label"></span>:
@@ -1688,6 +1697,7 @@ const i18n = {
     'radius-label': 'Радіус пошуку',
     'categories-label': 'Категорії об\'єктів',
     'coords-label': 'Координати',
+    'count-label': 'Кількість об\'єктів',
     'parse-btn': 'Парсити об\'єкти',
     'parse-results-title': 'Знайдені об\'єкти',
     'select-all': 'Вибрати всі',
@@ -1799,6 +1809,7 @@ const i18n = {
     'radius-label': 'Радиус поиска',
     'categories-label': 'Категории объектов',
     'coords-label': 'Координаты',
+    'count-label': 'Количество объектов',
     'parse-btn': 'Парсить объекты',
     'parse-results-title': 'Найденные объекты',
     'select-all': 'Выбрать все',
@@ -1910,6 +1921,7 @@ const i18n = {
     'radius-label': 'Search radius',
     'categories-label': 'Object categories',
     'coords-label': 'Coordinates',
+    'count-label': 'Number of objects',
     'parse-btn': 'Parse objects',
     'parse-results-title': 'Found objects',
     'select-all': 'Select all',
@@ -2030,6 +2042,7 @@ function renderLang() {
     't-radius-label':     'radius-label',
     't-categories-label': 'categories-label',
     't-coords-label':     'coords-label',
+    't-count-label':      'count-label',
     't-parse-btn':        'parse-btn',
     't-parse-results-title': 'parse-results-title',
     't-select-all-btn':   'select-all',
@@ -2780,6 +2793,10 @@ function onRadiusChange() {
   if (parseCircle && parseCoords) parseCircle.setRadius(radius);
 }
 
+function onCountChange() {
+  document.getElementById('count-val').textContent = document.getElementById('count-slider').value;
+}
+
 async function startParse() {
   if (!parseCoords || !currentCity) return;
   const btn = document.getElementById('btn-parse');
@@ -2795,6 +2812,7 @@ async function startParse() {
       lat:       parseCoords.lat,
       lng:       parseCoords.lng,
       radius:    parseInt(document.getElementById('radius-slider').value),
+      count:     parseInt(document.getElementById('count-slider').value),
       categories: cats
     });
 
