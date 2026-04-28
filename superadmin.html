@@ -2490,12 +2490,22 @@ async function saveCity() {
     }
     if (res.success) {
       const cityId = res.city?.id || editingCityId;
-      // Назначаем выбранных админов
-      const selectedAdmins = [...document.querySelectorAll('#city-admins-list .city-select-item.selected')]
-        .map(el => parseInt(el.dataset.adminId));
-      if (cityId && selectedAdmins.length) {
-        for (const adminId of selectedAdmins) {
+      if (cityId) {
+        // Выбранные сейчас
+        const selectedAdmins = [...document.querySelectorAll('#city-admins-list .city-select-item.selected')]
+          .map(el => parseInt(el.dataset.adminId));
+        // Текущие (были когда открывали модалку)
+        const currentCity   = allCitiesList.find(c => c.id === cityId);
+        const currentAdmins = (currentCity?.admins || []).map(a => a.id);
+        // Добавляем новых
+        const toAdd    = selectedAdmins.filter(id => !currentAdmins.includes(id));
+        // Убираем снятых
+        const toRemove = currentAdmins.filter(id => !selectedAdmins.includes(id));
+        for (const adminId of toAdd) {
           await apiMain('user_cities', 'assign', { user_id: adminId, city_ids: [cityId] });
+        }
+        for (const adminId of toRemove) {
+          await apiMain('user_cities', 'unassign', { user_id: adminId, city_id: cityId });
         }
       }
       toast(t('save'), 'success');
