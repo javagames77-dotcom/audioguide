@@ -1961,9 +1961,9 @@ function t(k) { return i18n[lang][k] || k; }
 
 function setLang(l) {
   lang = l;
+  localStorage.setItem('whispr_lang', l);
   document.querySelectorAll('.lang-btn').forEach(b => {
-    const match = l === 'uk' ? 'ua' : l;
-    b.classList.toggle('active', b.textContent.trim().toLowerCase() === match);
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === (l === 'uk' ? 'ua' : l));
   });
   renderLang();
 }
@@ -2069,6 +2069,14 @@ document.head.appendChild(wfStyle);
 /* ═══════════════════════════════════
    INIT
 ═══════════════════════════════════ */
+/* ── INIT ── */
+const _savedLang = localStorage.getItem('whispr_lang');
+if (_savedLang && i18n[_savedLang]) {
+  lang = _savedLang;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === (_savedLang === 'uk' ? 'ua' : _savedLang));
+  });
+}
 renderLang();
 initWaveform('wf-hero');
 </script>
