@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="uk" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whispr.city — Реєстрація адміністратора</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root {
+  --ink:       #0d0d0b;
+  --ink2:      #3d3d38;
+  --ink3:      #7a7a72;
+  --paper:     #f7f4ef;
+  --paper2:    #eeeae2;
+  --paper3:    #e4dfd5;
+  --white:     #ffffff;
+  --accent:    #c8622a;
+  --accent-h:  #b05520;
+  --accent2:   #2a5fc8;
+  --success:   #2ab87a;
+  --danger:    #c8312a;
+  --serif:     'Fraunces', Georgia, serif;
+  --sans:      'DM Sans', system-ui, sans-serif;
+  --mono:      'DM Mono', 'Courier New', monospace;
+  --nav-h:     56px;
+  --radius:    12px;
+  --radius-sm: 8px;
+  --shadow:    0 2px 8px rgba(13,13,11,.06), 0 12px 40px rgba(13,13,11,.08);
+  --tr:        .18s ease;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  background: rgba(13,13,11,.96);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.nav-logo {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -.3px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-logo-dot { color: var(--accent); }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Lang switcher */
+.lang-sw {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+}
+.lang-btn {
+  background: none;
+  border: none;
+  padding: 4px 9px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,.4);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all var(--tr);
+  letter-spacing: .5px;
+}
+.lang-btn:hover { color: rgba(255,255,255,.7); }
+.lang-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.nav-login-link {
+  font-size: 13px;
+  color: rgba(255,255,255,.4);
+  text-decoration: none;
+  font-weight: 400;
+  transition: color var(--tr);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.nav-login-link:hover { color: rgba(255,255,255,.75); }
+
+/* ═══════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════ */
+.page {
+  min-height: 100vh;
+  padding-top: var(--nav-h);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.page-inner {
+  width: 100%;
+  max-width: 520px;
+  padding: 56px 24px 80px;
+}
+
+/* ═══════════════════════════════════════
+   HEADER
+═══════════════════════════════════════ */
+.page-head {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.page-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.page-eyebrow::before,
+.page-eyebrow::after {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+  opacity: .5;
+}
+
+.page-title {
+  font-family: var(--serif);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -1px;
+  line-height: 1.05;
+  margin-bottom: 10px;
+}
+.page-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.page-sub {
+  font-size: 14px;
+  color: var(--ink3);
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════
+   CARD
+═══════════════════════════════════════ */
+.card {
+  background: var(--white);
+  border: 1px solid var(--paper3);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════
+   FORM
+═══════════════════════════════════════ */
+.form-body { padding: 32px; }
+
+.form-section {
+  margin-bottom: 24px;
+}
+
+.form-section-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--paper2);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-group { margin-bottom: 14px; }
+.form-group:last-child { margin-bottom: 0; }
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink2);
+  margin-bottom: 6px;
+  letter-spacing: .01em;
+}
+.req { color: var(--accent); font-size: 13px; line-height: 1; }
+.opt {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink3);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  margin-left: 2px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--paper);
+  border: 1.5px solid var(--paper3);
+  border-radius: var(--radius-sm);
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color var(--tr), box-shadow var(--tr), background var(--tr);
+  -webkit-appearance: none;
+}
+.form-input::placeholder { color: var(--ink3); font-weight: 300; }
+.form-input:hover { border-color: var(--paper3); background: var(--white); }
+.form-input:focus {
+  border-color: var(--accent);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(200,98,42,.1);
+}
+.form-input.error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(200,49,42,.08);
+}
+.form-input.valid {
+  border-color: var(--success);
+}
+
+/* Password wrapper */
+.pw-wrap { position: relative; }
+.pw-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink3);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color var(--tr);
+  line-height: 1;
+}
+.pw-toggle:hover { color: var(--ink); }
+.pw-toggle svg { display: block; }
+.form-input.has-toggle { padding-right: 42px; }
+
+/* Password strength */
+.pw-strength {
+  display: flex;
+  gap: 4px;
+  margin-top: 7px;
+}
+.pw-bar {
+  height: 3px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--paper3);
+  transition: background .3s;
+}
+.pw-hint {
+  font-size: 11px;
+  color: var(--ink3);
+  margin-top: 5px;
+  font-family: var(--mono);
+  transition: color .2s;
+}
+
+/* Field hint */
+.form-hint {
+  font-size: 11px;
+  color: var(--ink3);
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+/* Field error */
+.field-error {
+  font-size: 11px;
+  color: var(--danger);
+  margin-top: 5px;
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+.field-error.show { display: flex; }
+
+/* Info box */
+.info-box {
+  background: var(--paper2);
+  border: 1px solid var(--paper3);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+}
+.info-box-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+.info-box-text {
+  font-size: 12px;
+  color: var(--ink3);
+  line-height: 1.55;
+}
+
+/* Alert */
+.alert {
+  display: none;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 32px 20px;
+  border: 1px solid transparent;
+}
+.alert.show { display: flex; }
+.alert-error {
+  background: #fef2f0;
+  color: var(--danger);
+  border-color: rgba(200,49,42,.15);
+}
+.alert svg { flex-shrink: 0; margin-top: 1px; }
+
+/* Submit button */
+.btn-submit {
+  width: 100%;
+  padding: 13px 24px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background var(--tr), opacity var(--tr), transform .1s;
+  letter-spacing: .01em;
+}
+.btn-submit:hover:not(:disabled) { background: var(--accent-h); }
+.btn-submit:active:not(:disabled) { transform: scale(.99); }
+.btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  display: none;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Card footer */
+.card-footer {
+  padding: 16px 32px;
+  border-top: 1px solid var(--paper2);
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink3);
+}
+.card-footer a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--tr);
+}
+.card-footer a:hover { color: var(--accent-h); text-decoration: underline; }
+
+/* ═══════════════════════════════════════
+   SUCCESS STATE
+═══════════════════════════════════════ */
+.success-state {
+  display: none;
+  padding: 52px 32px;
+  text-align: center;
+}
+.success-state.show { display: block; }
+
+.success-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(42,184,122,.1);
+  border: 1.5px solid rgba(42,184,122,.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  animation: scaleIn .35s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.success-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.5px;
+  margin-bottom: 10px;
+}
+.success-msg {
+  font-size: 14px;
+  color: var(--ink3);
+  line-height: 1.65;
+  max-width: 340px;
+  margin: 0 auto 28px;
+  font-weight: 300;
+}
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  background: transparent;
+  border: 1.5px solid var(--paper3);
+  border-radius: var(--radius-sm);
+  color: var(--ink2);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--tr);
+}
+.btn-back:hover {
+  border-color: var(--ink3);
+  color: var(--ink);
+}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+.site-footer {
+  text-align: center;
+  padding: 32px 24px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink3);
+  letter-spacing: .3px;
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE — MOBILE
+═══════════════════════════════════════ */
+@media (max-width: 600px) {
+  .nav { padding: 0 16px; }
+  .nav-login-link span { display: none; }
+
+  .page-inner { padding: 36px 16px 60px; }
+
+  .page-title { font-size: 30px; }
+
+  .form-body { padding: 24px 20px; }
+
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+
+  .alert { margin: 0 20px 16px; }
+
+  .card-footer { padding: 14px 20px; }
+
+  .success-state { padding: 40px 20px; }
+}
+
+@media (max-width: 380px) {
+  .page-title { font-size: 26px; }
+  .lang-btn { padding: 4px 7px; font-size: 10px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="/" class="nav-logo">
+    🎙 Whispr<span class="nav-logo-dot">.</span>city
+  </a>
+  <div class="nav-right">
+    <div class="lang-sw">
+      <button class="lang-btn active" onclick="setLang('uk')">UA</button>
+      <button class="lang-btn" onclick="setLang('ru')">RU</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+    <a href="/login.html" class="nav-login-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M9 1h4v12H9M6 10l3-3-3-3M12 7H3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span id="t-login-link"></span>
+    </a>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+  <div class="page-inner">
+
+    <!-- HEAD -->
+    <div class="page-head">
+      <div class="page-eyebrow" id="t-eyebrow"></div>
+      <h1 class="page-title" id="t-title"></h1>
+      <p class="page-sub" id="t-sub"></p>
+    </div>
+
+    <!-- CARD -->
+    <div class="card">
+
+      <!-- Alert (global error) -->
+      <div class="alert alert-error" id="alertError">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M7 4.5v3M7 9.5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <span id="alertText"></span>
+      </div>
+
+      <!-- FORM -->
+      <div id="formWrap">
+        <div class="form-body">
+
+          <!-- Info box -->
+          <div class="info-box">
+            <div class="info-box-title" id="t-info-title"></div>
+            <div class="info-box-text" id="t-info-text"></div>
+          </div>
+
+          <!-- Section: Personal -->
+          <div class="form-section">
+            <div class="form-section-label" id="t-section-personal"></div>
+
+            <div class="form-group">
+              <label class="form-label" for="inp-name">
+                <span id="t-label-name"></span>
+                <span class="req">*</span>
+              </label>
+              <input
+                type="text"
+                id="inp-name"
+                class="form-input"
+                autocomplete="name"
+                maxlength="255"
+              >
+              <div class="field-error" id="err-name">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.1"/><path d="M5.5 3.5v2.5M5.5 7.5h.01" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+                <span id="err-name-text"></span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="inp-phone">
+                  <span id="t-label-phone"></span>
+                  <span class="opt" id="t-opt"></span>
+                </label>
+                <input
+                  type="tel"
+                  id="inp-phone"
+                  class="form-input"
+                  autocomplete="tel"
+                  placeholder="+380..."
+                  maxlength="50"
+                >
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="inp-city">
+                  <span id="t-label-city"></span>
+                  <span class="opt" id="t-opt2"></span>
+                </label>
+                <input
+                  type="text"
+                  id="inp-city"
+                  class="form-input"
+                  maxlength="255"
+                >
+                <div class="form-hint" id="t-city-hint"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Account -->
+          <div class="form-section">
+            <div class="form-section-label" id="t-section-account"></div>
+
+            <div class="form-group">
+              <label class="form-label" for="inp-email">
+                <span>Email</span>
+                <span class="req">*</span>
+              </label>
+              <input
+                type="email"
+                id="inp-email"
+                class="form-input"
+                autocomplete="email"
+                placeholder="you@example.com"
+                maxlength="255"
+              >
+              <div class="field-error" id="err-email">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.1"/><path d="M5.5 3.5v2.5M5.5 7.5h.01" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+                <span id="err-email-text"></span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inp-password">
+                <span id="t-label-password"></span>
+                <span class="req">*</span>
+              </label>
+              <div class="pw-wrap">
+                <input
+                  type="password"
+                  id="inp-password"
+                  class="form-input has-toggle"
+                  autocomplete="new-password"
+                  maxlength="128"
+                >
+                <button type="button" class="pw-toggle" id="pwToggle" onclick="togglePassword()" tabindex="-1" aria-label="Показати пароль">
+                  <svg id="icon-eye" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/>
+                    <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/>
+                  </svg>
+                  <svg id="icon-eye-off" width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:none">
+                    <path d="M2 2l12 12M6.5 6.6A2 2 0 0 0 9.4 9.5M4.2 4.3C2.4 5.4 1 8 1 8s2.5 5 7 5a7.5 7.5 0 0 0 3.8-1.1M6.5 3.1A7 7 0 0 1 15 8s-.8 1.6-2.2 2.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="pw-strength" id="pwStrength">
+                <div class="pw-bar" id="bar1"></div>
+                <div class="pw-bar" id="bar2"></div>
+                <div class="pw-bar" id="bar3"></div>
+                <div class="pw-bar" id="bar4"></div>
+              </div>
+              <div class="pw-hint" id="pwHint"></div>
+              <div class="field-error" id="err-password">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.1"/><path d="M5.5 3.5v2.5M5.5 7.5h.01" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+                <span id="err-password-text"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <button type="button" class="btn-submit" id="btnSubmit" onclick="handleSubmit()">
+            <div class="spinner" id="spinner"></div>
+            <span id="t-btn-submit"></span>
+            <svg id="btn-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+        </div><!-- /form-body -->
+
+        <div class="card-footer">
+          <span id="t-footer-text"></span>
+          <a href="/login.html" id="t-footer-link"></a>
+        </div>
+      </div><!-- /formWrap -->
+
+      <!-- SUCCESS -->
+      <div class="success-state" id="successState">
+        <div class="success-icon">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+            <path d="M5 13l5.5 5.5L21 8" stroke="#2ab87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="success-title" id="t-success-title"></div>
+        <p class="success-msg" id="t-success-msg"></p>
+        <a href="/login.html" class="btn-back">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M9 1H5a1 1 0 00-1 1v10a1 1 0 001 1h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M5 7h7M9 4l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span id="t-back-login"></span>
+        </a>
+      </div>
+
+    </div><!-- /card -->
+
+    <div class="site-footer">© 2026 Whispr.city · <span id="t-footer-note"></span></div>
+
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   I18N
+═══════════════════════════════════════ */
+const i18n = {
+  uk: {
+    'login-link':       'Увійти',
+    'eyebrow':          'Адмін-панель',
+    'title':            'Стати <em>адміном</em> міста',
+    'sub':              'Зареєструйтесь як адміністратор міста. Після перевірки суперадміном ви отримаєте доступ до панелі управління.',
+    'info-title':       'Як це працює?',
+    'info-text':        'Ваша заявка потрапить на розгляд суперадміну. Після схвалення ви зможете увійти та керувати аудіогідами свого міста.',
+    'section-personal': 'Особисті дані',
+    'section-account':  'Дані облікового запису',
+    'label-name':       "Ім'я та прізвище",
+    'label-phone':      'Телефон',
+    'label-city':       'Місто',
+    'opt':              'необов\'язково',
+    'city-hint':        'Яке місто хочете вести? Підказка для суперадміна.',
+    'label-password':   'Пароль',
+    'btn-submit':       'Надіслати заявку',
+    'footer-text':      'Вже маєте акаунт? ',
+    'footer-link':      'Увійти',
+    'success-title':    'Заявку надіслано!',
+    'success-msg':      'Ваша заявка отримана і буде розглянута суперадміном. Ми повідомимо вас на вказаний email.',
+    'back-login':       'Перейти до входу',
+    'footer-note':      'Волонтерський проєкт',
+    'pw-weak':          'Слабкий пароль',
+    'pw-fair':          'Прийнятний пароль',
+    'pw-good':          'Хороший пароль',
+    'pw-strong':        'Надійний пароль',
+    'err-name-req':     "Вкажіть ім'я",
+    'err-email-req':    'Вкажіть email',
+    'err-email-inv':    'Невірний формат email',
+    'err-pass-req':     'Вкажіть пароль',
+    'err-pass-short':   'Мінімум 6 символів',
+    'err-email-taken':  'Цей email вже зареєстрований',
+    'err-generic':      'Помилка. Спробуйте пізніше.',
+  },
+  ru: {
+    'login-link':       'Войти',
+    'eyebrow':          'Админ-панель',
+    'title':            'Стать <em>админом</em> города',
+    'sub':              'Зарегистрируйтесь как администратор города. После проверки суперадмином вы получите доступ к панели управления.',
+    'info-title':       'Как это работает?',
+    'info-text':        'Ваша заявка поступит на рассмотрение суперадмина. После одобрения вы сможете войти и управлять аудиогидами своего города.',
+    'section-personal': 'Личные данные',
+    'section-account':  'Данные учётной записи',
+    'label-name':       'Имя и фамилия',
+    'label-phone':      'Телефон',
+    'label-city':       'Город',
+    'opt':              'необязательно',
+    'city-hint':        'Какой город хотите вести? Подсказка для суперадмина.',
+    'label-password':   'Пароль',
+    'btn-submit':       'Отправить заявку',
+    'footer-text':      'Уже есть аккаунт? ',
+    'footer-link':      'Войти',
+    'success-title':    'Заявка отправлена!',
+    'success-msg':      'Ваша заявка получена и будет рассмотрена суперадмином. Мы уведомим вас на указанный email.',
+    'back-login':       'Перейти ко входу',
+    'footer-note':      'Волонтёрский проект',
+    'pw-weak':          'Слабый пароль',
+    'pw-fair':          'Приемлемый пароль',
+    'pw-good':          'Хороший пароль',
+    'pw-strong':        'Надёжный пароль',
+    'err-name-req':     'Укажите имя',
+    'err-email-req':    'Укажите email',
+    'err-email-inv':    'Неверный формат email',
+    'err-pass-req':     'Укажите пароль',
+    'err-pass-short':   'Минимум 6 символов',
+    'err-email-taken':  'Этот email уже зарегистрирован',
+    'err-generic':      'Ошибка. Попробуйте позже.',
+  },
+  en: {
+    'login-link':       'Sign in',
+    'eyebrow':          'Admin panel',
+    'title':            'Become a city <em>admin</em>',
+    'sub':              'Register as a city administrator. After review by the superadmin, you will get access to the management panel.',
+    'info-title':       'How does it work?',
+    'info-text':        'Your application will be reviewed by the superadmin. Once approved, you can log in and manage audio guides for your city.',
+    'section-personal': 'Personal information',
+    'section-account':  'Account details',
+    'label-name':       'Full name',
+    'label-phone':      'Phone',
+    'label-city':       'City',
+    'opt':              'optional',
+    'city-hint':        'Which city do you want to manage? A hint for the superadmin.',
+    'label-password':   'Password',
+    'btn-submit':       'Submit application',
+    'footer-text':      'Already have an account? ',
+    'footer-link':      'Sign in',
+    'success-title':    'Application submitted!',
+    'success-msg':      'Your application has been received and will be reviewed by the superadmin. We will notify you at the email provided.',
+    'back-login':       'Go to sign in',
+    'footer-note':      'Volunteer project',
+    'pw-weak':          'Weak password',
+    'pw-fair':          'Fair password',
+    'pw-good':          'Good password',
+    'pw-strong':        'Strong password',
+    'err-name-req':     'Please enter your name',
+    'err-email-req':    'Please enter your email',
+    'err-email-inv':    'Invalid email format',
+    'err-pass-req':     'Please enter a password',
+    'err-pass-short':   'Minimum 6 characters',
+    'err-email-taken':  'This email is already registered',
+    'err-generic':      'Error. Please try again later.',
+  }
+};
+
+let lang = 'uk';
+
+function t(key) { return i18n[lang][key] || key; }
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === (l === 'uk' ? 'ua' : l));
+  });
+  renderLang();
+}
+
+function renderLang() {
+  document.getElementById('t-login-link').textContent   = t('login-link');
+  document.getElementById('t-eyebrow').textContent      = t('eyebrow');
+  document.getElementById('t-title').innerHTML          = t('title');
+  document.getElementById('t-sub').textContent          = t('sub');
+  document.getElementById('t-info-title').textContent   = t('info-title');
+  document.getElementById('t-info-text').textContent    = t('info-text');
+  document.getElementById('t-section-personal').textContent = t('section-personal');
+  document.getElementById('t-section-account').textContent  = t('section-account');
+  document.getElementById('t-label-name').textContent   = t('label-name');
+  document.getElementById('t-label-phone').textContent  = t('label-phone');
+  document.getElementById('t-label-city').textContent   = t('label-city');
+  document.getElementById('t-opt').textContent          = t('opt');
+  document.getElementById('t-opt2').textContent         = t('opt');
+  document.getElementById('t-city-hint').textContent    = t('city-hint');
+  document.getElementById('t-label-password').textContent = t('label-password');
+  document.getElementById('t-btn-submit').textContent   = t('btn-submit');
+  document.getElementById('t-footer-text').textContent  = t('footer-text');
+  document.getElementById('t-footer-link').textContent  = t('footer-link');
+  document.getElementById('t-success-title').textContent = t('success-title');
+  document.getElementById('t-success-msg').textContent  = t('success-msg');
+  document.getElementById('t-back-login').textContent   = t('back-login');
+  document.getElementById('t-footer-note').textContent  = t('footer-note');
+  updatePwHint();
+}
+
+/* ═══════════════════════════════════════
+   PASSWORD STRENGTH
+═══════════════════════════════════════ */
+const barColors = ['#c8312a', '#e8a020', '#2a5fc8', '#2ab87a'];
+const barLabels = ['pw-weak', 'pw-fair', 'pw-good', 'pw-strong'];
+
+function getStrength(pw) {
+  if (!pw) return 0;
+  let score = 0;
+  if (pw.length >= 6)  score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  return Math.min(4, Math.ceil(score / 1.2));
+}
+
+function updatePwStrength() {
+  const pw = document.getElementById('inp-password').value;
+  const strength = getStrength(pw);
+  for (let i = 1; i <= 4; i++) {
+    const bar = document.getElementById('bar' + i);
+    bar.style.background = i <= strength ? barColors[strength - 1] : 'var(--paper3)';
+  }
+  updatePwHint(strength);
+}
+
+function updatePwHint(strength) {
+  const pw = document.getElementById('inp-password').value;
+  const hint = document.getElementById('pwHint');
+  if (!pw) { hint.textContent = ''; return; }
+  const s = strength !== undefined ? strength : getStrength(pw);
+  hint.textContent = t(barLabels[Math.max(0, s - 1)]);
+  hint.style.color = s >= 3 ? 'var(--success)' : s >= 2 ? '#e8a020' : 'var(--danger)';
+}
+
+document.getElementById('inp-password').addEventListener('input', updatePwStrength);
+
+/* ═══════════════════════════════════════
+   PASSWORD TOGGLE
+═══════════════════════════════════════ */
+function togglePassword() {
+  const inp = document.getElementById('inp-password');
+  const isPass = inp.type === 'password';
+  inp.type = isPass ? 'text' : 'password';
+  document.getElementById('icon-eye').style.display     = isPass ? 'none'  : 'block';
+  document.getElementById('icon-eye-off').style.display = isPass ? 'block' : 'none';
+}
+
+/* ═══════════════════════════════════════
+   VALIDATION
+═══════════════════════════════════════ */
+function showFieldError(field, msgKey) {
+  const inp = document.getElementById('inp-' + field);
+  const err = document.getElementById('err-' + field);
+  const txt = document.getElementById('err-' + field + '-text');
+  inp.classList.add('error');
+  txt.textContent = t(msgKey);
+  err.classList.add('show');
+}
+
+function clearFieldError(field) {
+  const inp = document.getElementById('inp-' + field);
+  const err = document.getElementById('err-' + field);
+  inp.classList.remove('error');
+  err.classList.remove('show');
+}
+
+function clearAllErrors() {
+  ['name', 'email', 'password'].forEach(clearFieldError);
+  const alert = document.getElementById('alertError');
+  alert.classList.remove('show');
+}
+
+// Clear error on input
+['name', 'email', 'password'].forEach(field => {
+  document.getElementById('inp-' + field).addEventListener('input', () => clearFieldError(field));
+});
+
+function validate() {
+  let ok = true;
+  clearAllErrors();
+
+  const name  = document.getElementById('inp-name').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  const pass  = document.getElementById('inp-password').value;
+
+  if (!name) { showFieldError('name', 'err-name-req'); ok = false; }
+
+  if (!email) {
+    showFieldError('email', 'err-email-req'); ok = false;
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showFieldError('email', 'err-email-inv'); ok = false;
+  }
+
+  if (!pass) {
+    showFieldError('password', 'err-pass-req'); ok = false;
+  } else if (pass.length < 6) {
+    showFieldError('password', 'err-pass-short'); ok = false;
+  }
+
+  return ok;
+}
+
+/* ═══════════════════════════════════════
+   SUBMIT
+═══════════════════════════════════════ */
+const API = 'https://primary-production-4b93e.up.railway.app/webhook/whispr/auth';
+
+function setLoading(on) {
+  const btn     = document.getElementById('btnSubmit');
+  const spinner = document.getElementById('spinner');
+  const arrow   = document.getElementById('btn-arrow');
+  const label   = document.getElementById('t-btn-submit');
+  btn.disabled       = on;
+  spinner.style.display = on ? 'block' : 'none';
+  arrow.style.display   = on ? 'none'  : 'block';
+  label.style.opacity   = on ? '.6'    : '1';
+}
+
+function showAlert(msg) {
+  const el = document.getElementById('alertError');
+  document.getElementById('alertText').textContent = msg;
+  el.classList.add('show');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function handleSubmit() {
+  if (!validate()) return;
+
+  setLoading(true);
+
+  const payload = {
+    action:    'register',
+    email:     document.getElementById('inp-email').value.trim().toLowerCase(),
+    password:  document.getElementById('inp-password').value,
+    name:      document.getElementById('inp-name').value.trim(),
+    phone:     document.getElementById('inp-phone').value.trim() || undefined,
+    city_wish: document.getElementById('inp-city').value.trim() || undefined
+  };
+
+  // Remove undefined fields
+  Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
+
+  try {
+    const res  = await fetch(API, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById('formWrap').style.display = 'none';
+      document.getElementById('successState').classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const msg = data.error || '';
+      if (msg.toLowerCase().includes('email')) {
+        showFieldError('email', 'err-email-taken');
+      } else {
+        showAlert(msg || t('err-generic'));
+      }
+      setLoading(false);
+    }
+  } catch (e) {
+    showAlert(t('err-generic'));
+    setLoading(false);
+  }
+}
+
+/* Submit on Enter */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    const active = document.activeElement;
+    if (active && active.closest('.card') && active.tagName !== 'BUTTON') {
+      handleSubmit();
+    }
+  }
+});
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+renderLang();
+</script>
+</body>
+</html>
