@@ -2728,10 +2728,7 @@ function renderCategories() {
   const group = document.getElementById('categories-group');
   if (!group) return;
   group.innerHTML = CATEGORIES.map(c => `
-    <label class="check-item checked" data-cat="${c.id}" onclick="this.classList.toggle('checked')">
-      <input type="checkbox" checked>
-      ${t(c.key)}
-    </label>
+    <div class="check-item checked" data-cat="${c.id}" onclick="this.classList.toggle('checked')">${t(c.key)}</div>
   `).join('');
 }
 
