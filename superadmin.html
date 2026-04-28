@@ -1409,6 +1409,43 @@ input[type=range]::-webkit-slider-thumb {
 <!-- TOAST -->
 <div class="toast-wrap" id="toast-wrap"></div>
 
+<!-- MODAL: Edit Admin -->
+<div class="modal-overlay" id="modal-edit-admin">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="t-modal-edit-admin-title"></div>
+      <button class="modal-close" onclick="closeModal('modal-edit-admin')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-admin-id">
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label" id="t-admin-name-label"></label>
+          <input type="text" class="form-input" id="edit-admin-name" maxlength="255">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="t-admin-phone-label"></label>
+          <input type="text" class="form-input" id="edit-admin-phone" maxlength="50">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label" id="t-admin-city-wish-label"></label>
+        <input type="text" class="form-input" id="edit-admin-city-wish" maxlength="255">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="t-assign-cities-label2"></label>
+        <div class="city-select-list" id="edit-admin-cities-list" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-admin')" id="t-cancel-edit-admin-btn"></button>
+      <button class="btn btn-primary" onclick="saveAdminEdit()" id="t-save-edit-admin-btn"></button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: Approve Admin -->
 <div class="modal-overlay" id="modal-approve">
   <div class="modal">
@@ -1600,7 +1637,7 @@ const i18n = {
     'nav-overview': 'Огляд',
     'nav-dashboard': 'Дашборд',
     'nav-manage': 'Управління',
-    'nav-requests': 'Заявки',
+    'nav-requests': 'Адміністратори',
     'nav-cities': 'Міста',
     'nav-objects': 'Об\'єкти',
     'loading': 'Завантаження...',
@@ -1612,8 +1649,8 @@ const i18n = {
     'stat-objects': 'Об\'єктів всього',
     'recent-requests': 'Останні заявки',
     'view-all': 'Переглянути всі',
-    'req-title': '<em>Заявки</em> адмінів',
-    'req-sub': 'Розгляд та управління заявками на адміністрування міст',
+    'req-title': '<em>Адміністратори</em>',
+    'req-sub': 'Управління адміністраторами міст',
     'filter-all': 'Всі',
     'filter-pending': 'Очікують',
     'filter-active': 'Активні',
@@ -1625,6 +1662,13 @@ const i18n = {
     'th-date': 'Дата',
     'th-actions': 'Дії',
     'approve': 'Схвалити',
+    'edit-admin': 'Редагувати',
+    'delete-admin': 'Видалити',
+    'modal-edit-admin-title': 'Редагувати адміністратора',
+    'admin-name-label': 'Ім\'я',
+    'admin-phone-label': 'Телефон',
+    'admin-city-wish-label': 'Бажане місто',
+    'confirm-delete-admin': 'Видалити адміністратора?',
     'reject': 'Відхилити',
     'cities-title': '<em>Міста</em> системи',
     'cities-sub': 'Управління містами та призначення адміністраторів',
@@ -1695,7 +1739,7 @@ const i18n = {
     'city-search-btn': 'Знайти',
     'city-map-hint': 'Клікніть на карту щоб задати точні координати',
     'mob-dashboard': 'Дашборд',
-    'mob-requests': 'Заявки',
+    'mob-requests': 'Адміни',
     'mob-cities': 'Міста',
     'mob-objects': 'Об\'єкти',
   },
@@ -1704,7 +1748,7 @@ const i18n = {
     'nav-overview': 'Обзор',
     'nav-dashboard': 'Дашборд',
     'nav-manage': 'Управление',
-    'nav-requests': 'Заявки',
+    'nav-requests': 'Адміністратори',
     'nav-cities': 'Города',
     'nav-objects': 'Объекты',
     'loading': 'Загрузка...',
@@ -1716,8 +1760,8 @@ const i18n = {
     'stat-objects': 'Объектов всего',
     'recent-requests': 'Последние заявки',
     'view-all': 'Посмотреть все',
-    'req-title': '<em>Заявки</em> админов',
-    'req-sub': 'Рассмотрение и управление заявками на администрирование городов',
+    'req-title': '<em>Администраторы</em>',
+    'req-sub': 'Управление администраторами городов',
     'filter-all': 'Все',
     'filter-pending': 'Ожидают',
     'filter-active': 'Активные',
@@ -1729,6 +1773,13 @@ const i18n = {
     'th-date': 'Дата',
     'th-actions': 'Действия',
     'approve': 'Одобрить',
+    'edit-admin': 'Редактировать',
+    'delete-admin': 'Удалить',
+    'modal-edit-admin-title': 'Редактировать администратора',
+    'admin-name-label': 'Имя',
+    'admin-phone-label': 'Телефон',
+    'admin-city-wish-label': 'Желаемый город',
+    'confirm-delete-admin': 'Удалить администратора?',
     'reject': 'Отклонить',
     'cities-title': '<em>Города</em> системы',
     'cities-sub': 'Управление городами и назначение администраторов',
@@ -1799,7 +1850,7 @@ const i18n = {
     'city-search-btn': 'Найти',
     'city-map-hint': 'Кликните на карту чтобы задать точные координаты',
     'mob-dashboard': 'Дашборд',
-    'mob-requests': 'Заявки',
+    'mob-requests': 'Адміни',
     'mob-cities': 'Города',
     'mob-objects': 'Объекты',
   },
@@ -1808,7 +1859,7 @@ const i18n = {
     'nav-overview': 'Overview',
     'nav-dashboard': 'Dashboard',
     'nav-manage': 'Management',
-    'nav-requests': 'Requests',
+    'nav-requests': 'Administrators',
     'nav-cities': 'Cities',
     'nav-objects': 'Objects',
     'loading': 'Loading...',
@@ -1820,8 +1871,8 @@ const i18n = {
     'stat-objects': 'Total objects',
     'recent-requests': 'Recent requests',
     'view-all': 'View all',
-    'req-title': 'Admin <em>Requests</em>',
-    'req-sub': 'Review and manage city administrator applications',
+    'req-title': '<em>Administrators</em>',
+    'req-sub': 'Manage city administrators',
     'filter-all': 'All',
     'filter-pending': 'Pending',
     'filter-active': 'Active',
@@ -1833,6 +1884,13 @@ const i18n = {
     'th-date': 'Date',
     'th-actions': 'Actions',
     'approve': 'Approve',
+    'edit-admin': 'Edit',
+    'delete-admin': 'Delete',
+    'modal-edit-admin-title': 'Edit administrator',
+    'admin-name-label': 'Name',
+    'admin-phone-label': 'Phone',
+    'admin-city-wish-label': 'Desired city',
+    'confirm-delete-admin': 'Delete administrator?',
     'reject': 'Reject',
     'cities-title': 'System <em>Cities</em>',
     'cities-sub': 'Manage cities and assign administrators',
@@ -1903,7 +1961,7 @@ const i18n = {
     'city-search-btn': 'Find',
     'city-map-hint': 'Click on the map to set exact coordinates',
     'mob-dashboard': 'Dashboard',
-    'mob-requests': 'Requests',
+    'mob-requests': 'Admins',
     'mob-cities': 'Cities',
     'mob-objects': 'Objects',
   }
@@ -2224,15 +2282,10 @@ function renderRequestsTable(rows) {
         ${r.status === 'pending' ? `
           <button class="btn btn-success btn-sm" onclick='openApproveModal(${JSON.stringify(r).replace(/'/g,"\'")})'>${t('approve')}</button>
           <button class="btn btn-danger btn-sm" onclick="rejectAdmin(${r.id})">${t('reject')}</button>
-        ` : ''}
-        ${r.status === 'active' ? `
-          <span style="font-size:11px;color:var(--green);font-family:var(--mono)">✓ ${t('active-lbl')}</span>
-          <button class="btn btn-danger btn-sm" onclick="rejectAdmin(${r.id})">${t('reject')}</button>
-        ` : ''}
-        ${r.status === 'rejected' ? `
-          <span style="font-size:11px;color:var(--red);font-family:var(--mono)">✗ ${t('rejected-lbl')}</span>
-          <button class="btn btn-success btn-sm" onclick="openApproveModal(${JSON.stringify(r).replace(/`/g,'\`')})">${t('approve')}</button>
-        ` : ''}
+        ` : `
+          <button class="btn btn-ghost btn-sm" onclick='openEditAdminModal(${JSON.stringify(r).replace(/'/g,"\'")})'>${t('edit-admin')}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteAdmin(${r.id})">${t('delete-admin')}</button>
+        `}
       </div></td>
     </tr>
   `).join('');
@@ -2467,6 +2520,78 @@ async function searchCityOnMap(query) {
   } catch(e) { toast('Помилка пошуку', 'error'); }
 }
 
+/* ═══════════════════════════════════════
+   EDIT / DELETE ADMIN
+═══════════════════════════════════════ */
+let editingAdmin = null;
+
+function openEditAdminModal(admin) {
+  editingAdmin = typeof admin === 'string' ? JSON.parse(admin) : admin;
+  document.getElementById('edit-admin-id').value       = editingAdmin.id;
+  document.getElementById('edit-admin-name').value     = editingAdmin.name || '';
+  document.getElementById('edit-admin-phone').value    = editingAdmin.phone || '';
+  document.getElementById('edit-admin-city-wish').value = editingAdmin.city_wish || '';
+  document.getElementById('t-modal-edit-admin-title').textContent = t('modal-edit-admin-title');
+  document.getElementById('t-admin-name-label').textContent      = t('admin-name-label');
+  document.getElementById('t-admin-phone-label').textContent     = t('admin-phone-label');
+  document.getElementById('t-admin-city-wish-label').textContent = t('admin-city-wish-label');
+  document.getElementById('t-assign-cities-label2').textContent  = t('assign-cities');
+  document.getElementById('t-cancel-edit-admin-btn').textContent = t('cancel');
+  document.getElementById('t-save-edit-admin-btn').textContent   = t('save');
+
+  // Список городов с текущими назначениями
+  const list = document.getElementById('edit-admin-cities-list');
+  list.innerHTML = allCitiesList.map(c => {
+    const assigned = (editingAdmin.cities || []).some(ec => ec.id === c.id);
+    return `<div class="city-select-item ${assigned ? 'selected' : ''}" data-id="${c.id}"
+                 onclick="this.classList.toggle('selected')">
+      <div>
+        <div class="city-select-name">${c.name}</div>
+        <div class="city-select-country">${c.country}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  openModal('modal-edit-admin');
+}
+
+async function saveAdminEdit() {
+  const btn = document.getElementById('t-save-edit-admin-btn');
+  btn.disabled = true;
+  try {
+    // Сохраняем данные пользователя
+    const res = await apiMain('users', 'update', {
+      user_id:   editingAdmin.id,
+      name:      document.getElementById('edit-admin-name').value.trim(),
+      phone:     document.getElementById('edit-admin-phone').value.trim(),
+      city_wish: document.getElementById('edit-admin-city-wish').value.trim(),
+    });
+    if (!res.success) { toast(res.error || 'Error', 'error'); btn.disabled = false; return; }
+
+    // Diff городов
+    const selectedCityIds  = [...document.querySelectorAll('#edit-admin-cities-list .city-select-item.selected')].map(el => parseInt(el.dataset.id));
+    const currentCityIds   = (editingAdmin.cities || []).map(c => c.id);
+    const toAdd    = selectedCityIds.filter(id => !currentCityIds.includes(id));
+    const toRemove = currentCityIds.filter(id => !selectedCityIds.includes(id));
+    for (const cityId of toAdd)    await apiMain('user_cities', 'assign',   { user_id: editingAdmin.id, city_ids: [cityId] });
+    for (const cityId of toRemove) await apiMain('user_cities', 'unassign', { user_id: editingAdmin.id, city_id: cityId });
+
+    toast(t('save'), 'success');
+    closeModal('modal-edit-admin');
+    loadRequests();
+  } catch(e) { toast(e.message, 'error'); }
+  btn.disabled = false;
+}
+
+async function deleteAdmin(id) {
+  if (!confirm(t('confirm-delete-admin'))) return;
+  try {
+    const res = await apiMain('users', 'delete', { user_id: id });
+    if (res.success) { toast(t('delete-admin'), 'success'); loadRequests(); loadDashboard(); }
+    else toast(res.error, 'error');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
 function renderCityAdminsList(selectedIds) {
   const list = document.getElementById('city-admins-list');
   if (!list) return;
@@ -2593,11 +2718,12 @@ function initObjectsSection() {
     populateCitySelect();
   }
   if (!parseMap) {
-    setTimeout(() => {
-      parseMap = L.map('parse-map', { center: [49.5883, 34.5514], zoom: 14 });
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(parseMap);
-      parseMap.on('click', onMapClick);
-    }, 100);
+    // Инициализируем сразу без timeout чтобы Leaflet не ломал grid
+    parseMap = L.map('parse-map', { center: [49.5883, 34.5514], zoom: 14 });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(parseMap);
+    parseMap.on('click', onMapClick);
+    // После рендера DOM — пересчитываем размер
+    requestAnimationFrame(() => parseMap.invalidateSize());
   }
 }
 
