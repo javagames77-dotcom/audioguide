@@ -1747,7 +1747,7 @@ const i18n = {
     'nav-overview': 'Обзор',
     'nav-dashboard': 'Дашборд',
     'nav-manage': 'Управление',
-    'nav-requests': 'Адміністратори',
+    'nav-requests': 'Администраторы',
     'nav-cities': 'Города',
     'nav-objects': 'Объекты',
     'loading': 'Загрузка...',
@@ -1849,7 +1849,7 @@ const i18n = {
     'city-search-btn': 'Найти',
     'city-map-hint': 'Кликните на карту чтобы задать точные координаты',
     'mob-dashboard': 'Дашборд',
-    'mob-requests': 'Адміни',
+    'mob-requests': 'Админы',
     'mob-cities': 'Города',
     'mob-objects': 'Объекты',
   },
@@ -2421,7 +2421,7 @@ function openCreateCity() {
   document.getElementById('city-country-input').value = 'Ukraine';
   document.getElementById('city-lat-input').value = '';
   document.getElementById('city-lng-input').value = '';
-  document.querySelectorAll('.lang-toggle[data-lang]').forEach(el => el.classList.toggle('on', el.dataset.lang === 'uk'));
+  document.querySelectorAll('#modal-city .lang-toggle[data-lang]').forEach(el => el.classList.toggle('on', el.dataset.lang === 'uk'));
   const tog = document.getElementById('city-active-toggle');
   tog.dataset.active = 'false';
   tog.classList.remove('on');
@@ -2442,7 +2442,7 @@ function openEditCity(city) {
   document.getElementById('city-lat-input').value = c.center_lat;
   document.getElementById('city-lng-input').value = c.center_lng;
   const langs = c.languages || ['uk'];
-  document.querySelectorAll('.lang-toggle[data-lang]').forEach(el => el.classList.toggle('on', langs.includes(el.dataset.lang)));
+  document.querySelectorAll('#modal-city .lang-toggle[data-lang]').forEach(el => el.classList.toggle('on', langs.includes(el.dataset.lang)));
   const tog = document.getElementById('city-active-toggle');
   tog.dataset.active = String(c.is_active);
   tog.classList.toggle('on', c.is_active);
@@ -2646,7 +2646,7 @@ async function saveCity() {
   const country = document.getElementById('city-country-input').value.trim() || 'Ukraine';
   const lat     = parseFloat(document.getElementById('city-lat-input').value);
   const lng     = parseFloat(document.getElementById('city-lng-input').value);
-  const langs   = [...document.querySelectorAll('.lang-toggle[data-lang].on')].map(el => el.dataset.lang);
+  const langs   = [...document.querySelectorAll('#modal-city .lang-toggle[data-lang].on')].map(el => el.dataset.lang);
   const active  = document.getElementById('city-active-toggle').dataset.active === 'true';
 
   if (!name)      { toast(t('city-name-label') + ' required', 'error'); return; }
