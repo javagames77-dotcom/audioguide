@@ -2362,12 +2362,24 @@ async function apiMain(resource, action, data = {}) {
 }
 
 async function apiObjects(resource, action, data = {}) {
-  const res = await fetch(API_OBJECTS, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token: getToken(), resource, action, data })
-  });
-  return res.json();
+  const isHeavy = (resource === 'generate' || resource === 'objects' && action === 'parse');
+  const timeoutMs = isHeavy ? 120000 : 30000;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(API_OBJECTS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: getToken(), resource, action, data }),
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    return res.json();
+  } catch(e) {
+    clearTimeout(timer);
+    if (e.name === 'AbortError') throw new Error('Превышено время ожидания. Попробуйте снова.');
+    throw e;
+  }
 }
 
 async function checkAuth() {
@@ -3200,35 +3212,40 @@ async function confirmGenAudio() {
   if (!langs.length) { toast('Выберите хотя бы один язык', 'error'); return; }
 
   const btn = document.getElementById('t-confirm-audio-btn');
+  const lbl = document.getElementById('t-confirm-audio-label');
   btn.disabled = true;
-  const origLabel = document.getElementById('t-confirm-audio-label').textContent;
-  document.getElementById('t-confirm-audio-label').textContent = '...';
+  const origLabel = lbl.textContent;
 
   try {
     const cardsRes = await apiObjects('cards', 'list', { object_id: genAudioObject.id });
     const cards = cardsRes.cards || [];
 
     let ok = 0, fail = 0;
-    for (const lang of langs) {
+    for (let i = 0; i < langs.length; i++) {
+      const lang = langs[i];
+      lbl.textContent = `${lang.toUpperCase()} ${i+1}/${langs.length}...`;
       const card = cards.find(c => c.lang_code === lang);
-      if (!card) { fail++; continue; }
+      if (!card) {
+        toast(`Нет текста для ${lang.toUpperCase()} — пропущено`, 'error');
+        fail++; continue;
+      }
       try {
         const res = await apiObjects('generate', 'audio', { card_id: card.id, voice });
-        if (res.success) ok++; else fail++;
-      } catch(e) { fail++; }
+        if (res.success) ok++; else { toast(`Ошибка ${lang.toUpperCase()}: ${res.error||''}`, 'error'); fail++; }
+      } catch(e) { toast(`${lang.toUpperCase()}: ${e.message}`, 'error'); fail++; }
     }
 
     if (ok > 0) {
-      toast(`Аудио сгенерировано: ${ok} язык(ов)${fail ? ', ошибок: ' + fail : ''}`, ok > 0 ? 'success' : 'error');
+      toast(`Аудио готово: ${ok} язык(ов)${fail ? ', ошибок: '+fail : ''}`, 'success');
       closeModal('modal-gen-audio');
       loadSavedObjects();
     } else {
-      toast(`Ошибка генерации. Убедитесь что тексты сгенерированы.`, 'error');
+      toast('Генерация не удалась. Проверьте что тексты сгенерированы.', 'error');
     }
   } catch(e) { toast(e.message, 'error'); }
 
   btn.disabled = false;
-  document.getElementById('t-confirm-audio-label').textContent = origLabel;
+  lbl.textContent = origLabel;
 }
 
 
