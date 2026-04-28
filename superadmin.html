@@ -964,6 +964,8 @@ input[type=range]::-webkit-slider-thumb {
 .objects-layout > div {
   min-width: 0;
   max-width: 100%;
+  overflow: hidden;
+  width: 100%;
 }
 
 .objects-sidebar-panel {
@@ -2223,8 +2225,14 @@ function renderRequestsTable(rows) {
           <button class="btn btn-success btn-sm" onclick='openApproveModal(${JSON.stringify(r).replace(/'/g,"\'")})'>${t('approve')}</button>
           <button class="btn btn-danger btn-sm" onclick="rejectAdmin(${r.id})">${t('reject')}</button>
         ` : ''}
-        ${r.status === 'active'   ? `<span style="font-size:11px;color:var(--green);font-family:var(--mono)">✓ ${t('active-lbl')}</span>` : ''}
-        ${r.status === 'rejected' ? `<span style="font-size:11px;color:var(--red);font-family:var(--mono)">✗ ${t('rejected-lbl')}</span>` : ''}
+        ${r.status === 'active' ? `
+          <span style="font-size:11px;color:var(--green);font-family:var(--mono)">✓ ${t('active-lbl')}</span>
+          <button class="btn btn-danger btn-sm" onclick="rejectAdmin(${r.id})">${t('reject')}</button>
+        ` : ''}
+        ${r.status === 'rejected' ? `
+          <span style="font-size:11px;color:var(--red);font-family:var(--mono)">✗ ${t('rejected-lbl')}</span>
+          <button class="btn btn-success btn-sm" onclick="openApproveModal(${JSON.stringify(r).replace(/`/g,'\`')})">${t('approve')}</button>
+        ` : ''}
       </div></td>
     </tr>
   `).join('');
@@ -2607,6 +2615,7 @@ function onCitySelect() {
   document.getElementById('objects-content').style.display = 'block';
   if (parseMap && currentCity) {
     parseMap.setView([currentCity.center_lat, currentCity.center_lng], 14);
+    setTimeout(() => parseMap.invalidateSize(), 50);
   }
   loadSavedObjects();
 }
