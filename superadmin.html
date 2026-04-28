@@ -344,7 +344,11 @@ body {
 /* ═══════════════════════════════════════
    TABLE
 ═══════════════════════════════════════ */
-.table-wrap { overflow-x: auto; }
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
 table { width: 100%; border-collapse: collapse; }
 th {
   font-family: var(--mono);
@@ -551,16 +555,15 @@ input[type=range]::-webkit-slider-thumb {
 ═══════════════════════════════════════ */
 #parse-map {
   width: 100%;
+  max-width: 100%;
   height: 400px;
-  border-radius: var(--radius);
   overflow: hidden;
-  border: 1px solid var(--line);
   background: var(--bg3);
+  display: block;
 }
 @media (max-width: 768px) {
-  #parse-map { height: 260px; }
+  #parse-map { height: 240px; }
   .objects-sidebar-panel { position: static; }
-  .panel-body { padding: 14px; }
 }
 
 .leaflet-container {
@@ -948,6 +951,11 @@ input[type=range]::-webkit-slider-thumb {
   gap: 16px;
   align-items: start;
 }
+.objects-layout > div {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
 
 .objects-sidebar-panel {
   position: sticky;
@@ -1266,9 +1274,9 @@ input[type=range]::-webkit-slider-thumb {
             <div class="panel-head">
               <div class="panel-title" id="t-parse-panel-title"></div>
             </div>
-            <div class="panel-body" style="padding:0;overflow:hidden">
+            <div class="panel-body" style="padding:0">
               <!-- Map -->
-              <div id="parse-map" style="border-radius:0;border:none"></div>
+              <div id="parse-map"></div>
               <div style="padding:0 20px">
               <div class="map-hint">
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none" opacity=".5"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.1"/><path d="M6.5 4v3M6.5 9h.01" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
