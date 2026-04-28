@@ -666,6 +666,56 @@ input[type=range]::-webkit-slider-thumb {
 /* ═══════════════════════════════════════
    SAVED OBJECTS TABLE (with pipeline)
 ═══════════════════════════════════════ */
+
+/* Multi-delete checkbox */
+.obj-check { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+.obj-row-selected td { background: rgba(200,98,42,.05); }
+.bulk-bar {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(200,98,42,.08);
+  border-bottom: 1px solid rgba(200,98,42,.2);
+  font-size: 12px;
+  color: var(--text2);
+}
+.bulk-bar.visible { display: flex; }
+
+/* Audio player in modal */
+.audio-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+.audio-item.active-audio { border-color: rgba(42,184,122,.4); background: rgba(42,184,122,.05); }
+.audio-play-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--bg4); border: 1px solid var(--line2);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--text2); flex-shrink: 0; transition: all var(--tr);
+}
+.audio-play-btn:hover { border-color: var(--accent); color: var(--accent); }
+.audio-meta { flex: 1; min-width: 0; }
+.audio-voice { font-size: 11px; color: var(--text2); font-family: var(--mono); }
+.audio-active-badge { font-size: 10px; color: var(--green); margin-left: 6px; }
+.card-text-area {
+  width: 100%; min-height: 80px;
+  background: var(--bg3); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-size: 13px; padding: 10px 12px; resize: vertical;
+  font-family: var(--sans); line-height: 1.5;
+}
+.card-text-area:focus { outline: none; border-color: var(--line2); }
+.lang-tab { padding: 5px 12px; font-size: 12px; border-radius: 20px; cursor: pointer;
+  background: var(--bg3); border: 1px solid var(--line); color: var(--text3);
+  transition: all var(--tr); }
+.lang-tab.active { background: rgba(200,98,42,.1); border-color: rgba(200,98,42,.4); color: var(--accent); }
+.modal-wide { max-width: 680px; width: 96vw; }
+
 .pipeline-row {
   display: flex;
   align-items: center;
@@ -1390,14 +1440,21 @@ input[type=range]::-webkit-slider-thumb {
           <div class="panel" id="saved-objects-panel">
             <div class="panel-head">
               <div class="panel-title" id="t-saved-objects-title"></div>
-              <button class="btn btn-ghost btn-sm" onclick="loadSavedObjects()" id="t-refresh-btn">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6a4 4 0 1 1-1.2-2.8M10 2v3H7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
+              <div class="btn-group">
+                <button class="btn btn-danger btn-sm" id="btn-bulk-delete" onclick="bulkDeleteObjects()" style="display:none">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4 3v7h4V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span id="t-bulk-delete-btn"></span>
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="loadSavedObjects()" id="t-refresh-btn">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6a4 4 0 1 1-1.2-2.8M10 2v3H7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
             </div>
             <div class="table-wrap">
               <table>
                 <thead>
                   <tr>
+                    <th style="width:32px"><input type="checkbox" class="obj-check" id="obj-check-all" onchange="toggleAllObjects(this)"></th>
                     <th id="t-obj-th-name"></th>
                     <th id="t-obj-th-cat"></th>
                     <th id="t-obj-th-pipeline"></th>
@@ -1405,7 +1462,7 @@ input[type=range]::-webkit-slider-thumb {
                   </tr>
                 </thead>
                 <tbody id="saved-objects-tbody">
-                  <tr><td colspan="4" class="loading-row"><div class="spinner-sm"></div></td></tr>
+                  <tr><td colspan="5" class="loading-row"><div class="spinner-sm"></div></td></tr>
                 </tbody>
               </table>
             </div>
@@ -1416,6 +1473,80 @@ input[type=range]::-webkit-slider-thumb {
   </section>
 
 </main>
+
+
+<!-- MODAL: Edit Object -->
+<div class="modal-overlay" id="modal-edit-obj">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <div class="modal-title" id="t-modal-edit-obj-title">Редактировать объект</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-obj')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto">
+
+      <!-- Название -->
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">Название</label>
+        <input type="text" class="form-input" id="edit-obj-name">
+      </div>
+
+      <!-- Тексты по языкам -->
+      <div class="form-group" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label class="form-label" style="margin:0">Текст</label>
+          <div style="display:flex;gap:6px" id="edit-obj-lang-tabs"></div>
+        </div>
+        <textarea class="card-text-area" id="edit-obj-text" rows="5"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:6px">
+          <button class="btn btn-ghost btn-sm" onclick="saveCardText()">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 5.5l3 3 5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Сохранить текст
+          </button>
+        </div>
+      </div>
+
+      <!-- Аудио -->
+      <div class="form-group" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label class="form-label" style="margin:0">Аудио</label>
+          <div style="display:flex;gap:6px" id="edit-obj-audio-lang-tabs"></div>
+        </div>
+        <div id="edit-obj-audio-list"></div>
+
+        <!-- Загрузка вручную -->
+        <div style="margin-top:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--radius-sm);border:1px dashed var(--line)">
+          <div class="form-label" style="margin-bottom:8px">Загрузить аудио вручную</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="file" id="edit-obj-audio-file" accept="audio/*" style="font-size:12px;color:var(--text2);flex:1;min-width:0">
+            <select class="form-select" id="edit-obj-upload-voice" style="width:140px">
+              <option value="nova">Nova</option>
+              <option value="alloy">Alloy</option>
+              <option value="echo">Echo</option>
+              <option value="fable">Fable</option>
+              <option value="onyx">Onyx</option>
+              <option value="shimmer">Shimmer</option>
+              <option value="manual">Manual upload</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="uploadAudioManually()">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5l3-4 3 4M2 10h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Загрузить
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-obj')">Закрыть</button>
+      <button class="btn btn-primary" onclick="saveEditObj()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 6.5l4 4 6-6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Сохранить
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- TOAST -->
 <div class="toast-wrap" id="toast-wrap"></div>
@@ -1708,6 +1839,7 @@ const i18n = {
     'obj-th-cat': 'Категорія',
     'obj-th-pipeline': 'Конвеєр',
     'obj-th-actions': 'Дії',
+    'bulk-delete-btn': 'Видалити вибрані',
     'gen-text': 'Текст',
     'gen-audio': 'Аудіо',
     'modal-approve-title': 'Схвалити заявку',
@@ -1820,6 +1952,7 @@ const i18n = {
     'obj-th-cat': 'Категория',
     'obj-th-pipeline': 'Конвейер',
     'obj-th-actions': 'Действия',
+    'bulk-delete-btn': 'Удалить выбранные',
     'gen-text': 'Текст',
     'gen-audio': 'Аудио',
     'modal-approve-title': 'Одобрить заявку',
@@ -1932,6 +2065,7 @@ const i18n = {
     'obj-th-cat': 'Category',
     'obj-th-pipeline': 'Pipeline',
     'obj-th-actions': 'Actions',
+    'bulk-delete-btn': 'Delete selected',
     'gen-text': 'Text',
     'gen-audio': 'Audio',
     'modal-approve-title': 'Approve application',
@@ -2052,6 +2186,7 @@ function renderLang() {
     't-obj-th-name':      'obj-th-name',
     't-obj-th-cat':       'obj-th-cat',
     't-obj-th-pipeline':  'obj-th-pipeline',
+    't-bulk-delete-btn':   'bulk-delete-btn',
     't-obj-th-actions':   'obj-th-actions',
     't-modal-approve-title': 'modal-approve-title',
     't-assign-cities-label': 'assign-cities',
@@ -2901,18 +3036,24 @@ async function loadSavedObjects() {
   } catch(e) { toast(e.message, 'error'); }
 }
 
+let savedObjects = [];
+
 function renderSavedObjects(objects) {
+  savedObjects = objects;
+  updateBulkBar();
   const tb = document.getElementById('saved-objects-tbody');
   if (!objects.length) {
-    tb.innerHTML = `<tr><td colspan="4"><div class="empty-state">
+    tb.innerHTML = `<tr><td colspan="5"><div class="empty-state">
       <div class="empty-title">${t('no-objects')}</div>
       <div class="empty-sub">${t('no-objects-sub')}</div>
     </div></td></tr>`;
     return;
   }
   tb.innerHTML = objects.map(o => {
-    const hasText  = o.cards && o.cards.some(c => c.status === 'generated' || c.status === 'ready');
-    return `<tr>
+    const hasText  = o.cards && o.cards.some(c => c.text_status === 'generated' || c.text_status === 'ready');
+    const hasAudio = o.cards && o.cards.some(c => c.has_audio);
+    return `<tr data-obj-id="${o.id}">
+      <td style="width:32px"><input type="checkbox" class="obj-check obj-row-check" data-id="${o.id}" onchange="onObjCheckChange()"></td>
       <td class="td-name">${o.name}</td>
       <td><span class="pill pill-draft">${o.category}</span></td>
       <td><div class="pipeline-row">
@@ -2920,14 +3061,54 @@ function renderSavedObjects(objects) {
         <span class="pipe-arrow">›</span>
         <span class="pipe-step ${hasText?'done':'empty'}">${t('gen-text')}</span>
         <span class="pipe-arrow">›</span>
-        <span class="pipe-step empty">${t('gen-audio')}</span>
+        <span class="pipe-step ${hasAudio?'done':'empty'}">${t('gen-audio')}</span>
       </div></td>
       <td><div class="btn-group">
+        <button class="btn btn-ghost btn-sm" onclick='openEditObjModal(${JSON.stringify(o).replace(/'/g,"\'")})'><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 9.5h2l5-5-2-2-5 5v2z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <button class="btn btn-amber btn-sm" onclick='openGenTextModal(${JSON.stringify(o).replace(/'/g,"\'")})'>${t('gen-text')}</button>
         <button class="btn btn-ghost btn-sm" onclick='openGenAudioModal(${JSON.stringify(o).replace(/'/g,"\'")})'>${t('gen-audio')}</button>
       </div></td>
     </tr>`;
   }).join('');
+}
+
+function onObjCheckChange() {
+  updateBulkBar();
+  const checks = document.querySelectorAll('.obj-row-check');
+  const allChecked = [...checks].every(c => c.checked);
+  const checkAll = document.getElementById('obj-check-all');
+  if (checkAll) checkAll.checked = allChecked && checks.length > 0;
+}
+
+function toggleAllObjects(master) {
+  document.querySelectorAll('.obj-row-check').forEach(c => c.checked = master.checked);
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const selected = document.querySelectorAll('.obj-row-check:checked');
+  const btn = document.getElementById('btn-bulk-delete');
+  if (!btn) return;
+  if (selected.length > 0) {
+    btn.style.display = '';
+    const lbl = document.getElementById('t-bulk-delete-btn');
+    if (lbl) lbl.textContent = t('bulk-delete-btn') + ' (' + selected.length + ')';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+async function bulkDeleteObjects() {
+  const ids = [...document.querySelectorAll('.obj-row-check:checked')].map(c => parseInt(c.dataset.id));
+  if (!ids.length) return;
+  if (!confirm(`Удалить ${ids.length} объект(ов)?`)) return;
+  try {
+    await Promise.all(ids.map(id => apiObjects('objects', 'delete', { object_id: id })));
+    toast(`Удалено ${ids.length} объектов`, 'success');
+    const checkAll = document.getElementById('obj-check-all');
+    if (checkAll) checkAll.checked = false;
+    loadSavedObjects();
+  } catch(e) { toast(e.message, 'error'); }
 }
 
 /* ═══════════════════════════════════════
@@ -2999,6 +3180,198 @@ async function confirmGenAudio() {
 }
 
 
+
+
+/* ═══════════════════════════════════════
+   EDIT OBJECT MODAL
+═══════════════════════════════════════ */
+let editingObj    = null;
+let editObjCards  = [];
+let editAudioLang = 'uk';
+let currentAudio  = null;
+
+async function openEditObjModal(obj) {
+  editingObj = typeof obj === 'string' ? JSON.parse(obj) : obj;
+  document.getElementById('edit-obj-name').value = editingObj.name || '';
+
+  // Load cards
+  try {
+    const res = await apiObjects('cards', 'list', { object_id: editingObj.id });
+    editObjCards = res.cards || [];
+  } catch(e) { editObjCards = []; }
+
+  // Build lang tabs for text
+  const langs = editObjCards.length
+    ? [...new Set(editObjCards.map(c => c.lang_code))]
+    : ['uk', 'ru', 'en'];
+  editAudioLang = langs[0] || 'uk';
+
+  renderEditObjLangTabs(langs);
+  renderEditObjAudioLangTabs(langs);
+  switchEditObjLang(editAudioLang);
+  await loadEditObjAudio();
+  openModal('modal-edit-obj');
+}
+
+function renderEditObjLangTabs(langs) {
+  const el = document.getElementById('edit-obj-lang-tabs');
+  el.innerHTML = langs.map(l => `
+    <button class="lang-tab ${l === editAudioLang ? 'active' : ''}" onclick="switchEditObjLang('${l}')">${l.toUpperCase()}</button>
+  `).join('');
+}
+
+function renderEditObjAudioLangTabs(langs) {
+  const el = document.getElementById('edit-obj-audio-lang-tabs');
+  el.innerHTML = langs.map(l => `
+    <button class="lang-tab ${l === editAudioLang ? 'active' : ''}" onclick="switchEditObjAudioLang('${l}')">${l.toUpperCase()}</button>
+  `).join('');
+}
+
+function switchEditObjLang(lang) {
+  editAudioLang = lang;
+  document.querySelectorAll('#edit-obj-lang-tabs .lang-tab').forEach(b =>
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === lang));
+  const card = editObjCards.find(c => c.lang_code === lang);
+  document.getElementById('edit-obj-text').value = card ? (card.text || '') : '';
+}
+
+function switchEditObjAudioLang(lang) {
+  editAudioLang = lang;
+  document.querySelectorAll('#edit-obj-audio-lang-tabs .lang-tab').forEach(b =>
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === lang));
+  loadEditObjAudio();
+}
+
+async function loadEditObjAudio() {
+  const card = editObjCards.find(c => c.lang_code === editAudioLang);
+  const list = document.getElementById('edit-obj-audio-list');
+  if (!card) { list.innerHTML = '<div style="font-size:12px;color:var(--text3)">Нет текста для этого языка</div>'; return; }
+  list.innerHTML = '<div class="loading-row"><div class="spinner-sm"></div></div>';
+  try {
+    const res = await apiObjects('audio', 'list', { card_id: card.id });
+    const audios = res.audio_files || [];
+    if (!audios.length) {
+      list.innerHTML = '<div style="font-size:12px;color:var(--text3)">Нет аудиофайлов</div>';
+      return;
+    }
+    list.innerHTML = audios.map(a => `
+      <div class="audio-item ${a.is_active ? 'active-audio' : ''}" data-audio-id="${a.id}">
+        <button class="audio-play-btn" onclick="playAudio('${a.url}', this)" title="Слушать">
+          <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>
+        </button>
+        <div class="audio-meta">
+          <div class="audio-voice">${a.voice || 'manual'}${a.duration_sec ? ' · ' + a.duration_sec + 's' : ''}
+            ${a.is_active ? '<span class="audio-active-badge">● active</span>' : ''}
+          </div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px;font-family:var(--mono)">${a.url ? a.url.split('/').pop().substring(0,40) : ''}</div>
+        </div>
+        <div class="btn-group">
+          ${!a.is_active ? `<button class="btn btn-success btn-sm" onclick="setAudioActive(${a.id}, ${card.id})" title="Сделать активным">✓</button>` : ''}
+          <button class="btn btn-danger btn-sm" onclick="deleteAudio(${a.id}, ${card.id})" title="Удалить">✕</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--text3)">Ошибка загрузки</div>';
+  }
+}
+
+function playAudio(url, btn) {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  // Reset all play buttons
+  document.querySelectorAll('.audio-play-btn').forEach(b => {
+    b.innerHTML = '<svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>';
+  });
+  if (!url) return;
+  currentAudio = new Audio(url);
+  currentAudio.play();
+  btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><rect x="0" y="0" width="4" height="10"/><rect x="6" y="0" width="4" height="10"/></svg>';
+  currentAudio.onended = () => {
+    btn.innerHTML = '<svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>';
+    currentAudio = null;
+  };
+}
+
+async function saveCardText() {
+  const card = editObjCards.find(c => c.lang_code === editAudioLang);
+  if (!card) { toast('Нет карточки для этого языка', 'error'); return; }
+  const text = document.getElementById('edit-obj-text').value.trim();
+  try {
+    const res = await apiObjects('cards', 'update', {
+      object_id: editingObj.id, lang_code: editAudioLang, text, text_status: 'ready'
+    });
+    if (res.success) {
+      card.text = text; card.text_status = 'ready';
+      toast('Текст сохранён', 'success');
+    } else { toast(res.error, 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function saveEditObj() {
+  const name = document.getElementById('edit-obj-name').value.trim();
+  if (!name) { toast('Введите название', 'error'); return; }
+  try {
+    const res = await apiObjects('objects', 'update', { object_id: editingObj.id, name });
+    if (res.success) {
+      toast('Объект сохранён', 'success');
+      closeModal('modal-edit-obj');
+      loadSavedObjects();
+    } else { toast(res.error, 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function setAudioActive(audioId, cardId) {
+  try {
+    await apiObjects('audio', 'set_active', { audio_id: audioId });
+    toast('Активный аудиофайл изменён', 'success');
+    loadEditObjAudio();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteAudio(audioId, cardId) {
+  if (!confirm('Удалить аудиофайл?')) return;
+  try {
+    await apiObjects('audio', 'delete', { audio_id: audioId });
+    toast('Аудио удалено', 'success');
+    loadEditObjAudio();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function uploadAudioManually() {
+  const fileInput = document.getElementById('edit-obj-audio-file');
+  const voice     = document.getElementById('edit-obj-upload-voice').value;
+  const card      = editObjCards.find(c => c.lang_code === editAudioLang);
+
+  if (!fileInput.files[0]) { toast('Выберите файл', 'error'); return; }
+  if (!card) { toast('Нет карточки для этого языка', 'error'); return; }
+
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'ml_default');
+  formData.append('folder', 'whispr_audio');
+  formData.append('resource_type', 'video');
+
+  try {
+    const uploadRes = await fetch('https://api.cloudinary.com/v1_1/dzxvshxvk/video/upload', {
+      method: 'POST', body: formData
+    });
+    const uploadData = await uploadRes.json();
+    if (!uploadData.secure_url) throw new Error('Cloudinary upload failed');
+
+    const saveRes = await apiObjects('audio', 'save', {
+      card_id: card.id,
+      url: uploadData.secure_url,
+      voice,
+      duration_sec: Math.round(uploadData.duration || 0)
+    });
+    if (saveRes.success || saveRes.audio) {
+      toast('Аудио загружено', 'success');
+      fileInput.value = '';
+      loadEditObjAudio();
+    } else { toast(saveRes.error || 'Save error', 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+}
 
 /* ═══════════════════════════════════════
    INIT
