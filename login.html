@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whispr.city — Вхід</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --ink:      #0d0d0b;
+  --ink2:     #3d3d38;
+  --ink3:     #7a7a72;
+  --paper:    #f7f4ef;
+  --paper2:   #eeeae2;
+  --paper3:   #e4dfd5;
+  --white:    #ffffff;
+  --night:    #080c14;
+  --accent:   #c8622a;
+  --accent-h: #b05520;
+  --amber:    #e89e22;
+  --success:  #2ab87a;
+  --danger:   #c8312a;
+  --serif:    'Fraunces', Georgia, serif;
+  --sans:     'DM Sans', system-ui, sans-serif;
+  --mono:     'DM Mono', 'Courier New', monospace;
+  --nav-h:    56px;
+  --radius:   12px;
+  --radius-sm:8px;
+  --shadow:   0 2px 8px rgba(13,13,11,.06), 0 12px 40px rgba(13,13,11,.08);
+  --tr:       .18s ease;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* NAV */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  background: rgba(8,12,20,.96);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.nav-logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lang-sw {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+}
+.lang-btn {
+  background: none;
+  border: none;
+  padding: 4px 9px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255,255,255,.35);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all var(--tr);
+  letter-spacing: .5px;
+}
+.lang-btn:hover { color: rgba(255,255,255,.7); }
+.lang-btn.active { background: var(--accent); color: #fff; }
+
+.nav-reg-link {
+  font-size: 13px;
+  color: rgba(255,255,255,.4);
+  text-decoration: none;
+  font-weight: 400;
+  transition: color var(--tr);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.nav-reg-link:hover { color: rgba(255,255,255,.75); }
+
+/* PAGE LAYOUT */
+.page {
+  min-height: 100vh;
+  padding-top: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-inner {
+  width: 100%;
+  max-width: 440px;
+  padding: 48px 24px 80px;
+}
+
+/* PAGE HEADER */
+.page-head {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.page-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.page-eyebrow::before,
+.page-eyebrow::after {
+  content: '';
+  width: 20px; height: 1px;
+  background: var(--accent);
+  opacity: .5;
+}
+
+.page-title {
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -1px;
+  line-height: 1.05;
+  margin-bottom: 8px;
+}
+.page-title em { font-style: italic; color: var(--accent); }
+
+.page-sub {
+  font-size: 14px;
+  color: var(--ink3);
+  font-weight: 300;
+}
+
+/* CARD */
+.card {
+  background: var(--white);
+  border: 1px solid var(--paper3);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* ALERT */
+.alert {
+  display: none;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 32px 4px;
+  border: 1px solid transparent;
+}
+.alert.show { display: flex; }
+.alert-error   { background: #fef2f0; color: var(--danger); border-color: rgba(200,49,42,.15); }
+.alert-warning { background: #fffbeb; color: #92400e; border-color: rgba(200,150,42,.2); }
+.alert svg { flex-shrink: 0; margin-top: 1px; }
+
+/* FORM */
+.form-body { padding: 32px; }
+
+.form-group { margin-bottom: 16px; }
+.form-group:last-of-type { margin-bottom: 0; }
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink2);
+  margin-bottom: 6px;
+  letter-spacing: .01em;
+}
+.req { color: var(--accent); font-size: 13px; line-height: 1; }
+
+.form-input {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--paper);
+  border: 1.5px solid var(--paper3);
+  border-radius: var(--radius-sm);
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color var(--tr), box-shadow var(--tr), background var(--tr);
+  -webkit-appearance: none;
+}
+.form-input::placeholder { color: var(--ink3); font-weight: 300; }
+.form-input:hover { border-color: var(--paper3); background: var(--white); }
+.form-input:focus {
+  border-color: var(--accent);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(200,98,42,.1);
+}
+.form-input.error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(200,49,42,.08);
+}
+
+.field-error {
+  font-size: 11px;
+  color: var(--danger);
+  margin-top: 5px;
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+.field-error.show { display: flex; }
+
+/* Password toggle */
+.pw-wrap { position: relative; }
+.pw-toggle {
+  position: absolute;
+  right: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink3);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color var(--tr);
+  line-height: 1;
+}
+.pw-toggle:hover { color: var(--ink); }
+.form-input.has-toggle { padding-right: 42px; }
+
+/* Forgot password */
+.form-row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.forgot-link {
+  font-size: 12px;
+  color: var(--ink3);
+  text-decoration: none;
+  transition: color var(--tr);
+}
+.forgot-link:hover { color: var(--accent); }
+
+/* Submit button */
+.btn-submit {
+  width: 100%;
+  padding: 13px 24px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background var(--tr), opacity var(--tr), transform .1s;
+  margin-top: 24px;
+  letter-spacing: .01em;
+}
+.btn-submit:hover:not(:disabled) { background: var(--accent-h); }
+.btn-submit:active:not(:disabled) { transform: scale(.99); }
+.btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  display: none;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--ink3);
+  letter-spacing: .5px;
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--paper3);
+}
+
+/* Register link button */
+.btn-register {
+  width: 100%;
+  padding: 12px 24px;
+  background: transparent;
+  color: var(--ink2);
+  border: 1.5px solid var(--paper3);
+  border-radius: var(--radius-sm);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all var(--tr);
+}
+.btn-register:hover {
+  border-color: var(--ink3);
+  color: var(--ink);
+}
+
+/* Card footer */
+.card-footer {
+  padding: 16px 32px;
+  border-top: 1px solid var(--paper2);
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink3);
+}
+.card-footer a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--tr);
+}
+.card-footer a:hover { color: var(--accent-h); text-decoration: underline; }
+
+/* Site footer */
+.site-footer {
+  text-align: center;
+  padding: 28px 24px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink3);
+  letter-spacing: .3px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .nav { padding: 0 16px; }
+  .page-inner { padding: 32px 16px 60px; }
+  .page-title { font-size: 28px; }
+  .form-body { padding: 24px 20px; }
+  .alert { margin: 0 20px 4px; }
+  .card-footer { padding: 14px 20px; }
+}
+
+@media (max-width: 380px) {
+  .page-title { font-size: 24px; }
+  .lang-btn { padding: 4px 7px; font-size: 9px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">
+    <svg width="130" height="48" viewBox="0 0 152 56" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="21" cy="28" r="5" fill="#e89e22"/>
+      <path d="M21 28 Q21 15 31 15 Q41 15 41 28 Q41 41 31 41" fill="none" stroke="rgba(232,158,34,0.6)" stroke-width="2" stroke-linecap="round"/>
+      <path d="M21 28 Q21 8 35 8 Q49 8 49 28 Q49 48 35 48" fill="none" stroke="rgba(232,158,34,0.22)" stroke-width="1.2" stroke-linecap="round"/>
+      <text x="60" y="30" font-family="Fraunces,Georgia,serif" font-size="24" font-style="italic" font-weight="700" fill="#ffffff" letter-spacing="-0.5">whispr</text>
+      <text x="60" y="46" font-family="DM Mono,monospace" font-size="12" fill="rgba(232,158,34,0.85)" letter-spacing="2.5">.city</text>
+    </svg>
+  </a>
+  <div class="nav-right">
+    <div class="lang-sw">
+      <button class="lang-btn active" onclick="setLang('uk')">UA</button>
+      <button class="lang-btn" onclick="setLang('ru')">RU</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+    <a href="register.html" class="nav-reg-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M2 12c0-2.2 2.2-4 5-4s5 1.8 5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M10.5 2.5l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span id="t-nav-reg"></span>
+    </a>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+  <div class="page-inner">
+
+    <div class="page-head">
+      <div class="page-eyebrow" id="t-eyebrow"></div>
+      <h1 class="page-title" id="t-title"></h1>
+      <p class="page-sub" id="t-sub"></p>
+    </div>
+
+    <div class="card">
+
+      <!-- Alert: general error -->
+      <div class="alert alert-error" id="alertError">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M7 4.5v3M7 9.5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <span id="alertErrorText"></span>
+      </div>
+
+      <!-- Alert: pending -->
+      <div class="alert alert-warning" id="alertPending">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1L13 12H1L7 1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+          <path d="M7 5v3M7 10h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <span id="alertPendingText"></span>
+      </div>
+
+      <div class="form-body">
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="inp-email">
+            Email <span class="req">*</span>
+          </label>
+          <input
+            type="email"
+            id="inp-email"
+            class="form-input"
+            autocomplete="email"
+            placeholder="you@example.com"
+            maxlength="255"
+          >
+          <div class="field-error" id="err-email">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.1"/><path d="M5.5 3.5v2.5M5.5 7.5h.01" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+            <span id="err-email-text"></span>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <div class="form-row-between">
+            <label class="form-label" for="inp-password" style="margin-bottom:0">
+              <span id="t-label-password"></span> <span class="req">*</span>
+            </label>
+            <a href="mailto:admin@whispr.city" class="forgot-link" id="t-forgot"></a>
+          </div>
+          <div class="pw-wrap" style="margin-top:6px">
+            <input
+              type="password"
+              id="inp-password"
+              class="form-input has-toggle"
+              autocomplete="current-password"
+              maxlength="128"
+            >
+            <button type="button" class="pw-toggle" onclick="togglePassword()" tabindex="-1">
+              <svg id="icon-eye" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/>
+                <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/>
+              </svg>
+              <svg id="icon-eye-off" width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:none">
+                <path d="M2 2l12 12M6.5 6.6A2 2 0 0 0 9.4 9.5M4.2 4.3C2.4 5.4 1 8 1 8s2.5 5 7 5a7.5 7.5 0 0 0 3.8-1.1M6.5 3.1A7 7 0 0 1 15 8s-.8 1.6-2.2 2.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <div class="field-error" id="err-password">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.1"/><path d="M5.5 3.5v2.5M5.5 7.5h.01" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+            <span id="err-password-text"></span>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button type="button" class="btn-submit" id="btnSubmit" onclick="handleSubmit()">
+          <div class="spinner" id="spinner"></div>
+          <svg id="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M9 2h5v5M14 2l-6 6M7 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span id="t-btn-submit"></span>
+        </button>
+
+        <!-- Divider -->
+        <div class="divider" id="t-divider"></div>
+
+        <!-- Register button -->
+        <a href="register.html" class="btn-register">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <circle cx="7.5" cy="5.5" r="3" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M2 13c0-2.5 2.5-4.5 5.5-4.5S13 10.5 13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M11.5 1v4M9.5 3h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <span id="t-btn-register"></span>
+        </a>
+
+      </div>
+
+      <div class="card-footer">
+        <span id="t-footer-text"></span>
+        <a href="index.html" id="t-footer-link"></a>
+      </div>
+
+    </div>
+
+    <div class="site-footer" id="t-site-footer"></div>
+
+  </div>
+</div>
+
+<script>
+/* ── I18N ── */
+const i18n = {
+  uk: {
+    'nav-reg':       'Реєстрація',
+    'eyebrow':       'Адмін-панель',
+    'title':         '<em>Вхід</em> до панелі',
+    'sub':           'Введіть email та пароль для доступу до адмін-панелі.',
+    'label-password':'Пароль',
+    'forgot':        'Забули пароль?',
+    'btn-submit':    'Увійти',
+    'divider':       'або',
+    'btn-register':  'Подати заявку на адміністратора',
+    'footer-text':   'Повернутись на ',
+    'footer-link':   'головну',
+    'site-footer':   '© 2026 Whispr.city · Волонтерський проєкт',
+    'err-email-req': 'Вкажіть email',
+    'err-email-inv': 'Невірний формат email',
+    'err-pass-req':  'Вкажіть пароль',
+    'err-invalid':   'Невірний email або пароль',
+    'err-pending':   'Ваша заявка ще на розгляді. Зачекайте схвалення суперадміна.',
+    'err-rejected':  'Вашу заявку відхилено. Напишіть на admin@whispr.city для уточнень.',
+    'err-generic':   'Помилка сервера. Спробуйте пізніше.',
+  },
+  ru: {
+    'nav-reg':       'Регистрация',
+    'eyebrow':       'Админ-панель',
+    'title':         '<em>Вход</em> в панель',
+    'sub':           'Введите email и пароль для доступа к админ-панели.',
+    'label-password':'Пароль',
+    'forgot':        'Забыли пароль?',
+    'btn-submit':    'Войти',
+    'divider':       'или',
+    'btn-register':  'Подать заявку на администратора',
+    'footer-text':   'Вернуться на ',
+    'footer-link':   'главную',
+    'site-footer':   '© 2026 Whispr.city · Волонтёрский проект',
+    'err-email-req': 'Укажите email',
+    'err-email-inv': 'Неверный формат email',
+    'err-pass-req':  'Укажите пароль',
+    'err-invalid':   'Неверный email или пароль',
+    'err-pending':   'Ваша заявка ещё на рассмотрении. Ожидайте одобрения суперадмина.',
+    'err-rejected':  'Ваша заявка отклонена. Напишите на admin@whispr.city для уточнений.',
+    'err-generic':   'Ошибка сервера. Попробуйте позже.',
+  },
+  en: {
+    'nav-reg':       'Register',
+    'eyebrow':       'Admin panel',
+    'title':         '<em>Sign in</em> to panel',
+    'sub':           'Enter your email and password to access the admin panel.',
+    'label-password':'Password',
+    'forgot':        'Forgot password?',
+    'btn-submit':    'Sign in',
+    'divider':       'or',
+    'btn-register':  'Apply to become an administrator',
+    'footer-text':   'Back to ',
+    'footer-link':   'homepage',
+    'site-footer':   '© 2026 Whispr.city · Volunteer project',
+    'err-email-req': 'Please enter your email',
+    'err-email-inv': 'Invalid email format',
+    'err-pass-req':  'Please enter your password',
+    'err-invalid':   'Invalid email or password',
+    'err-pending':   'Your application is pending approval. Please wait for the superadmin to review it.',
+    'err-rejected':  'Your application was rejected. Contact admin@whispr.city for details.',
+    'err-generic':   'Server error. Please try again later.',
+  }
+};
+
+let lang = 'uk';
+function t(k) { return i18n[lang][k] || k; }
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === (l === 'uk' ? 'ua' : l));
+  });
+  renderLang();
+}
+
+function renderLang() {
+  document.getElementById('t-nav-reg').textContent     = t('nav-reg');
+  document.getElementById('t-eyebrow').textContent     = t('eyebrow');
+  document.getElementById('t-title').innerHTML         = t('title');
+  document.getElementById('t-sub').textContent         = t('sub');
+  document.getElementById('t-label-password').textContent = t('label-password');
+  document.getElementById('t-forgot').textContent      = t('forgot');
+  document.getElementById('t-btn-submit').textContent  = t('btn-submit');
+  document.getElementById('t-divider').textContent     = t('divider');
+  document.getElementById('t-btn-register').textContent = t('btn-register');
+  document.getElementById('t-footer-text').textContent = t('footer-text');
+  document.getElementById('t-footer-link').textContent = t('footer-link');
+  document.getElementById('t-site-footer').textContent = t('site-footer');
+  clearAllErrors();
+}
+
+/* ── PASSWORD TOGGLE ── */
+function togglePassword() {
+  const inp = document.getElementById('inp-password');
+  const isPass = inp.type === 'password';
+  inp.type = isPass ? 'text' : 'password';
+  document.getElementById('icon-eye').style.display     = isPass ? 'none'  : 'block';
+  document.getElementById('icon-eye-off').style.display = isPass ? 'block' : 'none';
+}
+
+/* ── VALIDATION ── */
+function showFieldError(field, msgKey) {
+  document.getElementById('inp-' + field).classList.add('error');
+  document.getElementById('err-' + field + '-text').textContent = t(msgKey);
+  document.getElementById('err-' + field).classList.add('show');
+}
+
+function clearFieldError(field) {
+  document.getElementById('inp-' + field).classList.remove('error');
+  document.getElementById('err-' + field).classList.remove('show');
+}
+
+function clearAllErrors() {
+  ['email', 'password'].forEach(clearFieldError);
+  document.getElementById('alertError').classList.remove('show');
+  document.getElementById('alertPending').classList.remove('show');
+}
+
+['email', 'password'].forEach(f => {
+  document.getElementById('inp-' + f).addEventListener('input', () => clearFieldError(f));
+});
+
+function validate() {
+  let ok = true;
+  clearAllErrors();
+  const email = document.getElementById('inp-email').value.trim();
+  const pass  = document.getElementById('inp-password').value;
+  if (!email) { showFieldError('email', 'err-email-req'); ok = false; }
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showFieldError('email', 'err-email-inv'); ok = false; }
+  if (!pass) { showFieldError('password', 'err-pass-req'); ok = false; }
+  return ok;
+}
+
+/* ── SUBMIT ── */
+const API = 'https://primary-production-4b93e.up.railway.app/webhook/whispr/auth';
+
+function setLoading(on) {
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = on;
+  document.getElementById('spinner').style.display  = on ? 'block' : 'none';
+  document.getElementById('btn-icon').style.display = on ? 'none'  : 'block';
+  document.getElementById('t-btn-submit').style.opacity = on ? '.6' : '1';
+}
+
+function showAlert(type, msgKey) {
+  const el = document.getElementById('alert' + type);
+  const txtId = type === 'Error' ? 'alertErrorText' : 'alertPendingText';
+  document.getElementById(txtId).textContent = t(msgKey);
+  el.classList.add('show');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function handleSubmit() {
+  if (!validate()) return;
+  setLoading(true);
+
+  try {
+    const res  = await fetch(API, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:   'login',
+        email:    document.getElementById('inp-email').value.trim().toLowerCase(),
+        password: document.getElementById('inp-password').value
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // Сохраняем токен и данные пользователя
+      localStorage.setItem('whispr_token', data.token);
+      localStorage.setItem('whispr_user',  JSON.stringify(data.user));
+      // Редирект на дашборд суперадмина
+      window.location.href = 'superadmin.html';
+    } else {
+      const err = data.error || '';
+      if (err.toLowerCase().includes('pending')) {
+        showAlert('Pending', 'err-pending');
+      } else if (err.toLowerCase().includes('rejected')) {
+        showAlert('Error', 'err-rejected');
+      } else {
+        showAlert('Error', 'err-invalid');
+      }
+      setLoading(false);
+    }
+  } catch (e) {
+    showAlert('Error', 'err-generic');
+    setLoading(false);
+  }
+}
+
+/* Submit on Enter */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    const active = document.activeElement;
+    if (active && active.closest('.card') && active.tagName !== 'BUTTON') {
+      handleSubmit();
+    }
+  }
+});
+
+/* ── INIT ── */
+// Если уже залогинен — редирект
+const savedToken = localStorage.getItem('whispr_token');
+if (savedToken) {
+  fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'me', token: savedToken })
+  })
+  .then(r => r.json())
+  .then(d => { if (d.success) window.location.href = 'superadmin.html'; })
+  .catch(() => {});
+}
+
+renderLang();
+</script>
+</body>
+</html>
