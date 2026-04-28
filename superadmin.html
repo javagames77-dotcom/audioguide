@@ -87,37 +87,6 @@ body {
   gap: 16px;
 }
 
-/* Hamburger button — скрыт на десктопе */
-.nav-burger {
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  margin-left: 4px;
-}
-.nav-burger span {
-  display: block;
-  width: 20px;
-  height: 1.5px;
-  background: rgba(255,255,255,.6);
-  border-radius: 2px;
-  transition: all .25s;
-}
-
-/* Overlay для закрытия сайдбара */
-.sidebar-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.5);
-  z-index: 89;
-}
-.sidebar-overlay.open { display: block; }
-
 .topbar-user {
   display: flex;
   align-items: center;
@@ -986,6 +955,50 @@ input[type=range]::-webkit-slider-thumb {
 ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
 
 /* ═══════════════════════════════════════
+   MOBILE BOTTOM NAV
+═══════════════════════════════════════ */
+.mob-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 56px;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  z-index: 200;
+  backdrop-filter: blur(10px);
+}
+.mob-nav-items { display: flex; height: 100%; }
+.mob-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-size: 9px;
+  font-weight: 500;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: color var(--tr);
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  position: relative;
+}
+.mob-nav-btn.active { color: var(--accent); }
+.mob-nav-dot {
+  position: absolute;
+  top: 8px; right: calc(50% - 16px);
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: none;
+}
+.mob-nav-dot.show { display: block; }
+
+/* ═══════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════ */
 @media (max-width: 1100px) {
@@ -994,19 +1007,16 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 @media (max-width: 768px) {
-  .nav-burger { display: flex; }
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform .25s ease;
-    z-index: 90;
-  }
-  .sidebar.open { transform: translateX(0); }
-  .main { margin-left: 0; }
+  .sidebar { display: none; }
+  .mob-nav { display: block; }
+  .main { margin-left: 0; padding-bottom: 72px; }
   .section { padding: 20px 16px; }
   .stats-row { grid-template-columns: 1fr 1fr; }
   .form-row-2, .form-row-3, .form-row-4 { grid-template-columns: 1fr; }
   .objects-layout { grid-template-columns: 1fr; }
   .city-grid { grid-template-columns: 1fr; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .topbar-logo { display: none; }
 }
 
 </style>
@@ -1037,10 +1047,7 @@ input[type=range]::-webkit-slider-thumb {
         <div class="topbar-role" id="tb-role">superadmin</div>
       </div>
     </div>
-    <button class="nav-burger" id="nav-burger" onclick="toggleSidebar()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-  <button class="btn-logout" onclick="handleLogout()">
+    <button class="btn-logout" onclick="handleLogout()">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
         <path d="M5 1H2a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h3M9 9l3-3-3-3M12 6H5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -1048,9 +1055,6 @@ input[type=range]::-webkit-slider-thumb {
     </button>
   </div>
 </header>
-
-<!-- Sidebar overlay -->
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <!-- ═══ SIDEBAR ═══ -->
 <nav class="sidebar" id="sidebar">
@@ -1607,6 +1611,10 @@ const i18n = {
     'rejected-lbl': 'відхилений',
     'draft-lbl': 'чернетка',
     'city-wish-lbl': 'Бажане місто',
+    'mob-dashboard': 'Дашборд',
+    'mob-requests': 'Заявки',
+    'mob-cities': 'Міста',
+    'mob-objects': 'Об\'єкти',
   },
   ru: {
     'logout': 'Выйти',
@@ -1703,6 +1711,10 @@ const i18n = {
     'rejected-lbl': 'отклонён',
     'draft-lbl': 'черновик',
     'city-wish-lbl': 'Желаемый город',
+    'mob-dashboard': 'Дашборд',
+    'mob-requests': 'Заявки',
+    'mob-cities': 'Города',
+    'mob-objects': 'Объекты',
   },
   en: {
     'logout': 'Sign out',
@@ -1799,6 +1811,10 @@ const i18n = {
     'rejected-lbl': 'rejected',
     'draft-lbl': 'draft',
     'city-wish-lbl': 'Desired city',
+    'mob-dashboard': 'Dashboard',
+    'mob-requests': 'Requests',
+    'mob-cities': 'Cities',
+    'mob-objects': 'Objects',
   }
 };
 
@@ -1901,6 +1917,12 @@ function renderLang() {
   document.getElementById('t-cities-title').innerHTML = t('cities-title');
   document.getElementById('t-obj-title').innerHTML    = t('obj-title');
 
+  // mob nav labels
+  ['dashboard','requests','cities','objects'].forEach(k => {
+    const el = document.getElementById('t-mob-' + k);
+    if (el) el.textContent = t('mob-' + k);
+  });
+
   // city active toggle
   const tog = document.getElementById('city-active-toggle');
   if (tog) {
@@ -1912,7 +1934,20 @@ function renderLang() {
 /* ═══════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════ */
-
+function showSection(name, mobBtn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  const navItem = document.getElementById('nav-' + name);
+  if (navItem) navItem.classList.add('active');
+  const mobItem = mobBtn || document.getElementById('mob-' + name);
+  if (mobItem) mobItem.classList.add('active');
+  if (name === 'requests')  loadRequests();
+  if (name === 'cities')    loadCities();
+  if (name === 'objects')   initObjectsSection();
+  if (name === 'dashboard') loadDashboard();
+}
 
 /* ═══════════════════════════════════════
    TOAST
@@ -2010,8 +2045,9 @@ async function loadDashboard() {
 
     if (pending > 0) {
       const badge = document.getElementById('pending-badge');
-      badge.textContent = pending;
-      badge.style.display = 'block';
+      if (badge) { badge.textContent = pending; badge.style.display = 'block'; }
+      const dot = document.getElementById('mob-req-dot');
+      if (dot) dot.classList.add('show');
     }
 
     allRequests    = users;
@@ -2576,39 +2612,6 @@ async function confirmGenAudio() {
 
 
 /* ═══════════════════════════════════════
-   MOBILE SIDEBAR
-═══════════════════════════════════════ */
-function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
-  const isOpen  = sidebar.classList.contains('open');
-  if (isOpen) { closeSidebar(); } else { openSidebar(); }
-}
-
-function openSidebar() {
-  document.getElementById('sidebar').classList.add('open');
-  document.getElementById('sidebar-overlay').classList.add('open');
-}
-
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('open');
-}
-
-// Закрываем сайдбар при клике на пункт меню на мобильном
-function showSection(name) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('section-' + name).classList.add('active');
-  document.getElementById('nav-' + name).classList.add('active');
-  closeSidebar();
-  if (name === 'requests') loadRequests();
-  if (name === 'cities')   loadCities();
-  if (name === 'objects')  initObjectsSection();
-  if (name === 'dashboard') loadDashboard();
-}
-
-/* ═══════════════════════════════════════
    INIT
 ═══════════════════════════════════════ */
 (async function init() {
@@ -2635,5 +2638,44 @@ function showSection(name) {
   loadDashboard();
 })();
 </script>
+
+<!-- ═══ MOBILE BOTTOM NAV ═══ -->
+<nav class="mob-nav" id="mob-nav">
+  <div class="mob-nav-items">
+    <button class="mob-nav-btn active" id="mob-dashboard" onclick="showSection('dashboard',this)">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="2" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/>
+        <rect x="10" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/>
+        <rect x="2" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/>
+        <rect x="10" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/>
+      </svg>
+      <span id="t-mob-dashboard"></span>
+    </button>
+    <button class="mob-nav-btn" id="mob-requests" onclick="showSection('requests',this)">
+      <div class="mob-nav-dot" id="mob-req-dot"></div>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="2" y="2" width="10" height="13" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M13 4h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".5"/>
+        <path d="M5 7h5M5 9.5h5M5 12h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <span id="t-mob-requests"></span>
+    </button>
+    <button class="mob-nav-btn" id="mob-cities" onclick="showSection('cities',this)">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M9 1C6 1 3.5 3.6 3.5 6.8c0 4.5 5.5 10.2 5.5 10.2s5.5-5.7 5.5-10.2C14.5 3.6 12 1 9 1z" stroke="currentColor" stroke-width="1.3"/>
+        <circle cx="9" cy="6.5" r="2" stroke="currentColor" stroke-width="1.3"/>
+      </svg>
+      <span id="t-mob-cities"></span>
+    </button>
+    <button class="mob-nav-btn" id="mob-objects" onclick="showSection('objects',this)">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M5 9h8M9 5c-2 2-3 4-3 4s1 2 3 4M9 5c2 2 3 4 3 4s-1 2-3 4" stroke="currentColor" stroke-width="1" fill="none"/>
+      </svg>
+      <span id="t-mob-objects"></span>
+    </button>
+  </div>
+</nav>
+
 </body>
 </html>
