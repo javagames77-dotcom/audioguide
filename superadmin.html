@@ -3181,18 +3181,21 @@ function openGenTextModal(obj) {
 
 async function confirmGenText() {
   const langs = [...document.querySelectorAll('#modal-gen-text .lang-toggle.on')].map(el => el.dataset.lang);
-  if (!langs.length) { toast('Select at least one language', 'error'); return; }
+  if (!langs.length) { toast('Выберите хотя бы один язык', 'error'); return; }
   const btn = document.getElementById('t-confirm-gen-btn');
+  const origHTML = btn.innerHTML;
   btn.disabled = true;
+  btn.innerHTML = `<div class="spinner-sm"></div> Генерация...`;
   try {
     const res = await apiObjects('generate', 'text', { object_id: genTextObject.id, languages: langs });
     if (res.success) {
-      toast(`${t('gen-text')}: ${genTextObject.name}`, 'success');
+      toast(`Тексты сгенерированы: ${genTextObject.name}`, 'success');
       closeModal('modal-gen-text');
       loadSavedObjects();
-    } else { toast(res.error, 'error'); }
+    } else { toast(res.error || 'Ошибка генерации', 'error'); }
   } catch(e) { toast(e.message, 'error'); }
   btn.disabled = false;
+  btn.innerHTML = origHTML;
 }
 
 /* ═══════════════════════════════════════
@@ -3212,9 +3215,9 @@ async function confirmGenAudio() {
   if (!langs.length) { toast('Выберите хотя бы один язык', 'error'); return; }
 
   const btn = document.getElementById('t-confirm-audio-btn');
-  const lbl = document.getElementById('t-confirm-audio-label');
+  const origHTML = btn.innerHTML;
   btn.disabled = true;
-  const origLabel = lbl.textContent;
+  btn.innerHTML = `<div class="spinner-sm"></div> ${langs[0].toUpperCase()} 1/${langs.length}...`;
 
   try {
     const cardsRes = await apiObjects('cards', 'list', { object_id: genAudioObject.id });
@@ -3223,7 +3226,7 @@ async function confirmGenAudio() {
     let ok = 0, fail = 0;
     for (let i = 0; i < langs.length; i++) {
       const lang = langs[i];
-      lbl.textContent = `${lang.toUpperCase()} ${i+1}/${langs.length}...`;
+      btn.innerHTML = `<div class="spinner-sm"></div> ${lang.toUpperCase()} ${i+1}/${langs.length}...`;
       const card = cards.find(c => c.lang_code === lang);
       if (!card) {
         toast(`Нет текста для ${lang.toUpperCase()} — пропущено`, 'error');
@@ -3245,7 +3248,7 @@ async function confirmGenAudio() {
   } catch(e) { toast(e.message, 'error'); }
 
   btn.disabled = false;
-  lbl.textContent = origLabel;
+  btn.innerHTML = origHTML;
 }
 
 
