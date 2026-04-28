@@ -954,7 +954,6 @@ input[type=range]::-webkit-slider-thumb {
 .objects-layout > div {
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
 }
 
 .objects-sidebar-panel {
@@ -1442,6 +1441,11 @@ input[type=range]::-webkit-slider-thumb {
         </div>
       </div>
     </div>
+      <div class="form-group" style="margin-top:14px">
+        <label class="form-label" id="t-city-admins-label"></label>
+        <div id="city-admins-list" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto"></div>
+      </div>
+    </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('modal-city')" id="t-cancel-city-btn"></button>
       <button class="btn btn-primary" onclick="saveCity()" id="t-save-city-btn"></button>
@@ -1627,6 +1631,7 @@ const i18n = {
     'rejected-lbl': 'відхилений',
     'draft-lbl': 'чернетка',
     'city-wish-lbl': 'Бажане місто',
+    'city-admins-label': 'Адміністратори міста',
     'mob-dashboard': 'Дашборд',
     'mob-requests': 'Заявки',
     'mob-cities': 'Міста',
@@ -1727,6 +1732,7 @@ const i18n = {
     'rejected-lbl': 'отклонён',
     'draft-lbl': 'черновик',
     'city-wish-lbl': 'Желаемый город',
+    'city-admins-label': 'Администраторы города',
     'mob-dashboard': 'Дашборд',
     'mob-requests': 'Заявки',
     'mob-cities': 'Города',
@@ -1827,6 +1833,7 @@ const i18n = {
     'rejected-lbl': 'rejected',
     'draft-lbl': 'draft',
     'city-wish-lbl': 'Desired city',
+    'city-admins-label': 'City administrators',
     'mob-dashboard': 'Dashboard',
     'mob-requests': 'Requests',
     'mob-cities': 'Cities',
@@ -1932,6 +1939,9 @@ function renderLang() {
   document.getElementById('t-req-title').innerHTML    = t('req-title');
   document.getElementById('t-cities-title').innerHTML = t('cities-title');
   document.getElementById('t-obj-title').innerHTML    = t('obj-title');
+
+  const admLbl = document.getElementById('t-city-admins-label');
+  if (admLbl) admLbl.textContent = t('city-admins-label');
 
   // mob nav labels
   ['dashboard','requests','cities','objects'].forEach(k => {
@@ -2218,8 +2228,12 @@ async function loadCities() {
   document.getElementById('cities-grid').innerHTML =
     `<div class="loading-row" style="grid-column:1/-1"><div class="spinner-sm"></div></div>`;
   try {
-    const res = await apiMain('cities', 'list');
-    allCitiesList = res.cities || [];
+    const [citiesRes, usersRes] = await Promise.all([
+      apiMain('cities', 'list'),
+      allRequests.length ? Promise.resolve({ users: allRequests }) : apiMain('users', 'list', { status: 'all' })
+    ]);
+    allCitiesList = citiesRes.cities || [];
+    if (!allRequests.length) allRequests = usersRes.users || [];
     renderCitiesGrid(allCitiesList);
     populateCitySelect();
   } catch(e) { toast(e.message, 'error'); }
@@ -2268,6 +2282,7 @@ function openCreateCity() {
   tog.classList.remove('on');
   document.getElementById('t-city-active-val').textContent = t('city-active-off');
   document.getElementById('t-modal-city-title').textContent = t('modal-city-create');
+  renderCityAdminsList([]);
   openModal('modal-city');
 }
 
@@ -2286,10 +2301,33 @@ function openEditCity(city) {
   tog.classList.toggle('on', c.is_active);
   document.getElementById('t-city-active-val').textContent = c.is_active ? t('city-active-on') : t('city-active-off');
   document.getElementById('t-modal-city-title').textContent = t('modal-city-edit');
+  const currentAdminIds = (c.admins || []).map(a => a.id);
+  renderCityAdminsList(currentAdminIds);
   openModal('modal-city');
 }
 
 function toggleCityLang(el) { el.classList.toggle('on'); }
+
+function renderCityAdminsList(selectedIds) {
+  const list = document.getElementById('city-admins-list');
+  if (!list) return;
+  const activeAdmins = allRequests.filter(u => u.status === 'active');
+  if (!activeAdmins.length) {
+    list.innerHTML = `<div style="font-size:12px;color:var(--text3)">${t('no-requests')}</div>`;
+    return;
+  }
+  list.innerHTML = activeAdmins.map(a => `
+    <div class="city-select-item ${selectedIds.includes(a.id) ? 'selected' : ''}"
+         data-admin-id="${a.id}"
+         onclick="this.classList.toggle('selected')">
+      <div>
+        <div class="city-select-name">${a.name}</div>
+        <div class="city-select-country">${a.email}</div>
+      </div>
+      ${selectedIds.includes(a.id) ? `<span class="pill pill-active" style="margin-left:auto">${t('active-lbl')}</span>` : ''}
+    </div>
+  `).join('');
+}
 
 function toggleCityActive() {
   const tog = document.getElementById('city-active-toggle');
@@ -2327,6 +2365,15 @@ async function saveCity() {
       res = await apiMain('cities', 'create', { name, country, center_lat: lat, center_lng: lng, languages: langs, is_active: active });
     }
     if (res.success) {
+      const cityId = res.city?.id || editingCityId;
+      // Назначаем выбранных админов
+      const selectedAdmins = [...document.querySelectorAll('#city-admins-list .city-select-item.selected')]
+        .map(el => parseInt(el.dataset.adminId));
+      if (cityId && selectedAdmins.length) {
+        for (const adminId of selectedAdmins) {
+          await apiMain('user_cities', 'assign', { user_id: adminId, city_ids: [cityId] });
+        }
+      }
       toast(t('save'), 'success');
       closeModal('modal-city');
       loadCities();
