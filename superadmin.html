@@ -957,15 +957,18 @@ input[type=range]::-webkit-slider-thumb {
 ═══════════════════════════════════════ */
 .objects-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px;
   align-items: start;
+  width: 100%;
 }
 .objects-layout > div {
   min-width: 0;
-  max-width: 100%;
   overflow: hidden;
   width: 100%;
+}
+@media (min-width: 769px) {
+  .objects-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
 }
 
 .objects-sidebar-panel {
