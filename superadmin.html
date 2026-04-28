@@ -1011,6 +1011,18 @@ input[type=range]::-webkit-slider-thumb {
 .mob-nav-dot.show { display: block; }
 
 /* ═══════════════════════════════════════
+   CITY MAP MODAL
+═══════════════════════════════════════ */
+#city-modal-map {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  margin-top: 8px;
+  background: var(--bg3);
+}
+
+/* ═══════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════ */
 @media (max-width: 1100px) {
@@ -1414,6 +1426,25 @@ input[type=range]::-webkit-slider-thumb {
           <input type="text" class="form-input" id="city-country-input" value="Ukraine" maxlength="100">
         </div>
       </div>
+      <!-- Поиск города + мини-карта -->
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label" id="t-city-search-label"></label>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <input type="text" class="form-input" id="city-search-input"
+                 placeholder="Київ, Харків..."
+                 style="flex:1"
+                 oninput="debounceCitySearch(this.value)">
+          <button class="btn btn-ghost" onclick="searchCityOnMap()" type="button" id="t-city-search-btn">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M9.5 9.5l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div id="city-modal-map"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:5px;font-family:var(--mono)" id="t-city-map-hint"></div>
+      </div>
+
       <div class="form-row form-row-2">
         <div class="form-group">
           <label class="form-label">Latitude</label>
@@ -1440,7 +1471,6 @@ input[type=range]::-webkit-slider-thumb {
           </div>
         </div>
       </div>
-    </div>
       <div class="form-group" style="margin-top:14px">
         <label class="form-label" id="t-city-admins-label"></label>
         <div id="city-admins-list" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto"></div>
@@ -1632,6 +1662,9 @@ const i18n = {
     'draft-lbl': 'чернетка',
     'city-wish-lbl': 'Бажане місто',
     'city-admins-label': 'Адміністратори міста',
+    'city-search-label': 'Пошук міста на карті',
+    'city-search-btn': 'Знайти',
+    'city-map-hint': 'Клікніть на карту щоб задати точні координати',
     'mob-dashboard': 'Дашборд',
     'mob-requests': 'Заявки',
     'mob-cities': 'Міста',
@@ -1733,6 +1766,9 @@ const i18n = {
     'draft-lbl': 'черновик',
     'city-wish-lbl': 'Желаемый город',
     'city-admins-label': 'Администраторы города',
+    'city-search-label': 'Поиск города на карте',
+    'city-search-btn': 'Найти',
+    'city-map-hint': 'Кликните на карту чтобы задать точные координаты',
     'mob-dashboard': 'Дашборд',
     'mob-requests': 'Заявки',
     'mob-cities': 'Города',
@@ -1834,6 +1870,9 @@ const i18n = {
     'draft-lbl': 'draft',
     'city-wish-lbl': 'Desired city',
     'city-admins-label': 'City administrators',
+    'city-search-label': 'Search city on map',
+    'city-search-btn': 'Find',
+    'city-map-hint': 'Click on the map to set exact coordinates',
     'mob-dashboard': 'Dashboard',
     'mob-requests': 'Requests',
     'mob-cities': 'Cities',
@@ -1942,6 +1981,12 @@ function renderLang() {
 
   const admLbl = document.getElementById('t-city-admins-label');
   if (admLbl) admLbl.textContent = t('city-admins-label');
+  const srchLbl = document.getElementById('t-city-search-label');
+  if (srchLbl) srchLbl.textContent = t('city-search-label');
+  const srchBtn = document.getElementById('t-city-search-btn');
+  if (srchBtn) srchBtn.textContent = t('city-search-btn');
+  const mapHint = document.getElementById('t-city-map-hint');
+  if (mapHint) mapHint.textContent = t('city-map-hint');
 
   // mob nav labels
   ['dashboard','requests','cities','objects'].forEach(k => {
@@ -2283,7 +2328,9 @@ function openCreateCity() {
   document.getElementById('t-city-active-val').textContent = t('city-active-off');
   document.getElementById('t-modal-city-title').textContent = t('modal-city-create');
   renderCityAdminsList([]);
+  document.getElementById('city-search-input').value = '';
   openModal('modal-city');
+  initCityModalMap(null, null);
 }
 
 function openEditCity(city) {
@@ -2303,10 +2350,87 @@ function openEditCity(city) {
   document.getElementById('t-modal-city-title').textContent = t('modal-city-edit');
   const currentAdminIds = (c.admins || []).map(a => a.id);
   renderCityAdminsList(currentAdminIds);
+  document.getElementById('city-search-input').value = c.name || '';
   openModal('modal-city');
+  initCityModalMap(c.center_lat, c.center_lng);
 }
 
 function toggleCityLang(el) { el.classList.toggle('on'); }
+
+/* ═══════════════════════════════════════
+   CITY MODAL MAP
+═══════════════════════════════════════ */
+let cityModalMap    = null;
+let cityModalMarker = null;
+let citySearchTimer = null;
+
+function initCityModalMap(lat, lng) {
+  const center = (lat && lng) ? [lat, lng] : [49.5883, 34.5514];
+  if (!cityModalMap) {
+    setTimeout(() => {
+      cityModalMap = L.map('city-modal-map', { center, zoom: 12 });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OSM'
+      }).addTo(cityModalMap);
+      cityModalMap.on('click', onCityModalMapClick);
+      if (lat && lng) placeCityModalMarker(lat, lng);
+    }, 150);
+  } else {
+    cityModalMap.setView(center, 12);
+    if (lat && lng) placeCityModalMarker(lat, lng);
+    else if (cityModalMarker) { cityModalMarker.remove(); cityModalMarker = null; }
+    setTimeout(() => cityModalMap.invalidateSize(), 200);
+  }
+}
+
+function onCityModalMapClick(e) {
+  placeCityModalMarker(e.latlng.lat, e.latlng.lng);
+  document.getElementById('city-lat-input').value = e.latlng.lat.toFixed(6);
+  document.getElementById('city-lng-input').value = e.latlng.lng.toFixed(6);
+}
+
+function placeCityModalMarker(lat, lng) {
+  if (cityModalMarker) cityModalMarker.remove();
+  cityModalMarker = L.marker([lat, lng], {
+    icon: L.divIcon({
+      className: '',
+      html: `<div style="width:12px;height:12px;border-radius:50%;background:#c8622a;border:2px solid #fff;box-shadow:0 0 0 4px rgba(200,98,42,.3)"></div>`,
+      iconAnchor: [6, 6]
+    })
+  }).addTo(cityModalMap);
+}
+
+function debounceCitySearch(val) {
+  clearTimeout(citySearchTimer);
+  if (val.length < 2) return;
+  citySearchTimer = setTimeout(() => searchCityOnMap(val), 600);
+}
+
+async function searchCityOnMap(query) {
+  const q = query || document.getElementById('city-search-input').value.trim();
+  if (!q) return;
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1&addressdetails=1`,
+      { headers: { 'Accept-Language': 'uk,ru,en', 'User-Agent': 'WhisprCity/1.0' } }
+    );
+    const data = await res.json();
+    if (!data.length) { toast('Місто не знайдено', 'error'); return; }
+    const place = data[0];
+    const lat = parseFloat(place.lat);
+    const lng = parseFloat(place.lon);
+    document.getElementById('city-lat-input').value = lat.toFixed(6);
+    document.getElementById('city-lng-input').value = lng.toFixed(6);
+    if (!document.getElementById('city-name-input').value) {
+      const name = place.address?.city || place.address?.town || place.name;
+      if (name) document.getElementById('city-name-input').value = name;
+    }
+    if (cityModalMap) {
+      cityModalMap.setView([lat, lng], 13);
+      placeCityModalMarker(lat, lng);
+    }
+  } catch(e) { toast('Помилка пошуку', 'error'); }
+}
 
 function renderCityAdminsList(selectedIds) {
   const list = document.getElementById('city-admins-list');
