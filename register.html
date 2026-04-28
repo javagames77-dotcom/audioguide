@@ -858,6 +858,7 @@ function t(key) { return i18n[lang][key] || key; }
 
 function setLang(l) {
   lang = l;
+  localStorage.setItem('whispr_lang', l);
   document.querySelectorAll('.lang-btn').forEach(b => {
     b.classList.toggle('active', b.textContent.trim().toLowerCase() === (l === 'uk' ? 'ua' : l));
   });
@@ -1075,6 +1076,14 @@ document.addEventListener('keydown', e => {
 /* ═══════════════════════════════════════
    INIT
 ═══════════════════════════════════════ */
+/* ── INIT ── */
+const _savedLang = localStorage.getItem('whispr_lang');
+if (_savedLang && i18n[_savedLang]) {
+  lang = _savedLang;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === (_savedLang === 'uk' ? 'ua' : _savedLang));
+  });
+}
 renderLang();
 </script>
 </body>
