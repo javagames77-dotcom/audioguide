@@ -3342,7 +3342,7 @@ async function loadEditObjAudio() {
   list.innerHTML = '<div class="loading-row"><div class="spinner-sm"></div></div>';
   try {
     const res = await apiObjects('audio', 'list', { card_id: card.id });
-    const audios = res.audio_files || [];
+    const audios = res.audio_files || res.audio || [];
     if (!audios.length) {
       list.innerHTML = '<div style="font-size:12px;color:var(--text3)">Нет аудиофайлов</div>';
       return;
