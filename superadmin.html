@@ -3236,8 +3236,8 @@ function renderSavedObjects(objects) {
       </div></td>
       <td><div class="btn-group">
         <button class="btn btn-ghost btn-sm" onclick='openEditObjModal(${JSON.stringify(o).replace(/'/g,"\'")})'><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 9.5h2l5-5-2-2-5 5v2z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <button class="btn btn-amber btn-sm" onclick='openGenTextModal(${JSON.stringify(o).replace(/'/g,"\'")}'>${t('gen-text')}</button>
-        <button class="btn btn-ghost btn-sm" onclick='openGenAudioModal(${JSON.stringify(o).replace(/'/g,"\'")}'>${t('gen-audio')}</button>
+        <button class="btn btn-amber btn-sm" onclick='openGenTextModal(${JSON.stringify(o).replace(/'/g,"\'")})'>${t('gen-text')}</button>
+        <button class="btn btn-ghost btn-sm" onclick='openGenAudioModal(${JSON.stringify(o).replace(/'/g,"\'")})'>${t('gen-audio')}</button>
       </div></td>
     </tr>`;
   }).join('');
