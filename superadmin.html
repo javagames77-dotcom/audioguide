@@ -664,6 +664,21 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 /* ═══════════════════════════════════════
+   GENERATING STATE ON TABLE BUTTONS
+═══════════════════════════════════════ */
+.btn-generating {
+  pointer-events: none;
+  opacity: 0.7;
+  position: relative;
+}
+.pipe-step.generating {
+  background: rgba(232,158,34,.15);
+  color: var(--amber);
+  animation: pulse-pipe 1s ease-in-out infinite;
+}
+@keyframes pulse-pipe { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ═══════════════════════════════════════
    SAVED OBJECTS TABLE (with pipeline)
 ═══════════════════════════════════════ */
 
@@ -3094,6 +3109,27 @@ async function loadSavedObjects() {
 }
 
 let savedObjects = [];
+const generatingRows = new Set(); // object_id-ов в процессе генерации
+
+function setRowGenerating(objId, type, isOn) {
+  const row = document.querySelector(`tr[data-obj-id="${objId}"]`);
+  if (!row) return;
+  if (isOn) generatingRows.add(objId + '-' + type);
+  else generatingRows.delete(objId + '-' + type);
+  // Pipeline step
+  const steps = row.querySelectorAll('.pipe-step');
+  const idx = type === 'text' ? 1 : 2;
+  if (steps[idx]) {
+    if (isOn) steps[idx].classList.add('generating');
+    else steps[idx].classList.remove('generating');
+  }
+  // Action button
+  const btns = row.querySelectorAll('.btn-amber, .btn-ghost');
+  btns.forEach(b => {
+    const isTarget = type === 'text' ? b.classList.contains('btn-amber') : (b.textContent.trim() === t('gen-audio'));
+    if (isTarget) b.classList.toggle('btn-generating', isOn);
+  });
+}
 
 function renderSavedObjects(objects) {
   savedObjects = objects;
@@ -3182,20 +3218,16 @@ function openGenTextModal(obj) {
 async function confirmGenText() {
   const langs = [...document.querySelectorAll('#modal-gen-text .lang-toggle.on')].map(el => el.dataset.lang);
   if (!langs.length) { toast('Выберите хотя бы один язык', 'error'); return; }
-  const btn = document.getElementById('t-confirm-gen-btn');
-  const origHTML = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = `<div class="spinner-sm"></div> Генерация...`;
+  closeModal('modal-gen-text');
+  setRowGenerating(genTextObject.id, 'text', true);
   try {
     const res = await apiObjects('generate', 'text', { object_id: genTextObject.id, languages: langs });
     if (res.success) {
-      toast(`Тексты сгенерированы: ${genTextObject.name}`, 'success');
-      closeModal('modal-gen-text');
+      toast(`Тексты готовы: ${genTextObject.name}`, 'success');
       loadSavedObjects();
-    } else { toast(res.error || 'Ошибка генерации', 'error'); }
+    } else { toast(res.error || 'Ошибка генерации текста', 'error'); }
   } catch(e) { toast(e.message, 'error'); }
-  btn.disabled = false;
-  btn.innerHTML = origHTML;
+  setRowGenerating(genTextObject.id, 'text', false);
 }
 
 /* ═══════════════════════════════════════
@@ -3214,10 +3246,8 @@ async function confirmGenAudio() {
   const langs = [...document.querySelectorAll('#audio-lang-toggles .lang-toggle.on')].map(el => el.dataset.lang);
   if (!langs.length) { toast('Выберите хотя бы один язык', 'error'); return; }
 
-  const btn = document.getElementById('t-confirm-audio-btn');
-  const origHTML = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = `<div class="spinner-sm"></div> ${langs[0].toUpperCase()} 1/${langs.length}...`;
+  closeModal('modal-gen-audio');
+  setRowGenerating(genAudioObject.id, 'audio', true);
 
   try {
     const cardsRes = await apiObjects('cards', 'list', { object_id: genAudioObject.id });
@@ -3226,12 +3256,8 @@ async function confirmGenAudio() {
     let ok = 0, fail = 0;
     for (let i = 0; i < langs.length; i++) {
       const lang = langs[i];
-      btn.innerHTML = `<div class="spinner-sm"></div> ${lang.toUpperCase()} ${i+1}/${langs.length}...`;
       const card = cards.find(c => c.lang_code === lang);
-      if (!card) {
-        toast(`Нет текста для ${lang.toUpperCase()} — пропущено`, 'error');
-        fail++; continue;
-      }
+      if (!card) { toast(`Нет текста для ${lang.toUpperCase()} — пропущено`, 'error'); fail++; continue; }
       try {
         const res = await apiObjects('generate', 'audio', { card_id: card.id, voice });
         if (res.success) ok++; else { toast(`Ошибка ${lang.toUpperCase()}: ${res.error||''}`, 'error'); fail++; }
@@ -3240,15 +3266,13 @@ async function confirmGenAudio() {
 
     if (ok > 0) {
       toast(`Аудио готово: ${ok} язык(ов)${fail ? ', ошибок: '+fail : ''}`, 'success');
-      closeModal('modal-gen-audio');
       loadSavedObjects();
     } else {
-      toast('Генерация не удалась. Проверьте что тексты сгенерированы.', 'error');
+      toast('Генерация не удалась. Убедитесь что тексты сгенерированы.', 'error');
     }
   } catch(e) { toast(e.message, 'error'); }
 
-  btn.disabled = false;
-  btn.innerHTML = origHTML;
+  setRowGenerating(genAudioObject.id, 'audio', false);
 }
 
 
@@ -3369,20 +3393,34 @@ async function loadEditObjAudio() {
   }
 }
 
+const PLAY_ICON  = '<svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>';
+const PAUSE_ICON = '<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><rect x="0" y="0" width="4" height="10"/><rect x="6" y="0" width="4" height="10"/></svg>';
+let currentAudioBtn = null;
+
+function resetAudioBtn() {
+  if (currentAudioBtn) { currentAudioBtn.innerHTML = PLAY_ICON; currentAudioBtn = null; }
+}
+
 function playAudio(url, btn) {
-  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-  // Reset all play buttons
-  document.querySelectorAll('.audio-play-btn').forEach(b => {
-    b.innerHTML = '<svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>';
-  });
+  // Если нажали ту же кнопку — пауза/возобновление
+  if (currentAudio && currentAudioBtn === btn) {
+    if (currentAudio.paused) {
+      currentAudio.play();
+      btn.innerHTML = PAUSE_ICON;
+    } else {
+      currentAudio.pause();
+      btn.innerHTML = PLAY_ICON;
+    }
+    return;
+  }
+  // Останавливаем предыдущий
+  if (currentAudio) { currentAudio.pause(); resetAudioBtn(); currentAudio = null; }
   if (!url) return;
   currentAudio = new Audio(url);
+  currentAudioBtn = btn;
   currentAudio.play();
-  btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><rect x="0" y="0" width="4" height="10"/><rect x="6" y="0" width="4" height="10"/></svg>';
-  currentAudio.onended = () => {
-    btn.innerHTML = '<svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>';
-    currentAudio = null;
-  };
+  btn.innerHTML = PAUSE_ICON;
+  currentAudio.onended = () => { resetAudioBtn(); currentAudio = null; };
 }
 
 async function saveCardText() {
