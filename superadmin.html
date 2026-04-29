@@ -1021,20 +1021,16 @@ input[type=range]::-webkit-slider-thumb {
    OBJECTS SECTION LAYOUT
 ═══════════════════════════════════════ */
 .objects-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 16px;
-  align-items: start;
   width: 100%;
 }
 .objects-layout > div {
-  min-width: 0;
-  overflow: hidden;
   width: 100%;
+  min-width: 0;
 }
-@media (min-width: 769px) {
-  .objects-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
-}
+
 
 .objects-sidebar-panel {
   position: sticky;
@@ -1133,7 +1129,6 @@ input[type=range]::-webkit-slider-thumb {
   /* Grid → single column */
   .stats-row { grid-template-columns: 1fr 1fr; }
   .form-row-2, .form-row-3, .form-row-4 { grid-template-columns: 1fr; }
-  .objects-layout { grid-template-columns: 1fr; }
   .city-grid { grid-template-columns: 1fr; }
 
   /* Tables scroll */
@@ -3206,23 +3201,11 @@ let savedObjects = [];
 const generatingRows = new Set(); // object_id-ов в процессе генерации
 
 function setRowGenerating(objId, type, isOn) {
-  const row = document.querySelector(`tr[data-obj-id="${objId}"]`);
-  if (!row) return;
   if (isOn) generatingRows.add(objId + '-' + type);
   else generatingRows.delete(objId + '-' + type);
-  // Pipeline step
-  const steps = row.querySelectorAll('.pipe-step');
-  const idx = type === 'text' ? 1 : 2;
-  if (steps[idx]) {
-    if (isOn) steps[idx].classList.add('generating');
-    else steps[idx].classList.remove('generating');
-  }
-  // Action button
-  const btns = row.querySelectorAll('.btn-amber, .btn-ghost');
-  btns.forEach(b => {
-    const isTarget = type === 'text' ? b.classList.contains('btn-amber') : (b.textContent.trim() === t('gen-audio'));
-    if (isTarget) b.classList.toggle('btn-generating', isOn);
-  });
+  // Перерисовываем строку если она в DOM
+  const existing = savedObjects.find(o => o.id === objId);
+  if (existing) renderSavedObjects(savedObjects);
 }
 
 function renderSavedObjects(objects) {
@@ -3239,6 +3222,7 @@ function renderSavedObjects(objects) {
   tb.innerHTML = objects.map(o => {
     const hasText  = o.cards && o.cards.some(c => c.status === 'generated' || c.status === 'ready' || c.text_status === 'generated' || c.text_status === 'ready');
     const hasAudio = o.audio_count > 0 || (o.cards && o.cards.some(c => c.has_audio || c.audio_count > 0));
+
     return `<tr data-obj-id="${o.id}">
       <td style="width:32px"><input type="checkbox" class="obj-check obj-row-check" data-id="${o.id}" onchange="onObjCheckChange()"></td>
       <td class="td-name">${o.name}</td>
