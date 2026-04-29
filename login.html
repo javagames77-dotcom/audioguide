@@ -731,8 +731,9 @@ async function handleSubmit() {
       // Сохраняем токен и данные пользователя
       localStorage.setItem('whispr_token', data.token);
       localStorage.setItem('whispr_user',  JSON.stringify(data.user));
-      // Редирект на дашборд суперадмина
-      window.location.href = 'superadmin.html';
+      // Редирект в зависимости от роли
+      const role = data.user && data.user.role;
+      window.location.href = role === 'superadmin' ? 'superadmin.html' : 'admin.html';
     } else {
       const err = data.error || '';
       if (err.toLowerCase().includes('pending')) {
@@ -777,7 +778,7 @@ if (savedToken) {
     body: JSON.stringify({ action: 'me', token: savedToken })
   })
   .then(r => r.json())
-  .then(d => { if (d.success) window.location.href = 'superadmin.html'; })
+  .then(d => { if (d.success) { const role = d.user && d.user.role; window.location.href = role === 'superadmin' ? 'superadmin.html' : 'admin.html'; } })
   .catch(() => {});
 }
 
