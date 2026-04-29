@@ -3201,11 +3201,23 @@ let savedObjects = [];
 const generatingRows = new Set(); // object_id-ов в процессе генерации
 
 function setRowGenerating(objId, type, isOn) {
+  const row = document.querySelector(`tr[data-obj-id="${objId}"]`);
+  if (!row) return;
   if (isOn) generatingRows.add(objId + '-' + type);
   else generatingRows.delete(objId + '-' + type);
-  // Перерисовываем строку если она в DOM
-  const existing = savedObjects.find(o => o.id === objId);
-  if (existing) renderSavedObjects(savedObjects);
+  // Pipeline step
+  const steps = row.querySelectorAll('.pipe-step');
+  const idx = type === 'text' ? 1 : 2;
+  if (steps[idx]) {
+    if (isOn) steps[idx].classList.add('generating');
+    else steps[idx].classList.remove('generating');
+  }
+  // Action button
+  const btns = row.querySelectorAll('.btn-amber, .btn-ghost');
+  btns.forEach(b => {
+    const isTarget = type === 'text' ? b.classList.contains('btn-amber') : (b.textContent.trim() === t('gen-audio'));
+    if (isTarget) b.classList.toggle('btn-generating', isOn);
+  });
 }
 
 function renderSavedObjects(objects) {
@@ -3222,7 +3234,6 @@ function renderSavedObjects(objects) {
   tb.innerHTML = objects.map(o => {
     const hasText  = o.cards && o.cards.some(c => c.status === 'generated' || c.status === 'ready' || c.text_status === 'generated' || c.text_status === 'ready');
     const hasAudio = o.audio_count > 0 || (o.cards && o.cards.some(c => c.has_audio || c.audio_count > 0));
-
     return `<tr data-obj-id="${o.id}">
       <td style="width:32px"><input type="checkbox" class="obj-check obj-row-check" data-id="${o.id}" onchange="onObjCheckChange()"></td>
       <td class="td-name">${o.name}</td>
