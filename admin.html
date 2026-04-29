@@ -3,1080 +3,3815 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Geo Audio Guide — Адмін</title>
+<title>Whispr.city — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600;1,9..144,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-  :root {
-    --bg: #0a0f1a;
-    --surface: #111827;
-    --surface2: #1a2332;
-    --border: #1f2d3d;
-    --accent: #00d4ff;
-    --accent2: #00ff88;
-    --danger: #ff4757;
-    --warning: #ffa502;
-    --text: #e8f0fe;
-    --text2: #7a8fa6;
-    --text3: #4a5f75;
-    --radius: 12px;
-    --shadow: 0 4px 24px rgba(0,0,0,0.4);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Geologica', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Background grid */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* HEADER */
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(10,15,26,0.92);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 20px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-  }
-
-  .logo-icon {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-  }
-
-  .logo-text {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: -0.3px;
-    line-height: 1.1;
-  }
-
-  .logo-sub {
-    font-size: 10px;
-    color: var(--text2);
-    font-weight: 300;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  /* Language switcher */
-  .lang-switcher {
-    display: flex;
-    gap: 4px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 3px;
-  }
-
-  .lang-btn {
-    background: none;
-    border: none;
-    color: var(--text2);
-    font-family: 'Geologica', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 4px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.5px;
-  }
-
-  .lang-btn:hover { color: var(--text); background: var(--surface2); }
-  .lang-btn.active { background: var(--accent); color: #000; font-weight: 700; }
-
-  /* STATUS BAR */
-  .status-bar {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--text2);
-    white-space: nowrap;
-  }
-
-  .status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--accent2);
-    box-shadow: 0 0 6px var(--accent2);
-    animation: pulse 2s infinite;
-  }
-
-  .status-dot.offline { background: var(--danger); box-shadow: 0 0 6px var(--danger); animation: none; }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  /* LAYOUT */
-  .layout {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: 360px 1fr;
-    height: calc(100vh - 60px);
-  }
-
-  /* SIDEBAR */
-  .sidebar {
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--border);
-    overflow: hidden;
-  }
-
-  /* FORM */
-  .form-section {
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-
-  .section-title {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--text3);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .form-group.full { grid-column: 1 / -1; }
-
-  label {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text2);
-    letter-spacing: 0.3px;
-  }
-
-  input {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 12px;
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    transition: all 0.2s;
-    width: 100%;
-    -webkit-appearance: none;
-  }
-
-  input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
-  }
-
-  input::placeholder { color: var(--text3); }
-
-  .btn-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-  }
-
-  .btn {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    font-family: 'Geologica', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.2px;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), #0099cc);
-    color: #000;
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0,212,255,0.3);
-  }
-
-  .btn-primary:active { transform: translateY(0); }
-
-  .btn-ghost {
-    background: var(--surface2);
-    color: var(--text2);
-    border: 1px solid var(--border);
-    flex: 0 0 auto;
-    padding: 10px 16px;
-  }
-
-  .btn-ghost:hover { color: var(--text); border-color: var(--text3); }
-
-  /* ZONES LIST */
-  .zones-section {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px 16px;
-  }
-
-  .zones-section::-webkit-scrollbar { width: 4px; }
-  .zones-section::-webkit-scrollbar-track { background: transparent; }
-  .zones-section::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  .zones-count {
-    font-size: 11px;
-    color: var(--text3);
-    margin-bottom: 10px;
-  }
-
-  .zone-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 14px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .zone-card::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: var(--accent);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  .zone-card:hover { border-color: var(--text3); transform: translateX(2px); }
-  .zone-card.active { border-color: var(--accent); background: rgba(0,212,255,0.05); }
-  .zone-card.active::before { opacity: 1; }
-
-  .zone-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-    margin-bottom: 5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .zone-meta {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--text3);
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 6px;
-  }
-
-  .zone-meta span { display: flex; align-items: center; gap: 3px; }
-
-  .zone-audio {
-    font-size: 11px;
-    color: var(--text3);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .zone-actions {
-    display: flex;
-    gap: 6px;
-    margin-top: 8px;
-  }
-
-  .btn-sm {
-    padding: 5px 12px;
-    border: none;
-    border-radius: 6px;
-    font-family: 'Geologica', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
-  }
-
-  .btn-edit {
-    background: rgba(0,212,255,0.1);
-    color: var(--accent);
-    border: 1px solid rgba(0,212,255,0.2);
-  }
-
-  .btn-edit:hover { background: rgba(0,212,255,0.2); }
-
-  .btn-delete {
-    background: rgba(255,71,87,0.1);
-    color: var(--danger);
-    border: 1px solid rgba(255,71,87,0.2);
-  }
-
-  .btn-delete:hover { background: rgba(255,71,87,0.2); }
-
-  /* EMPTY STATE */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text3);
-  }
-
-  .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
-  .empty-state p { font-size: 13px; line-height: 1.6; }
-
-  /* MAP */
-  .map-container {
-    position: relative;
-  }
-
-  #map {
-    height: 100%;
-    width: 100%;
-    background: var(--surface);
-  }
-
-  /* TOAST */
-  .toast-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    pointer-events: none;
-  }
-
-  .toast {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 13px;
-    color: var(--text);
-    box-shadow: var(--shadow);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    animation: slideIn 0.3s ease;
-    min-width: 240px;
-    max-width: 320px;
-  }
-
-  .toast.success { border-color: rgba(0,255,136,0.3); }
-  .toast.error { border-color: rgba(255,71,87,0.3); }
-
-  .toast-icon { font-size: 16px; flex-shrink: 0; }
-
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-
-  @keyframes slideOut {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
-  }
-
-  /* LOADING */
-  .loading-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(10,15,26,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
-    backdrop-filter: blur(4px);
-  }
-
-  .spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* CONFIRM DIALOG */
-  .dialog-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 200;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    backdrop-filter: blur(4px);
-  }
-
-  .dialog-overlay.show { display: flex; }
-
-  .dialog {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    max-width: 340px;
-    width: 100%;
-    box-shadow: var(--shadow);
-  }
-
-  .dialog h3 { font-size: 16px; margin-bottom: 8px; }
-  .dialog p { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; }
-
-  .dialog-actions { display: flex; gap: 8px; }
-
-  /* MOBILE */
-  @media (max-width: 768px) {
-    .layout {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr;
-      height: auto;
-      min-height: calc(100vh - 60px);
-    }
-
-    .sidebar {
-      border-right: none;
-      border-bottom: 1px solid var(--border);
-      max-height: none;
-    }
-
-    .map-container {
-      height: 50vh;
-      min-height: 300px;
-    }
-
-    .logo-sub { display: none; }
-
-    .form-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-
-  @media (max-width: 480px) {
-    header { padding: 0 14px; }
-    .form-section { padding: 14px; }
-    .zones-section { padding: 10px 14px; }
-
-    .lang-btn { padding: 4px 7px; font-size: 11px; }
-
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .form-group.full { grid-column: 1; }
-  }
-
-  /* Leaflet dark overrides */
-  .leaflet-tile { filter: brightness(0.85) saturate(0.8); }
-  .leaflet-popup-content-wrapper {
-    background: var(--surface2) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 10px !important;
-    box-shadow: var(--shadow) !important;
-    color: var(--text) !important;
-  }
-  .leaflet-popup-tip { background: var(--surface2) !important; }
-  .leaflet-popup-content { margin: 12px 14px !important; }
-  .leaflet-control-zoom a {
-    background: var(--surface2) !important;
-    color: var(--text) !important;
-    border-color: var(--border) !important;
-  }
-  .leaflet-control-zoom a:hover { background: var(--surface) !important; }
-  .leaflet-attribution-flag { display: none !important; }
+
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root {
+  --bg:       #080c14;
+  --bg2:      #0e1520;
+  --bg3:      #1a2235;
+  --bg4:      #232f45;
+  --line:     rgba(255,255,255,.07);
+  --line2:    rgba(255,255,255,.12);
+  --text:     #e8e6e1;
+  --text2:    rgba(232,230,225,.55);
+  --text3:    rgba(232,230,225,.28);
+  --accent:   #c8622a;
+  --accent-h: #b05520;
+  --amber:    #e89e22;
+  --green:    #2ab87a;
+  --red:      #e05050;
+  --blue:     #6496dc;
+  --purple:   #a064d2;
+  --serif:    'Fraunces', Georgia, serif;
+  --sans:     'DM Sans', system-ui, sans-serif;
+  --mono:     'DM Mono', monospace;
+  --sidebar:  240px;
+  --topbar:   56px;
+  --radius:   10px;
+  --radius-sm:6px;
+  --tr:       .18s ease;
+  --shadow:   0 2px 8px rgba(0,0,0,.3), 0 8px 32px rgba(0,0,0,.2);
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg:       #f7f4ef;
+  --bg2:      #ffffff;
+  --bg3:      #eeeae2;
+  --bg4:      #e4dfd5;
+  --line:     rgba(13,13,11,.08);
+  --line2:    rgba(13,13,11,.15);
+  --text:     #0d0d0b;
+  --text2:    rgba(13,13,11,.55);
+  --text3:    rgba(13,13,11,.35);
+  --shadow:   0 2px 8px rgba(13,13,11,.06), 0 8px 32px rgba(13,13,11,.08);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background var(--tr), color var(--tr);
+}
+
+/* ═══════════════════════════════════════
+   TOPBAR
+═══════════════════════════════════════ */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--topbar);
+  background: #080c14;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px 0 0;
+  z-index: 100;
+}
+
+.topbar-logo {
+  width: var(--sidebar);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid rgba(255,255,255,.07);
+  height: 100%;
+  flex-shrink: 0;
+}
+.topbar .topbar-name { color: #e8e6e1; }
+.topbar .topbar-role { color: rgba(232,230,225,.4); }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.topbar-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--bg3);
+  border: 1.5px solid var(--line2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--amber);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.topbar-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+.topbar-role {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.lang-sw {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 2px;
+}
+.lang-btn {
+  background: none;
+  border: none;
+  padding: 3px 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(255,255,255,.4);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all var(--tr);
+  letter-spacing: .5px;
+}
+.lang-btn:hover { color: rgba(255,255,255,.8); }
+.lang-btn.active { background: var(--accent); color: #fff; }
+
+.theme-toggle {
+  width: 28px; height: 28px;
+  background: none;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--radius-sm);
+  color: rgba(255,255,255,.45);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--tr);
+  margin-left: 2px;
+}
+.theme-toggle:hover { color: #fff; border-color: rgba(255,255,255,.25); background: rgba(255,255,255,.07); }
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  color: rgba(255,255,255,.45);
+  font-family: var(--sans);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--tr);
+}
+.btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
+.sidebar {
+  position: fixed;
+  top: var(--topbar);
+  left: 0;
+  width: var(--sidebar);
+  height: calc(100vh - var(--topbar));
+  background: var(--bg);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+  z-index: 90;
+  padding: 16px 0;
+  transition: background var(--tr), border-color var(--tr);
+}
+
+.nav-section { margin-bottom: 8px; }
+
+.nav-section-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 6px 20px;
+  margin-bottom: 2px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: all var(--tr);
+  border-left: 2px solid transparent;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text2);
+  user-select: none;
+}
+.nav-item:hover {
+  background: var(--bg2);
+  color: var(--text);
+}
+.nav-item.active {
+  background: rgba(200,98,42,.08);
+  border-left-color: var(--accent);
+  color: var(--accent);
+}
+.nav-item svg { flex-shrink: 0; opacity: .7; }
+.nav-item.active svg { opacity: 1; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 10px 0;
+}
+
+/* ═══════════════════════════════════════
+   MAIN CONTENT
+═══════════════════════════════════════ */
+.main {
+  margin-left: var(--sidebar);
+  margin-top: var(--topbar);
+  min-height: calc(100vh - var(--topbar));
+}
+
+.section { display: none; padding: 28px; }
+.section.active { display: block; }
+
+.section-head {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.5px;
+  line-height: 1.1;
+}
+.section-title em { font-style: italic; color: var(--accent); }
+.section-sub {
+  font-size: 13px;
+  color: var(--text3);
+  margin-top: 4px;
+  font-weight: 300;
+}
+
+/* ═══════════════════════════════════════
+   CARDS / PANELS
+═══════════════════════════════════════ */
+.panel {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.panel-head {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-body { padding: 20px; }
+
+/* ═══════════════════════════════════════
+   STATS ROW
+═══════════════════════════════════════ */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: border-color var(--tr);
+}
+.stat-card:hover { border-color: var(--line2); }
+.stat-icon {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.stat-icon.orange { background: rgba(200,98,42,.12); color: var(--accent); }
+.stat-icon.amber  { background: rgba(232,158,34,.12); color: var(--amber); }
+.stat-icon.green  { background: rgba(42,184,122,.12); color: var(--green); }
+.stat-icon.blue   { background: rgba(100,150,220,.12); color: var(--blue); }
+.stat-val {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 3px;
+  font-family: var(--mono);
+  letter-spacing: .3px;
+}
+
+/* ═══════════════════════════════════════
+   TABLE
+═══════════════════════════════════════ */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+table { width: 100%; border-collapse: collapse; }
+th {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 10px 16px;
+  text-align: left;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+td {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text2);
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,.02); }
+
+.td-name { font-weight: 500; color: var(--text); }
+.td-email { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+.td-city { font-size: 12px; color: var(--text3); font-style: italic; }
+
+/* Status pills */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.pill::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.pill-pending  { background: rgba(232,158,34,.1);  color: var(--amber); border: 1px solid rgba(232,158,34,.2); }
+.pill-active   { background: rgba(42,184,122,.1);  color: var(--green); border: 1px solid rgba(42,184,122,.2); }
+.pill-rejected { background: rgba(224,80,80,.1);   color: var(--red);   border: 1px solid rgba(224,80,80,.2); }
+.pill-draft    { background: rgba(232,230,225,.06); color: var(--text3); border: 1px solid var(--line); }
+
+/* ═══════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all var(--tr);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--accent-h); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text2);
+  border: 1px solid var(--line);
+}
+.btn-ghost:hover:not(:disabled) { border-color: var(--line2); color: var(--text); }
+
+.btn-success { background: rgba(42,184,122,.15); color: var(--green); border: 1px solid rgba(42,184,122,.25); }
+.btn-success:hover:not(:disabled) { background: rgba(42,184,122,.25); }
+
+.btn-danger { background: rgba(224,80,80,.12); color: var(--red); border: 1px solid rgba(224,80,80,.2); }
+.btn-danger:hover:not(:disabled) { background: rgba(224,80,80,.22); }
+
+.btn-amber { background: rgba(232,158,34,.12); color: var(--amber); border: 1px solid rgba(232,158,34,.2); }
+.btn-amber:hover:not(:disabled) { background: rgba(232,158,34,.22); }
+
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-lg { padding: 10px 20px; font-size: 13px; }
+
+.btn-group { display: flex; gap: 6px; }
+
+/* ═══════════════════════════════════════
+   FORM CONTROLS
+═══════════════════════════════════════ */
+.form-row { display: grid; gap: 14px; margin-bottom: 14px; }
+.form-row-2 { grid-template-columns: 1fr 1fr; }
+.form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-row-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.form-input, .form-select, .form-textarea {
+  background: var(--bg3);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--tr), box-shadow var(--tr);
+  width: 100%;
+  -webkit-appearance: none;
+}
+.form-input::placeholder, .form-textarea::placeholder { color: var(--text3); }
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(200,98,42,.12);
+}
+.form-select { cursor: pointer; }
+.form-textarea { resize: vertical; min-height: 80px; }
+
+/* Range input */
+.range-wrap { display: flex; align-items: center; gap: 12px; }
+input[type=range] {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 3px;
+  background: var(--bg4);
+  border-radius: 2px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.range-val {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--amber);
+  min-width: 50px;
+  text-align: right;
+}
+
+/* Checkboxes */
+.check-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  background: var(--bg3);
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all var(--tr);
+  user-select: none;
+  font-size: 12px;
+  color: var(--text2);
+}
+.check-item:hover { border-color: var(--line2); color: var(--text); }
+.check-item.checked {
+  background: rgba(200,98,42,.1);
+  border-color: rgba(200,98,42,.4);
+  color: var(--accent);
+}
+.check-item input[type=checkbox] { display: none; }
+
+/* Language toggles */
+.lang-toggle-group { display: flex; gap: 6px; }
+.lang-toggle {
+  padding: 5px 12px;
+  background: var(--bg3);
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  transition: all var(--tr);
+  user-select: none;
+}
+.lang-toggle:hover { color: var(--text2); border-color: var(--line2); }
+.lang-toggle.on { background: rgba(42,184,122,.1); border-color: rgba(42,184,122,.3); color: var(--green); }
+
+/* ═══════════════════════════════════════
+   MAP
+═══════════════════════════════════════ */
+#parse-map {
+  width: 100%;
+  max-width: 100%;
+  height: 400px;
+  overflow: hidden;
+  background: var(--bg3);
+  display: block;
+}
+@media (max-width: 768px) {
+  #parse-map { height: 240px; }
+  .objects-sidebar-panel { position: static; }
+}
+
+.leaflet-container {
+  background: #101820;
+  font-family: var(--sans);
+}
+.leaflet-tile { filter: brightness(.8) saturate(.7) hue-rotate(200deg); }
+
+.map-hint {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ═══════════════════════════════════════
+   OBJECT CARDS (parse results)
+═══════════════════════════════════════ */
+.objects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.objects-grid::-webkit-scrollbar { width: 4px; }
+.objects-grid::-webkit-scrollbar-track { background: var(--bg3); border-radius: 2px; }
+.objects-grid::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
+
+.obj-card {
+  background: var(--bg3);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all var(--tr);
+  user-select: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.obj-card:hover { border-color: var(--line2); background: var(--bg4); }
+.obj-card.selected { border-color: var(--accent); background: rgba(200,98,42,.08); }
+
+.obj-check {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid var(--line2);
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--tr);
+}
+.obj-card.selected .obj-check {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.obj-card.selected .obj-check::after {
+  content: '';
+  width: 8px; height: 6px;
+  border-left: 1.5px solid #fff;
+  border-bottom: 1.5px solid #fff;
+  transform: rotate(-45deg) translateY(-1px);
+  display: block;
+}
+
+.obj-content { flex: 1; min-width: 0; }
+.obj-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.obj-cat {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.obj-desc {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 4px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════
+   GENERATING STATE ON TABLE BUTTONS
+═══════════════════════════════════════ */
+.btn-generating {
+  pointer-events: none;
+  opacity: 0.7;
+  position: relative;
+}
+.pipe-step.generating {
+  background: rgba(232,158,34,.15);
+  color: var(--amber);
+  animation: pulse-pipe 1s ease-in-out infinite;
+}
+@keyframes pulse-pipe { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ═══════════════════════════════════════
+   SAVED OBJECTS TABLE (with pipeline)
+═══════════════════════════════════════ */
+
+/* Multi-delete checkbox */
+.obj-check { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+.obj-row-selected td { background: rgba(200,98,42,.05); }
+.bulk-bar {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(200,98,42,.08);
+  border-bottom: 1px solid rgba(200,98,42,.2);
+  font-size: 12px;
+  color: var(--text2);
+}
+.bulk-bar.visible { display: flex; }
+
+/* Audio player in modal */
+.audio-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+.audio-item.active-audio { border-color: rgba(42,184,122,.4); background: rgba(42,184,122,.05); }
+.audio-play-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--bg4); border: 1px solid var(--line2);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--text2); flex-shrink: 0; transition: all var(--tr);
+}
+.audio-play-btn:hover { border-color: var(--accent); color: var(--accent); }
+.audio-meta { flex: 1; min-width: 0; }
+.audio-voice { font-size: 11px; color: var(--text2); font-family: var(--mono); }
+.audio-active-badge { font-size: 10px; color: var(--green); margin-left: 6px; }
+.card-text-area {
+  width: 100%; min-height: 80px;
+  background: var(--bg3); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-size: 13px; padding: 10px 12px; resize: vertical;
+  font-family: var(--sans); line-height: 1.5;
+}
+.card-text-area:focus { outline: none; border-color: var(--line2); }
+.lang-tab { padding: 5px 12px; font-size: 12px; border-radius: 20px; cursor: pointer;
+  background: var(--bg3); border: 1px solid var(--line); color: var(--text3);
+  transition: all var(--tr); }
+.lang-tab.active { background: rgba(200,98,42,.1); border-color: rgba(200,98,42,.4); color: var(--accent); }
+.modal-wide { max-width: 680px; width: 96vw; }
+
+.pipeline-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pipe-step {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .3px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.pipe-step.done   { background: rgba(42,184,122,.1);   color: var(--green); }
+.pipe-step.active { background: rgba(232,158,34,.1);   color: var(--amber); }
+.pipe-step.empty  { background: rgba(232,230,225,.05); color: var(--text3); }
+.pipe-arrow { color: var(--text3); font-size: 10px; }
+
+/* ═══════════════════════════════════════
+   MODAL
+═══════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--line2);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.5);
+  animation: modalIn .2s cubic-bezier(.34,1.56,.64,1);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+@keyframes modalIn { from { transform: scale(.92); opacity: 0; } }
+
+.modal-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.modal-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.3px;
+}
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all var(--tr);
+  display: flex;
+}
+.modal-close:hover { color: var(--text); background: var(--bg3); }
+.modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+  -webkit-overflow-scrolling: touch;
+}
+.modal-foot {
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+.toast-wrap {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast {
+  background: var(--bg2);
+  border: 1px solid var(--line2);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 280px;
+  animation: toastIn .25s ease;
+  transition: opacity .3s, transform .3s;
+}
+@keyframes toastIn { from { transform: translateY(16px); opacity: 0; } }
+.toast.hide { opacity: 0; transform: translateY(8px); }
+.toast-success { border-left: 3px solid var(--green); }
+.toast-error   { border-left: 3px solid var(--red); }
+.toast-info    { border-left: 3px solid var(--amber); }
+
+/* ═══════════════════════════════════════
+   CITY CARD
+═══════════════════════════════════════ */
+.city-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.city-card {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color var(--tr);
+}
+.city-card:hover { border-color: var(--line2); }
+.city-card-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.city-card-name {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.3px;
+}
+.city-card-body { padding: 12px 16px; }
+.city-card-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.city-card-langs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; }
+.city-card-lang {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  color: var(--text3);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.city-admins {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.city-admin-chip {
+  font-size: 11px;
+  padding: 3px 8px;
+  background: var(--bg3);
+  border-radius: 10px;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.city-card-foot {
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 6px;
+}
+
+/* ═══════════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════════ */
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text3);
+}
+.empty-icon { font-size: 32px; margin-bottom: 12px; opacity: .4; }
+.empty-title { font-family: var(--serif); font-size: 18px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+.empty-sub { font-size: 13px; line-height: 1.6; }
+
+/* ═══════════════════════════════════════
+   FILTER BAR
+═══════════════════════════════════════ */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .5px;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text3);
+  transition: all var(--tr);
+}
+.filter-btn:hover { color: var(--text2); border-color: var(--line2); }
+.filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ═══════════════════════════════════════
+   LOADING
+═══════════════════════════════════════ */
+.spinner-sm {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.2);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-row {
+  padding: 32px;
+  text-align: center;
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+/* ═══════════════════════════════════════
+   ASSIGN CITIES (в модалке апрува)
+═══════════════════════════════════════ */
+.city-select-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.city-select-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg3);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--tr);
+  user-select: none;
+}
+.city-select-item:hover { border-color: var(--line2); }
+.city-select-item.selected { border-color: var(--green); background: rgba(42,184,122,.08); }
+.city-select-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.city-select-country { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+/* ═══════════════════════════════════════
+   OBJECTS SECTION LAYOUT
+═══════════════════════════════════════ */
+.objects-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+.objects-layout > div {
+  width: 100%;
+  min-width: 0;
+}
+
+
+.objects-sidebar-panel {
+  position: sticky;
+  top: calc(var(--topbar) + 28px);
+}
+
+/* scrollbar global */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+/* ═══════════════════════════════════════
+   MOBILE BOTTOM NAV
+═══════════════════════════════════════ */
+.mob-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 56px;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  z-index: 200;
+  backdrop-filter: blur(10px);
+}
+.mob-nav-items { display: flex; height: 100%; }
+.mob-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-size: 9px;
+  font-weight: 500;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: color var(--tr);
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  position: relative;
+}
+.mob-nav-btn.active { color: var(--accent); }
+.mob-nav-dot {
+  position: absolute;
+  top: 8px; right: calc(50% - 16px);
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: none;
+}
+.mob-nav-dot.show { display: block; }
+
+/* ═══════════════════════════════════════
+   CITY MAP MODAL
+═══════════════════════════════════════ */
+#city-modal-map {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  margin-top: 8px;
+  background: var(--bg3);
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  /* Sidebar → bottom nav */
+  .sidebar { display: none; }
+  .mob-nav { display: block; }
+
+  /* Main content */
+  .main { margin-left: 0; padding-bottom: 72px; }
+  .section { padding: 16px; }
+
+  /* Topbar — компактный */
+  .topbar { padding: 0 12px; }
+  .topbar-logo { width: auto; border-right: none; padding: 0 8px; }
+  .topbar-logo svg { width: 80px; height: 28px; }
+  .topbar-right { gap: 8px; }
+  .topbar-name { font-size: 12px; }
+  .topbar-role { display: none; }
+  .topbar-avatar { width: 28px; height: 28px; font-size: 10px; }
+  .btn-logout span { display: none; }
+  .btn-logout { padding: 6px 8px; }
+.lang-btn { padding: 3px 7px; font-size: 9px; }
+
+  /* Grid → single column */
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .form-row-2, .form-row-3, .form-row-4 { grid-template-columns: 1fr; }
+  .city-grid { grid-template-columns: 1fr; }
+
+  /* Tables scroll */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
+
+.addr-dropdown {
+  position: absolute; z-index: 9999;
+  background: var(--bg2); border: 1px solid var(--line2);
+  border-radius: var(--radius-sm); overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  max-height: 200px; overflow-y: auto;
+  width: 100%;
+}
+.addr-option {
+  padding: 9px 12px; font-size: 12px; color: var(--text2);
+  cursor: pointer; border-bottom: 1px solid var(--line);
+  transition: background var(--tr);
+}
+.addr-option:last-child { border-bottom: none; }
+.addr-option:hover { background: var(--bg3); color: var(--text); }
+.addr-option strong { color: var(--text); }
+.addr-wrap { position: relative; }
+
+/* ═══════════════════════════════════════
+   CUSTOM CONFIRM DIALOG
+═══════════════════════════════════════ */
+.confirm-overlay {
+  position: fixed; inset: 0; z-index: 1100;
+  background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+}
+.confirm-overlay.open { display: flex; }
+.confirm-box {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px 28px 24px;
+  min-width: 320px; max-width: 420px; width: 90vw;
+  box-shadow: 0 24px 60px rgba(0,0,0,.5);
+}
+.confirm-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(224,80,80,.1); border: 1px solid rgba(224,80,80,.2);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px; color: #e05050;
+}
+.confirm-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.confirm-msg { font-size: 13px; color: var(--text3); line-height: 1.5; margin-bottom: 22px; }
+.confirm-foot { display: flex; justify-content: flex-end; gap: 8px; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="logo">
-    <div class="logo-icon">🎧</div>
-    <div>
-      <div class="logo-text">Geo Audio Guide</div>
-      <div class="logo-sub" data-i18n="adminPanel">Адмін панель</div>
-    </div>
+<!-- ═══ TOPBAR ═══ -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <svg width="130" height="40" viewBox="0 0 152 56" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="21" cy="28" r="5" fill="#e89e22"/>
+      <path d="M21 28 Q21 15 31 15 Q41 15 41 28 Q41 41 31 41" fill="none" stroke="rgba(232,158,34,0.6)" stroke-width="2" stroke-linecap="round"/>
+      <path d="M21 28 Q21 8 35 8 Q49 8 49 28 Q49 48 35 48" fill="none" stroke="rgba(232,158,34,0.22)" stroke-width="1.2" stroke-linecap="round"/>
+      <text x="60" y="30" font-family="Fraunces,Georgia,serif" font-size="24" font-style="italic" font-weight="700" fill="#ffffff" letter-spacing="-0.5">whispr</text>
+      <text x="60" y="46" font-family="DM Mono,monospace" font-size="12" fill="rgba(232,158,34,0.85)" letter-spacing="2.5">.city</text>
+    </svg>
   </div>
-
-  <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
-    <div class="status-bar">
-      <div class="status-dot" id="statusDot"></div>
-      <span id="statusText">—</span>
+  <div class="topbar-right">
+    <div class="lang-sw">
+      <button class="lang-btn active" onclick="setLang('uk')">UA</button>
+      <button class="lang-btn" onclick="setLang('ru')">RU</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn" title="Переключить тему">
+        <svg id="theme-icon-dark" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v1M7 12v1M1 7H2M12 7h1M3.2 3.2l.7.7M10.1 10.1l.7.7M3.2 10.8l.7-.7M10.1 3.9l.7-.7M9.5 7a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <svg id="theme-icon-light" width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:none"><path d="M12 7.5A5 5 0 0 1 6.5 2a5 5 0 1 0 5.5 5.5z" fill="currentColor" opacity=".8"/></svg>
+      </button>
     </div>
-    <div class="lang-switcher">
-      <button class="lang-btn active" onclick="setLang('uk')">УКР</button>
-      <button class="lang-btn" onclick="setLang('ru')">РУС</button>
-      <button class="lang-btn" onclick="setLang('en')">ENG</button>
+    <div class="topbar-user">
+      <div class="topbar-avatar" id="tb-avatar">SA</div>
+      <div>
+        <div class="topbar-name" id="tb-name">Superadmin</div>
+        <div class="topbar-role" id="tb-role">superadmin</div>
+      </div>
     </div>
+    <button class="btn-logout" onclick="handleLogout()">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M5 1H2a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h3M9 9l3-3-3-3M12 6H5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span id="t-logout"></span>
+    </button>
   </div>
 </header>
 
-<!-- LAYOUT -->
-<div class="layout">
-
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-
-    <!-- FORM -->
-    <div class="form-section">
-      <div class="section-title" id="formTitle" data-i18n="newZone">Нова зона</div>
-      <div class="form-grid">
-        <div class="form-group full">
-          <label data-i18n="labelName">Назва</label>
-          <input type="text" id="fieldName" data-i18n-placeholder="placeholderName" placeholder="Центральний парк">
-        </div>
-        <div class="form-group">
-          <label data-i18n="labelLat">Широта</label>
-          <input type="number" id="fieldLat" step="any" placeholder="50.4501">
-        </div>
-        <div class="form-group">
-          <label data-i18n="labelLng">Довгота</label>
-          <input type="number" id="fieldLng" step="any" placeholder="30.5234">
-        </div>
-        <div class="form-group full">
-          <label data-i18n="labelRadius">Радіус (метри)</label>
-          <input type="number" id="fieldRadius" placeholder="100" value="100">
-        </div>
-        <div class="form-group full">
-          <label data-i18n="labelAudio">Audio URL</label>
-          <input type="text" id="fieldAudio" placeholder="https://...mp3">
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" id="btnSubmit" onclick="submitZone()">
-          <span data-i18n="btnCreate">Створити зону</span>
-        </button>
-        <button class="btn btn-ghost" id="btnCancel" onclick="cancelEdit()" style="display:none" data-i18n="btnCancel">Скасувати</button>
-      </div>
-    </div>
-
-    <!-- ZONES LIST -->
-    <div class="zones-section">
-      <div class="zones-count" id="zonesCount"></div>
-      <div id="zonesList"></div>
+<!-- ═══ SIDEBAR ═══ -->
+<nav class="sidebar" id="sidebar">
+  <div class="nav-section">
+    <div class="nav-section-label" id="t-nav-manage-label"></div>
+    <div class="nav-item active" onclick="showSection('objects')" id="nav-objects">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+        <circle cx="7.5" cy="7.5" r="6" fill="currentColor" opacity=".7"/>
+        <path d="M4 7.5h7M7.5 4c-1.5 1.5-2.5 3-2.5 3.5s1 2 2.5 3.5M7.5 4c1.5 1.5 2.5 3 2.5 3.5s-1 2-2.5 3.5" stroke="white" stroke-width=".8" fill="none"/>
+        <path d="M2 7.5h11" stroke="white" stroke-width=".6" opacity=".4"/>
+      </svg>
+      <span id="t-nav-objects"></span>
     </div>
   </div>
+</nav>
 
-  <!-- MAP -->
-  <div class="map-container">
-    <div id="map"></div>
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <section class="section" id="section-dashboard" style="display:none !important">
+    <div class="section-head">
+      <div>
+        <div class="section-title" id="t-dash-title"></div>
+        <div class="section-sub" id="t-dash-sub"></div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon orange">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="2" y="2" width="14" height="14" rx="2" fill="currentColor" opacity=".8"/>
+            <path d="M5 7h8M5 10h6" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-val" id="stat-pending">—</div>
+          <div class="stat-label" id="t-stat-pending"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="7" r="4" fill="currentColor" opacity=".8"/>
+            <path d="M3 16c0-3.3 2.7-6 6-6s6 2.7 6 6" fill="currentColor" opacity=".8"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-val" id="stat-admins">—</div>
+          <div class="stat-label" id="t-stat-admins"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M9 1C6 1 3.5 3.5 3.5 6.5c0 4 5.5 9.5 5.5 9.5s5.5-5.5 5.5-9.5C14.5 3.5 12 1 9 1z" fill="currentColor" opacity=".8"/>
+            <circle cx="9" cy="6.5" r="2" fill="white"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-val" id="stat-cities">—</div>
+          <div class="stat-label" id="t-stat-cities"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="7" fill="currentColor" opacity=".8"/>
+            <path d="M5.5 9h7M9 5.5c-2 2-3 4-3 4s1 2 3 4M9 5.5c2 2 3 4 3 4s-1 2-3 4" stroke="white" stroke-width="1" fill="none"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-val" id="stat-objects">—</div>
+          <div class="stat-label" id="t-stat-objects"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title" id="t-recent-requests"></div>
+        <button class="btn btn-ghost btn-sm" onclick="showSection('requests')" id="t-view-all-btn"></button>
+      </div>
+      <div id="dash-requests-list">
+        <div class="loading-row"><div class="spinner-sm"></div> <span id="t-loading"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REQUESTS -->
+  <section class="section" id="section-requests" style="display:none !important">
+    <div class="section-head">
+      <div>
+        <div class="section-title" id="t-req-title"></div>
+        <div class="section-sub" id="t-req-sub"></div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterRequests('all')"   id="t-filter-all"></button>
+      <button class="filter-btn"        onclick="filterRequests('pending')" id="t-filter-pending"></button>
+      <button class="filter-btn"        onclick="filterRequests('active')"  id="t-filter-active"></button>
+      <button class="filter-btn"        onclick="filterRequests('rejected')" id="t-filter-rejected"></button>
+    </div>
+
+    <div class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th id="t-th-name"></th>
+              <th id="t-th-phone"></th>
+              <th id="t-th-city-wish"></th>
+              <th id="t-th-status"></th>
+              <th id="t-th-date"></th>
+              <th id="t-th-actions"></th>
+            </tr>
+          </thead>
+          <tbody id="requests-tbody">
+            <tr><td colspan="6"><div class="loading-row"><div class="spinner-sm"></div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- CITIES -->
+  <section class="section" id="section-cities" style="display:none !important">
+    <div class="section-head">
+      <div>
+        <div class="section-title" id="t-cities-title"></div>
+        <div class="section-sub" id="t-cities-sub"></div>
+      </div>
+      <button class="btn btn-primary" onclick="openCreateCity()" id="t-add-city-btn">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span id="t-add-city-label"></span>
+      </button>
+    </div>
+    <div class="city-grid" id="cities-grid">
+      <div class="loading-row" style="grid-column:1/-1"><div class="spinner-sm"></div></div>
+    </div>
+  </section>
+
+  <!-- OBJECTS -->
+  <section class="section active" id="section-objects">
+    <div class="section-head">
+      <div>
+        <div class="section-title" id="t-obj-title"></div>
+        <div class="section-sub" id="t-obj-sub"></div>
+      </div>
+    </div>
+
+    <!-- City selector -->
+    <div class="panel" style="margin-bottom:16px">
+      <div class="panel-head">
+        <div class="panel-title" id="t-select-city-label"></div>
+      </div>
+      <div class="panel-body">
+        <select class="form-select" id="obj-city-select" onchange="onCitySelect()" style="max-width:360px">
+          <option value="" id="t-city-select-placeholder"></option>
+        </select>
+      </div>
+    </div>
+
+    <div id="objects-content" style="display:none">
+      <div class="objects-layout">
+
+        <!-- LEFT: Map + Parse controls -->
+        <div>
+          <div class="panel" style="margin-bottom:16px">
+            <div class="panel-head">
+              <div class="panel-title" id="t-parse-panel-title"></div>
+            </div>
+            <div class="panel-body" style="padding:0">
+              <!-- Map -->
+              <div id="parse-map"></div>
+              <div style="padding:0 20px">
+              <div class="map-hint">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" opacity=".5"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.1"/><path d="M6.5 4v3M6.5 9h.01" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+                <span id="t-map-hint"></span>
+              </div>
+
+              <!-- Radius -->
+              <div style="margin-top:14px">
+                <div class="form-label" id="t-radius-label"></div>
+                <div class="range-wrap" style="margin-top:8px">
+                  <input type="range" id="radius-slider" min="100" max="2000" step="100" value="500" oninput="onRadiusChange()">
+                  <div class="range-val"><span id="radius-val">500</span>м</div>
+                </div>
+              </div>
+
+              <!-- Categories -->
+              <div style="margin-top:14px">
+                <div class="form-label" id="t-categories-label"></div>
+                <div class="check-group" id="categories-group" style="margin-top:8px"></div>
+              </div>
+
+              <!-- Count -->
+              <div style="margin-top:14px">
+                <div class="form-label" id="t-count-label"></div>
+                <div class="range-wrap" style="margin-top:8px">
+                  <input type="range" id="count-slider" min="5" max="50" step="5" value="15" oninput="onCountChange()">
+                  <div class="range-val"><span id="count-val">15</span></div>
+                </div>
+              </div>
+
+              <!-- Coords display -->
+              <div style="margin-top:12px;padding:10px 12px;background:var(--bg3);border-radius:var(--radius-sm);font-family:var(--mono);font-size:11px;color:var(--text3)">
+                <span id="t-coords-label"></span>:
+                <span id="coords-display" style="color:var(--amber)">—</span>
+              </div>
+
+              </div><!-- /map-content-wrap -->
+              <div style="padding:0 20px 20px">
+              <button class="btn btn-primary btn-lg" id="btn-parse" onclick="startParse()" style="margin-top:14px;width:100%" disabled>
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M5 7.5h5M8 5.5l2 2-2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span id="t-parse-btn"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Results + Saved objects -->
+        <div>
+          <!-- Parse results -->
+          <div class="panel" id="parse-results-panel" style="margin-bottom:16px;display:none">
+            <div class="panel-head">
+              <div class="panel-title">
+                <span id="t-parse-results-title"></span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-left:8px" id="parse-count"></span>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-ghost btn-sm" onclick="selectAllObjects()" id="t-select-all-btn"></button>
+                <button class="btn btn-primary btn-sm" id="btn-save-objects" onclick="saveSelectedObjects()" disabled id2="btn-save-obj">
+                  <span id="t-save-selected-btn"></span>
+                </button>
+              </div>
+            </div>
+            <div class="panel-body" style="padding:12px">
+              <div class="objects-grid" id="parse-objects-grid"></div>
+            </div>
+          </div>
+
+          <!-- Saved objects -->
+          <div class="panel" id="saved-objects-panel">
+            <div class="panel-head">
+              <div class="panel-title" id="t-saved-objects-title"></div>
+              <div class="btn-group">
+                <button class="btn btn-danger btn-sm" id="btn-bulk-delete" onclick="bulkDeleteObjects()" style="display:none">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4 3v7h4V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span id="t-bulk-delete-btn"></span>
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="openAddObjectModal()">
+                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="loadSavedObjects()" id="t-refresh-btn">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6a4 4 0 1 1-1.2-2.8M10 2v3H7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:32px"><input type="checkbox" class="obj-check" id="obj-check-all" onchange="toggleAllObjects(this)"></th>
+                    <th id="t-obj-th-name"></th>
+                    <th id="t-obj-th-cat"></th>
+                    <th id="t-obj-th-pipeline"></th>
+                    <th id="t-obj-th-actions"></th>
+                  </tr>
+                </thead>
+                <tbody id="saved-objects-tbody">
+                  <tr><td colspan="5" class="loading-row"><div class="spinner-sm"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+
+<!-- MODAL: Add Object -->
+<div class="modal-overlay" id="modal-add-obj">
+  <div class="modal" style="max-width:540px;width:96vw">
+    <div class="modal-head">
+      <div class="modal-title">Добавить объект</div>
+      <button class="modal-close" onclick="closeModal('modal-add-obj')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Название -->
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Название объекта</label>
+        <input type="text" class="form-input" id="add-obj-name" placeholder="Успенський собор">
+      </div>
+
+      <!-- Категория -->
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Категория</label>
+        <select class="form-select" id="add-obj-category">
+          <option value="historic">Исторические места</option>
+          <option value="museum">Музеи</option>
+          <option value="church">Церкви</option>
+          <option value="park">Парки</option>
+          <option value="restaurant">Рестораны</option>
+          <option value="tourism">Аттракции</option>
+        </select>
+      </div>
+
+      <!-- Адрес с автокомплитом -->
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Адрес</label>
+        <div class="addr-wrap">
+          <input type="text" class="form-input" id="add-obj-addr"
+            placeholder="Введите адрес..."
+            autocomplete="off"
+            oninput="onAddObjAddrInput(this.value)">
+          <div class="addr-dropdown" id="add-obj-addr-dropdown" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- Координаты (readonly) -->
+      <div class="form-row form-row-2" style="margin-bottom:14px">
+        <div class="form-group">
+          <label class="form-label">Latitude</label>
+          <input type="number" class="form-input" id="add-obj-lat" step="0.000001" placeholder="49.588300">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Longitude</label>
+          <input type="number" class="form-input" id="add-obj-lng" step="0.000001" placeholder="34.551400">
+        </div>
+      </div>
+
+      <!-- Карта -->
+      <div id="add-obj-map" style="height:240px;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg3)"></div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-obj')">Отмена</button>
+      <button class="btn btn-primary" onclick="saveNewObject()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 6.5l4 4 6-6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Сохранить
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit Object -->
+<div class="modal-overlay" id="modal-edit-obj">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <div class="modal-title" id="t-modal-edit-obj-title">Редактировать объект</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-obj')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto">
+
+      <!-- Название -->
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">Название</label>
+        <input type="text" class="form-input" id="edit-obj-name">
+      </div>
+
+      <!-- Тексты по языкам -->
+      <div class="form-group" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label class="form-label" style="margin:0">Текст</label>
+          <div style="display:flex;gap:6px" id="edit-obj-lang-tabs"></div>
+        </div>
+        <textarea class="card-text-area" id="edit-obj-text" rows="5"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:6px">
+          <button class="btn btn-ghost btn-sm" onclick="saveCardText()">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 5.5l3 3 5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Сохранить текст
+          </button>
+        </div>
+      </div>
+
+      <!-- Аудио -->
+      <div class="form-group" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label class="form-label" style="margin:0">Аудио</label>
+          <div style="display:flex;gap:6px" id="edit-obj-audio-lang-tabs"></div>
+        </div>
+        <div id="edit-obj-audio-list"></div>
+
+        <!-- Загрузка вручную -->
+        <div style="margin-top:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--radius-sm);border:1px dashed var(--line)">
+          <div class="form-label" style="margin-bottom:8px">Загрузить аудио вручную</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="file" id="edit-obj-audio-file" accept="audio/*" style="font-size:12px;color:var(--text2);flex:1;min-width:0">
+            <select class="form-select" id="edit-obj-upload-voice" style="width:140px">
+              <option value="nova">Nova</option>
+              <option value="alloy">Alloy</option>
+              <option value="echo">Echo</option>
+              <option value="fable">Fable</option>
+              <option value="onyx">Onyx</option>
+              <option value="shimmer">Shimmer</option>
+              <option value="manual">Manual upload</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="uploadAudioManually()">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5l3-4 3 4M2 10h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Загрузить
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-obj')">Закрыть</button>
+      <button class="btn btn-primary" onclick="saveEditObj()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 6.5l4 4 6-6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Сохранить
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM CONFIRM -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M9 6v4M9 12.5h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M7.3 2.5L1 14a2 2 0 001.7 3h12.6A2 2 0 0017 14L10.7 2.5a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.4" fill="none"/>
+      </svg>
+    </div>
+    <div class="confirm-title" id="confirm-title">Подтвердите действие</div>
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-foot">
+      <button class="btn btn-ghost" onclick="confirmResolve(false)">Отмена</button>
+      <button class="btn btn-danger" id="confirm-ok-btn" onclick="confirmResolve(true)">Удалить</button>
+    </div>
   </div>
 </div>
 
 <!-- TOAST -->
-<div class="toast-container" id="toastContainer"></div>
+<div class="toast-wrap" id="toast-wrap"></div>
 
-<!-- CONFIRM DIALOG -->
-<div class="dialog-overlay" id="confirmDialog">
-  <div class="dialog">
-    <h3 data-i18n="confirmTitle">Видалити зону?</h3>
-    <p data-i18n="confirmText">Цю дію неможливо скасувати.</p>
-    <div class="dialog-actions">
-      <button class="btn btn-ghost" style="flex:1" onclick="closeConfirm()" data-i18n="btnCancel">Скасувати</button>
-      <button class="btn" style="flex:1;background:var(--danger);color:#fff;" onclick="confirmDelete()" data-i18n="btnDelete">Видалити</button>
+<!-- MODAL: Edit Admin -->
+<div class="modal-overlay" id="modal-edit-admin">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="t-modal-edit-admin-title"></div>
+      <button class="modal-close" onclick="closeModal('modal-edit-admin')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-admin-id">
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label" id="t-admin-name-label"></label>
+          <input type="text" class="form-input" id="edit-admin-name" maxlength="255">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="t-admin-phone-label"></label>
+          <input type="text" class="form-input" id="edit-admin-phone" maxlength="50">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label" id="t-admin-city-wish-label"></label>
+        <input type="text" class="form-input" id="edit-admin-city-wish" maxlength="255">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="t-assign-cities-label2"></label>
+        <div class="city-select-list" id="edit-admin-cities-list" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-admin')" id="t-cancel-edit-admin-btn"></button>
+      <button class="btn btn-primary" onclick="saveAdminEdit()" id="t-save-edit-admin-btn"></button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Approve Admin -->
+<div class="modal-overlay" id="modal-approve">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="t-modal-approve-title"></div>
+      <button class="modal-close" onclick="closeModal('modal-approve')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:16px;padding:12px;background:var(--bg3);border-radius:var(--radius-sm)">
+        <div style="font-weight:600;color:var(--text)" id="approve-admin-name"></div>
+        <div style="font-size:12px;color:var(--text3);font-family:var(--mono)" id="approve-admin-email"></div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px" id="approve-admin-city-wish"></div>
+      </div>
+      <div class="form-label" id="t-assign-cities-label"></div>
+      <div class="city-select-list" id="approve-cities-list" style="margin-top:8px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-approve')" id="t-cancel-btn"></button>
+      <button class="btn btn-success" onclick="confirmApprove()" id="t-confirm-approve-btn"></button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Create/Edit City -->
+<div class="modal-overlay" id="modal-city">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head">
+      <div class="modal-title" id="t-modal-city-title"></div>
+      <button class="modal-close" onclick="closeModal('modal-city')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="city-edit-id">
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label" id="t-city-name-label"></label>
+          <input type="text" class="form-input" id="city-name-input" maxlength="255">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="t-city-country-label"></label>
+          <input type="text" class="form-input" id="city-country-input" value="Ukraine" maxlength="100">
+        </div>
+      </div>
+      <!-- Поиск города + мини-карта -->
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label" id="t-city-search-label"></label>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <input type="text" class="form-input" id="city-search-input"
+                 placeholder="Київ, Харків..."
+                 style="flex:1"
+                 oninput="debounceCitySearch(this.value)">
+          <button class="btn btn-ghost" onclick="searchCityOnMap()" type="button" id="t-city-search-btn">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M9.5 9.5l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div id="city-modal-map"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:5px;font-family:var(--mono)" id="t-city-map-hint"></div>
+      </div>
+
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Latitude</label>
+          <input type="number" class="form-input" id="city-lat-input" step="0.0001" placeholder="49.5883">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Longitude</label>
+          <input type="number" class="form-input" id="city-lng-input" step="0.0001" placeholder="34.5514">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label" id="t-city-langs-label"></label>
+        <div class="lang-toggle-group" style="margin-top:8px">
+          <div class="lang-toggle on" data-lang="uk" onclick="toggleCityLang(this)">UA</div>
+          <div class="lang-toggle" data-lang="ru" onclick="toggleCityLang(this)">RU</div>
+          <div class="lang-toggle" data-lang="en" onclick="toggleCityLang(this)">EN</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="t-city-active-label"></label>
+        <div class="lang-toggle-group" style="margin-top:8px">
+          <div class="lang-toggle" id="city-active-toggle" data-active="false" onclick="toggleCityActive()">
+            <span id="t-city-active-val"></span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:14px">
+        <label class="form-label" id="t-city-admins-label"></label>
+        <div id="city-admins-list" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-city')" id="t-cancel-city-btn"></button>
+      <button class="btn btn-primary" onclick="saveCity()" id="t-save-city-btn"></button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Generate Text -->
+<div class="modal-overlay" id="modal-gen-text">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="t-modal-gen-title"></div>
+      <button class="modal-close" onclick="closeModal('modal-gen-text')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px" id="gen-text-obj-name"></div>
+      <div class="form-group">
+        <label class="form-label" id="t-gen-langs-label"></label>
+        <div class="lang-toggle-group" style="margin-top:8px">
+          <div class="lang-toggle on" data-lang="uk" onclick="this.classList.toggle('on')">UA</div>
+          <div class="lang-toggle on" data-lang="ru" onclick="this.classList.toggle('on')">RU</div>
+          <div class="lang-toggle on" data-lang="en" onclick="this.classList.toggle('on')">EN</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-gen-text')" id="t-cancel-gen-btn"></button>
+      <button class="btn btn-amber" onclick="confirmGenText()" id="t-confirm-gen-btn">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 6.5l2 2 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="t-confirm-gen-label"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Generate Audio -->
+<div class="modal-overlay" id="modal-gen-audio">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="t-modal-audio-title"></div>
+      <button class="modal-close" onclick="closeModal('modal-gen-audio')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px" id="gen-audio-obj-name"></div>
+      <div class="form-group">
+        <label class="form-label" id="t-voice-label"></label>
+        <select class="form-select" id="voice-select" style="margin-top:8px">
+          <option value="nova">Nova — жіночий, природній</option>
+          <option value="alloy">Alloy — нейтральний</option>
+          <option value="echo">Echo — чоловічий, глибокий</option>
+          <option value="fable">Fable — британський акцент</option>
+          <option value="onyx">Onyx — чоловічий, авторитетний</option>
+          <option value="shimmer">Shimmer — жіночий, м'який</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-top:14px">
+        <label class="form-label" id="t-audio-lang-label"></label>
+        <div class="lang-toggle-group" style="margin-top:8px" id="audio-lang-toggles">
+          <div class="lang-toggle on" data-lang="uk" onclick="this.classList.toggle('on')">UA</div>
+          <div class="lang-toggle on" data-lang="ru" onclick="this.classList.toggle('on')">RU</div>
+          <div class="lang-toggle on" data-lang="en" onclick="this.classList.toggle('on')">EN</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-gen-audio')" id="t-cancel-audio-btn"></button>
+      <button class="btn btn-primary" onclick="confirmGenAudio()" id="t-confirm-audio-btn">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2" y="3" width="4" height="7" rx="1" fill="currentColor" opacity=".8"/><path d="M6 5a3 3 0 0 0 0 3M8 4a5 5 0 0 1 0 5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" fill="none"/></svg>
+        <span id="t-confirm-audio-label"></span>
+      </button>
     </div>
   </div>
 </div>
 
 <script>
-// ============================================================
-// CONFIG
-// ============================================================
-const API = {
-  getAll:  'https://primary-production-4b93e.up.railway.app/webhook/zones',
-  post:    'https://primary-production-4b93e.up.railway.app/webhook/zones',
-  update:  'https://primary-production-4b93e.up.railway.app/webhook/zones-update',
-  delete:  'https://primary-production-4b93e.up.railway.app/webhook/zones-delete',
-};
+/* ═══════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════ */
+const API_AUTH    = 'https://primary-production-4b93e.up.railway.app/webhook/whispr/auth';
+const API_MAIN    = 'https://primary-production-4b93e.up.railway.app/webhook/whispr/api';
+const API_OBJECTS = 'https://primary-production-4b93e.up.railway.app/webhook/whispr/objects';
 
-// ============================================================
-// I18N
-// ============================================================
-const LANGS = {
+/* ═══════════════════════════════════════
+   I18N
+═══════════════════════════════════════ */
+const i18n = {
   uk: {
-    adminPanel:      'Адмін панель',
-    newZone:         'Нова зона',
-    editZone:        'Редагувати зону',
-    labelName:       'Назва',
-    labelLat:        'Широта',
-    labelLng:        'Довгота',
-    labelRadius:     'Радіус (метри)',
-    labelAudio:      'Audio URL',
-    placeholderName: 'Центральний парк',
-    btnCreate:       'Створити зону',
-    btnUpdate:       'Зберегти',
-    btnCancel:       'Скасувати',
-    btnEdit:         'Редагувати',
-    btnDelete:       'Видалити',
-    confirmTitle:    'Видалити зону?',
-    confirmText:     'Цю дію неможливо скасувати.',
-    zonesCount:      (n) => `${n} зон${n===1?'а':n<5?'и':''}`,
-    toastCreated:    'Зону створено',
-    toastUpdated:    'Зону оновлено',
-    toastDeleted:    'Зону видалено',
-    toastError:      'Помилка з\'єднання',
-    toastFill:       'Заповніть всі поля',
-    statusOnline:    'онлайн',
-    statusOffline:   'офлайн',
-    emptyTitle:      'Зон поки немає',
-    emptyText:       'Створіть першу зону через форму вище',
-    popupRadius:     'Радіус',
-    popupAudio:      'Аудіо',
+    'logout': 'Вийти',
+    'nav-overview': 'Огляд',
+    'nav-dashboard': 'Дашборд',
+    'nav-manage': 'Управління',
+    'nav-requests': 'Адміністратори',
+    'nav-cities': 'Міста',
+    'nav-objects': 'Об\'єкти',
+    'loading': 'Завантаження...',
+    'dash-title': 'Дашборд',
+    'dash-sub': 'Загальна статистика системи',
+    'stat-pending': 'Нових заявок',
+    'stat-admins': 'Активних адмінів',
+    'stat-cities': 'Міст у системі',
+    'stat-objects': 'Об\'єктів всього',
+    'recent-requests': 'Останні заявки',
+    'view-all': 'Переглянути всі',
+    'req-title': '<em>Адміністратори</em>',
+    'req-sub': 'Управління адміністраторами міст',
+    'filter-all': 'Всі',
+    'filter-pending': 'Очікують',
+    'filter-active': 'Активні',
+    'filter-rejected': 'Відхилені',
+    'th-name': 'Ім\'я',
+    'th-phone': 'Телефон',
+    'th-city-wish': 'Місто (бажання)',
+    'th-status': 'Статус',
+    'th-date': 'Дата',
+    'th-actions': 'Дії',
+    'approve': 'Схвалити',
+    'edit-admin': 'Редагувати',
+    'delete-admin': 'Видалити',
+    'modal-edit-admin-title': 'Редагувати адміністратора',
+    'admin-name-label': 'Ім\'я',
+    'admin-phone-label': 'Телефон',
+    'admin-city-wish-label': 'Бажане місто',
+    'confirm-delete-admin': 'Видалити адміністратора?',
+    'reject': 'Відхилити',
+    'cities-title': '<em>Міста</em> системи',
+    'cities-sub': 'Управління містами та призначення адміністраторів',
+    'add-city': 'Додати місто',
+    'edit': 'Редагувати',
+    'delete': 'Видалити',
+    'activate': 'Активувати',
+    'deactivate': 'Деактивувати',
+    'obj-title': '<em>Об\'єкти</em> міста',
+    'obj-sub': 'Парсинг, генерація текстів та аудіо для об\'єктів',
+    'select-city-label': 'Оберіть місто',
+    'city-select-placeholder': '— Оберіть місто —',
+    'parse-panel-title': 'Зона парсингу',
+    'map-hint': 'Клікніть на карту щоб задати центр зони',
+    'radius-label': 'Радіус пошуку',
+    'categories-label': 'Категорії об\'єктів',
+    'coords-label': 'Координати',
+    'count-label': 'Кількість об\'єктів',
+    'parse-btn': 'Парсити об\'єкти',
+    'parse-results-title': 'Знайдені об\'єкти',
+    'select-all': 'Вибрати всі',
+    'save-selected': 'Зберегти вибрані',
+    'saved-objects-title': 'Збережені об\'єкти',
+    'refresh': 'Оновити',
+    'obj-th-name': 'Назва',
+    'obj-th-cat': 'Категорія',
+    'obj-th-pipeline': 'Конвеєр',
+    'obj-th-actions': 'Дії',
+    'bulk-delete-btn': 'Видалити вибрані',
+    'gen-text': 'Текст',
+    'gen-audio': 'Аудіо',
+    'modal-approve-title': 'Схвалити заявку',
+    'assign-cities': 'Призначити міста (необов\'язково)',
+    'cancel': 'Скасувати',
+    'confirm-approve': 'Схвалити',
+    'modal-city-create': 'Нове місто',
+    'modal-city-edit': 'Редагувати місто',
+    'city-name-label': 'Назва міста',
+    'city-country-label': 'Країна',
+    'city-langs-label': 'Доступні мови',
+    'city-active-label': 'Статус',
+    'city-active-on': 'Активне',
+    'city-active-off': 'Неактивне',
+    'save': 'Зберегти',
+    'modal-gen-title': 'Генерація тексту',
+    'gen-langs-label': 'Мови генерації',
+    'cancel-gen': 'Скасувати',
+    'confirm-gen': 'Генерувати',
+    'modal-audio-title': 'Генерація аудіо',
+    'voice-label': 'Голос TTS',
+    'audio-lang-label': 'Мова аудіо',
+    'confirm-audio': 'Генерувати',
+    'cat-historic': 'Історичні місця',
+    'cat-monument': 'Пам\'ятники',
+    'cat-museum': 'Музеї',
+    'cat-church': 'Церкви',
+    'cat-restaurant': 'Ресторани',
+    'cat-park': 'Парки',
+    'cat-tourism': 'Атракції',
+    'no-objects': 'Об\'єкти ще не додані',
+    'no-objects-sub': 'Виберіть зону на карті та запустіть парсинг',
+    'no-requests': 'Заявок немає',
+    'pending-lbl': 'очікує',
+    'active-lbl': 'активний',
+    'rejected-lbl': 'відхилений',
+    'draft-lbl': 'чернетка',
+    'city-wish-lbl': 'Бажане місто',
+    'city-admins-label': 'Адміністратори міста',
+    'city-search-label': 'Пошук міста на карті',
+    'city-search-btn': 'Знайти',
+    'city-map-hint': 'Клікніть на карту щоб задати точні координати',
+    'mob-dashboard': 'Дашборд',
+    'mob-requests': 'Адміни',
+    'mob-cities': 'Міста',
+    'mob-objects': 'Об\'єкти',
   },
   ru: {
-    adminPanel:      'Админ панель',
-    newZone:         'Новая зона',
-    editZone:        'Редактировать зону',
-    labelName:       'Название',
-    labelLat:        'Широта',
-    labelLng:        'Долгота',
-    labelRadius:     'Радиус (метры)',
-    labelAudio:      'Audio URL',
-    placeholderName: 'Центральный парк',
-    btnCreate:       'Создать зону',
-    btnUpdate:       'Сохранить',
-    btnCancel:       'Отмена',
-    btnEdit:         'Редактировать',
-    btnDelete:       'Удалить',
-    confirmTitle:    'Удалить зону?',
-    confirmText:     'Это действие невозможно отменить.',
-    zonesCount:      (n) => `${n} зон${n===1?'а':n<5?'ы':''}`,
-    toastCreated:    'Зона создана',
-    toastUpdated:    'Зона обновлена',
-    toastDeleted:    'Зона удалена',
-    toastError:      'Ошибка соединения',
-    toastFill:       'Заполните все поля',
-    statusOnline:    'онлайн',
-    statusOffline:   'офлайн',
-    emptyTitle:      'Зон пока нет',
-    emptyText:       'Создайте первую зону через форму выше',
-    popupRadius:     'Радиус',
-    popupAudio:      'Аудио',
+    'logout': 'Выйти',
+    'nav-overview': 'Обзор',
+    'nav-dashboard': 'Дашборд',
+    'nav-manage': 'Управление',
+    'nav-requests': 'Администраторы',
+    'nav-cities': 'Города',
+    'nav-objects': 'Объекты',
+    'loading': 'Загрузка...',
+    'dash-title': 'Дашборд',
+    'dash-sub': 'Общая статистика системы',
+    'stat-pending': 'Новых заявок',
+    'stat-admins': 'Активных админов',
+    'stat-cities': 'Городов в системе',
+    'stat-objects': 'Объектов всего',
+    'recent-requests': 'Последние заявки',
+    'view-all': 'Посмотреть все',
+    'req-title': '<em>Администраторы</em>',
+    'req-sub': 'Управление администраторами городов',
+    'filter-all': 'Все',
+    'filter-pending': 'Ожидают',
+    'filter-active': 'Активные',
+    'filter-rejected': 'Отклонённые',
+    'th-name': 'Имя',
+    'th-phone': 'Телефон',
+    'th-city-wish': 'Город (желание)',
+    'th-status': 'Статус',
+    'th-date': 'Дата',
+    'th-actions': 'Действия',
+    'approve': 'Одобрить',
+    'edit-admin': 'Редактировать',
+    'delete-admin': 'Удалить',
+    'modal-edit-admin-title': 'Редактировать администратора',
+    'admin-name-label': 'Имя',
+    'admin-phone-label': 'Телефон',
+    'admin-city-wish-label': 'Желаемый город',
+    'confirm-delete-admin': 'Удалить администратора?',
+    'reject': 'Отклонить',
+    'cities-title': '<em>Города</em> системы',
+    'cities-sub': 'Управление городами и назначение администраторов',
+    'add-city': 'Добавить город',
+    'edit': 'Редактировать',
+    'delete': 'Удалить',
+    'activate': 'Активировать',
+    'deactivate': 'Деактивировать',
+    'obj-title': '<em>Объекты</em> города',
+    'obj-sub': 'Парсинг, генерация текстов и аудио для объектов',
+    'select-city-label': 'Выберите город',
+    'city-select-placeholder': '— Выберите город —',
+    'parse-panel-title': 'Зона парсинга',
+    'map-hint': 'Кликните на карту чтобы задать центр зоны',
+    'radius-label': 'Радиус поиска',
+    'categories-label': 'Категории объектов',
+    'coords-label': 'Координаты',
+    'count-label': 'Количество объектов',
+    'parse-btn': 'Парсить объекты',
+    'parse-results-title': 'Найденные объекты',
+    'select-all': 'Выбрать все',
+    'save-selected': 'Сохранить выбранные',
+    'saved-objects-title': 'Сохранённые объекты',
+    'refresh': 'Обновить',
+    'obj-th-name': 'Название',
+    'obj-th-cat': 'Категория',
+    'obj-th-pipeline': 'Конвейер',
+    'obj-th-actions': 'Действия',
+    'bulk-delete-btn': 'Удалить выбранные',
+    'gen-text': 'Текст',
+    'gen-audio': 'Аудио',
+    'modal-approve-title': 'Одобрить заявку',
+    'assign-cities': 'Назначить города (необязательно)',
+    'cancel': 'Отмена',
+    'confirm-approve': 'Одобрить',
+    'modal-city-create': 'Новый город',
+    'modal-city-edit': 'Редактировать город',
+    'city-name-label': 'Название города',
+    'city-country-label': 'Страна',
+    'city-langs-label': 'Доступные языки',
+    'city-active-label': 'Статус',
+    'city-active-on': 'Активный',
+    'city-active-off': 'Неактивный',
+    'save': 'Сохранить',
+    'modal-gen-title': 'Генерация текста',
+    'gen-langs-label': 'Языки генерации',
+    'cancel-gen': 'Отмена',
+    'confirm-gen': 'Генерировать',
+    'modal-audio-title': 'Генерация аудио',
+    'voice-label': 'Голос TTS',
+    'audio-lang-label': 'Язык аудио',
+    'confirm-audio': 'Генерировать',
+    'cat-historic': 'Исторические места',
+    'cat-monument': 'Памятники',
+    'cat-museum': 'Музеи',
+    'cat-church': 'Церкви',
+    'cat-restaurant': 'Рестораны',
+    'cat-park': 'Парки',
+    'cat-tourism': 'Аттракции',
+    'no-objects': 'Объекты ещё не добавлены',
+    'no-objects-sub': 'Выберите зону на карте и запустите парсинг',
+    'no-requests': 'Заявок нет',
+    'pending-lbl': 'ожидает',
+    'active-lbl': 'активный',
+    'rejected-lbl': 'отклонён',
+    'draft-lbl': 'черновик',
+    'city-wish-lbl': 'Желаемый город',
+    'city-admins-label': 'Администраторы города',
+    'city-search-label': 'Поиск города на карте',
+    'city-search-btn': 'Найти',
+    'city-map-hint': 'Кликните на карту чтобы задать точные координаты',
+    'mob-dashboard': 'Дашборд',
+    'mob-requests': 'Админы',
+    'mob-cities': 'Города',
+    'mob-objects': 'Объекты',
   },
   en: {
-    adminPanel:      'Admin Panel',
-    newZone:         'New Zone',
-    editZone:        'Edit Zone',
-    labelName:       'Name',
-    labelLat:        'Latitude',
-    labelLng:        'Longitude',
-    labelRadius:     'Radius (meters)',
-    labelAudio:      'Audio URL',
-    placeholderName: 'Central Park',
-    btnCreate:       'Create Zone',
-    btnUpdate:       'Save',
-    btnCancel:       'Cancel',
-    btnEdit:         'Edit',
-    btnDelete:       'Delete',
-    confirmTitle:    'Delete zone?',
-    confirmText:     'This action cannot be undone.',
-    zonesCount:      (n) => `${n} zone${n===1?'':'s'}`,
-    toastCreated:    'Zone created',
-    toastUpdated:    'Zone updated',
-    toastDeleted:    'Zone deleted',
-    toastError:      'Connection error',
-    toastFill:       'Please fill all fields',
-    statusOnline:    'online',
-    statusOffline:   'offline',
-    emptyTitle:      'No zones yet',
-    emptyText:       'Create your first zone using the form above',
-    popupRadius:     'Radius',
-    popupAudio:      'Audio',
+    'logout': 'Sign out',
+    'nav-overview': 'Overview',
+    'nav-dashboard': 'Dashboard',
+    'nav-manage': 'Management',
+    'nav-requests': 'Administrators',
+    'nav-cities': 'Cities',
+    'nav-objects': 'Objects',
+    'loading': 'Loading...',
+    'dash-title': 'Dashboard',
+    'dash-sub': 'System overview',
+    'stat-pending': 'New requests',
+    'stat-admins': 'Active admins',
+    'stat-cities': 'Cities in system',
+    'stat-objects': 'Total objects',
+    'recent-requests': 'Recent requests',
+    'view-all': 'View all',
+    'req-title': '<em>Administrators</em>',
+    'req-sub': 'Manage city administrators',
+    'filter-all': 'All',
+    'filter-pending': 'Pending',
+    'filter-active': 'Active',
+    'filter-rejected': 'Rejected',
+    'th-name': 'Name',
+    'th-phone': 'Phone',
+    'th-city-wish': 'City (wish)',
+    'th-status': 'Status',
+    'th-date': 'Date',
+    'th-actions': 'Actions',
+    'approve': 'Approve',
+    'edit-admin': 'Edit',
+    'delete-admin': 'Delete',
+    'modal-edit-admin-title': 'Edit administrator',
+    'admin-name-label': 'Name',
+    'admin-phone-label': 'Phone',
+    'admin-city-wish-label': 'Desired city',
+    'confirm-delete-admin': 'Delete administrator?',
+    'reject': 'Reject',
+    'cities-title': 'System <em>Cities</em>',
+    'cities-sub': 'Manage cities and assign administrators',
+    'add-city': 'Add city',
+    'edit': 'Edit',
+    'delete': 'Delete',
+    'activate': 'Activate',
+    'deactivate': 'Deactivate',
+    'obj-title': 'City <em>Objects</em>',
+    'obj-sub': 'Parse, generate texts and audio for objects',
+    'select-city-label': 'Select a city',
+    'city-select-placeholder': '— Select city —',
+    'parse-panel-title': 'Parse zone',
+    'map-hint': 'Click on the map to set the zone center',
+    'radius-label': 'Search radius',
+    'categories-label': 'Object categories',
+    'coords-label': 'Coordinates',
+    'count-label': 'Number of objects',
+    'parse-btn': 'Parse objects',
+    'parse-results-title': 'Found objects',
+    'select-all': 'Select all',
+    'save-selected': 'Save selected',
+    'saved-objects-title': 'Saved objects',
+    'refresh': 'Refresh',
+    'obj-th-name': 'Name',
+    'obj-th-cat': 'Category',
+    'obj-th-pipeline': 'Pipeline',
+    'obj-th-actions': 'Actions',
+    'bulk-delete-btn': 'Delete selected',
+    'gen-text': 'Text',
+    'gen-audio': 'Audio',
+    'modal-approve-title': 'Approve application',
+    'assign-cities': 'Assign cities (optional)',
+    'cancel': 'Cancel',
+    'confirm-approve': 'Approve',
+    'modal-city-create': 'New city',
+    'modal-city-edit': 'Edit city',
+    'city-name-label': 'City name',
+    'city-country-label': 'Country',
+    'city-langs-label': 'Available languages',
+    'city-active-label': 'Status',
+    'city-active-on': 'Active',
+    'city-active-off': 'Inactive',
+    'save': 'Save',
+    'modal-gen-title': 'Generate text',
+    'gen-langs-label': 'Generation languages',
+    'cancel-gen': 'Cancel',
+    'confirm-gen': 'Generate',
+    'modal-audio-title': 'Generate audio',
+    'voice-label': 'TTS Voice',
+    'audio-lang-label': 'Audio language',
+    'confirm-audio': 'Generate',
+    'cat-historic': 'Historic sites',
+    'cat-monument': 'Monuments',
+    'cat-museum': 'Museums',
+    'cat-church': 'Churches',
+    'cat-restaurant': 'Restaurants',
+    'cat-park': 'Parks',
+    'cat-tourism': 'Attractions',
+    'no-objects': 'No objects added yet',
+    'no-objects-sub': 'Select a zone on the map and run parsing',
+    'no-requests': 'No requests',
+    'pending-lbl': 'pending',
+    'active-lbl': 'active',
+    'rejected-lbl': 'rejected',
+    'draft-lbl': 'draft',
+    'city-wish-lbl': 'Desired city',
+    'city-admins-label': 'City administrators',
+    'city-search-label': 'Search city on map',
+    'city-search-btn': 'Find',
+    'city-map-hint': 'Click on the map to set exact coordinates',
+    'mob-dashboard': 'Dashboard',
+    'mob-requests': 'Admins',
+    'mob-cities': 'Cities',
+    'mob-objects': 'Objects',
   }
 };
 
 let lang = 'uk';
-
-function t(key) {
-  return LANGS[lang][key] || key;
-}
+function t(k) { return i18n[lang][k] || k; }
 
 function setLang(l) {
   lang = l;
+  localStorage.setItem('whispr_lang', l);
   document.querySelectorAll('.lang-btn').forEach(b => {
-    b.classList.toggle('active', b.textContent.trim().toLowerCase().startsWith(l === 'uk' ? 'у' : l === 'ru' ? 'р' : 'e'));
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === (l === 'uk' ? 'ua' : l));
   });
-  applyI18n();
-  renderZones();
-  updateStatus(lastOnline);
-}
-
-function applyI18n() {
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.dataset.i18n;
-    if (typeof LANGS[lang][key] === 'string') el.textContent = LANGS[lang][key];
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    const key = el.dataset.i18nPlaceholder;
-    if (LANGS[lang][key]) el.placeholder = LANGS[lang][key];
-  });
-  // update dynamic elements
-  if (editingId) {
-    document.getElementById('formTitle').textContent = t('editZone');
-    document.querySelector('#btnSubmit [data-i18n]').textContent = t('btnUpdate');
-  } else {
-    document.getElementById('formTitle').textContent = t('newZone');
-    document.querySelector('#btnSubmit [data-i18n]').textContent = t('btnCreate');
+  renderLang();
+  renderCategories();
+  // Re-render dynamic sections so buttons/statuses/pills update immediately
+  if (currentSection === 'requests' && allRequests.length) {
+    filterRequests(requestFilter);
+  }
+  if (currentSection === 'cities' && allCitiesList.length) {
+    renderCitiesGrid(allCitiesList);
+  }
+  if (currentSection === 'dashboard') {
+    loadDashboard();
   }
 }
 
-// ============================================================
-// STATE
-// ============================================================
-let zones = [];
-let editingId = null;
-let deleteId = null;
-let lastOnline = false;
-let map, markersLayer;
+function renderLang() {
+  const map = {
+    't-logout':           'logout',
+    't-nav-overview-label': 'nav-overview',
+    't-nav-dashboard':    'nav-dashboard',
+    't-nav-manage-label': 'nav-manage',
+    't-nav-requests':     'nav-requests',
+    't-nav-cities':       'nav-cities',
+    't-nav-objects':      'nav-objects',
+    't-loading':          'loading',
+    't-dash-sub':         'dash-sub',
+    't-stat-pending':     'stat-pending',
+    't-stat-admins':      'stat-admins',
+    't-stat-cities':      'stat-cities',
+    't-stat-objects':     'stat-objects',
+    't-recent-requests':  'recent-requests',
+    't-view-all-btn':     'view-all',
+    't-req-sub':          'req-sub',
+    't-filter-all':       'filter-all',
+    't-filter-pending':   'filter-pending',
+    't-filter-active':    'filter-active',
+    't-filter-rejected':  'filter-rejected',
+    't-th-name':          'th-name',
+    't-th-phone':         'th-phone',
+    't-th-city-wish':     'th-city-wish',
+    't-th-status':        'th-status',
+    't-th-date':          'th-date',
+    't-th-actions':       'th-actions',
+    't-cities-sub':       'cities-sub',
+    't-add-city-label':   'add-city',
+    't-obj-sub':          'obj-sub',
+    't-select-city-label':'select-city-label',
+    't-city-select-placeholder': 'city-select-placeholder',
+    't-parse-panel-title':'parse-panel-title',
+    't-map-hint':         'map-hint',
+    't-radius-label':     'radius-label',
+    't-categories-label': 'categories-label',
+    't-coords-label':     'coords-label',
+    't-count-label':      'count-label',
+    't-parse-btn':        'parse-btn',
+    't-parse-results-title': 'parse-results-title',
+    't-select-all-btn':   'select-all',
+    't-save-selected-btn':'save-selected',
+    't-saved-objects-title': 'saved-objects-title',
+    't-refresh-btn':      'refresh',
+    't-obj-th-name':      'obj-th-name',
+    't-obj-th-cat':       'obj-th-cat',
+    't-obj-th-pipeline':  'obj-th-pipeline',
+    't-bulk-delete-btn':   'bulk-delete-btn',
+    't-obj-th-actions':   'obj-th-actions',
+    't-modal-approve-title': 'modal-approve-title',
+    't-assign-cities-label': 'assign-cities',
+    't-cancel-btn':       'cancel',
+    't-confirm-approve-btn': 'confirm-approve',
+    't-modal-city-title': editingCityId ? 'modal-city-edit' : 'modal-city-create',
+    't-city-name-label':  'city-name-label',
+    't-city-country-label': 'city-country-label',
+    't-city-langs-label': 'city-langs-label',
+    't-city-active-label':'city-active-label',
+    't-cancel-city-btn':  'cancel',
+    't-save-city-btn':    'save',
+    't-modal-gen-title':  'modal-gen-title',
+    't-gen-langs-label':  'gen-langs-label',
+    't-cancel-gen-btn':   'cancel-gen',
+    't-confirm-gen-btn':  'confirm-gen',
+    't-confirm-gen-label':'confirm-gen',
+    't-modal-audio-title':'modal-audio-title',
+    't-voice-label':      'voice-label',
+    't-audio-lang-label': 'audio-lang-label',
+    't-cancel-audio-btn': 'cancel',
+    't-confirm-audio-btn':'confirm-audio',
+    't-confirm-audio-label':'confirm-audio',
+  };
 
-// ============================================================
-// MAP INIT
-// ============================================================
-function initMap() {
-  map = L.map('map', { zoomControl: true }).setView([50.45, 30.52], 11);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap',
-    maxZoom: 19,
-  }).addTo(map);
-  markersLayer = L.layerGroup().addTo(map);
-}
-
-function updateMap() {
-  markersLayer.clearLayers();
-  if (!zones.length) return;
-
-  const bounds = [];
-
-  zones.forEach(zone => {
-    const circle = L.circle([zone.latitude, zone.longitude], {
-      radius: zone.radius,
-      color: '#00d4ff',
-      fillColor: '#00d4ff',
-      fillOpacity: 0.12,
-      weight: 1.5,
-    });
-
-    const marker = L.circleMarker([zone.latitude, zone.longitude], {
-      radius: 7,
-      color: '#00d4ff',
-      fillColor: '#00d4ff',
-      fillOpacity: 0.9,
-      weight: 2,
-    });
-
-    const popup = L.popup({ closeButton: false }).setContent(`
-      <div style="font-family:'Geologica',sans-serif;">
-        <div style="font-weight:600;font-size:14px;margin-bottom:6px;color:#e8f0fe">${zone.name}</div>
-        <div style="font-size:12px;color:#7a8fa6;margin-bottom:3px">📍 ${zone.latitude.toFixed(5)}, ${zone.longitude.toFixed(5)}</div>
-        <div style="font-size:12px;color:#7a8fa6;margin-bottom:3px">⭕ ${t('popupRadius')}: ${zone.radius}m</div>
-        <div style="font-size:11px;color:#4a5f75;word-break:break-all">🔊 ${zone.audio_url}</div>
-      </div>
-    `);
-
-    marker.bindPopup(popup);
-    marker.on('click', () => selectZone(zone.id));
-
-    circle.addTo(markersLayer);
-    marker.addTo(markersLayer);
-    bounds.push([zone.latitude, zone.longitude]);
+  Object.entries(map).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = t(key);
+    if (val.includes('<em>')) el.innerHTML = val;
+    else el.textContent = val;
   });
 
-  if (bounds.length === 1) {
-    map.setView(bounds[0], 14);
-  } else if (bounds.length > 1) {
-    map.fitBounds(bounds, { padding: [40, 40] });
+  // innerHTML специальные
+  document.getElementById('t-dash-title').innerHTML   = t('dash-title').includes('<em>') ? t('dash-title') : t('dash-title');
+  document.getElementById('t-req-title').innerHTML    = t('req-title');
+  document.getElementById('t-cities-title').innerHTML = t('cities-title');
+  document.getElementById('t-obj-title').innerHTML    = t('obj-title');
+
+  const admLbl = document.getElementById('t-city-admins-label');
+  if (admLbl) admLbl.textContent = t('city-admins-label');
+  const srchLbl = document.getElementById('t-city-search-label');
+  if (srchLbl) srchLbl.textContent = t('city-search-label');
+  const srchBtn = document.getElementById('t-city-search-btn');
+  if (srchBtn) srchBtn.textContent = t('city-search-btn');
+  const mapHint = document.getElementById('t-city-map-hint');
+  if (mapHint) mapHint.textContent = t('city-map-hint');
+
+  // mob nav labels
+  ['dashboard','requests','cities','objects'].forEach(k => {
+    const el = document.getElementById('t-mob-' + k);
+    if (el) el.textContent = t('mob-' + k);
+  });
+
+  // city active toggle
+  const tog = document.getElementById('city-active-toggle');
+  if (tog) {
+    const isActive = tog.dataset.active === 'true';
+    document.getElementById('t-city-active-val').textContent = isActive ? t('city-active-on') : t('city-active-off');
   }
 }
 
-function flyToZone(zone) {
-  map.flyTo([zone.latitude, zone.longitude], 15, { duration: 1.2 });
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+let currentSection = 'dashboard';
+
+function showSection(name, mobBtn) {
+  currentSection = name;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  const navItem = document.getElementById('nav-' + name);
+  if (navItem) navItem.classList.add('active');
+  const mobItem = mobBtn || document.getElementById('mob-' + name);
+  if (mobItem) mobItem.classList.add('active');
+  if (name === 'objects') initObjectsSection();
 }
 
-// ============================================================
-// API
-// ============================================================
-async function fetchZones() {
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+function toast(msg, type = 'info') {
+  const wrap = document.getElementById('toast-wrap');
+  const el   = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  const icons = {
+    success: '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="rgba(42,184,122,.2)" stroke="#2ab87a" stroke-width="1.2"/><path d="M4.5 7l2 2 3-3" stroke="#2ab87a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    error:   '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="rgba(224,80,80,.2)" stroke="#e05050" stroke-width="1.2"/><path d="M7 4.5v3M7 9.5h.01" stroke="#e05050" stroke-width="1.2" stroke-linecap="round"/></svg>',
+    info:    '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="rgba(232,158,34,.2)" stroke="#e89e22" stroke-width="1.2"/><path d="M7 6v4M7 4.5h.01" stroke="#e89e22" stroke-width="1.2" stroke-linecap="round"/></svg>',
+  };
+  el.innerHTML = (icons[type] || icons.info) + `<span>${msg}</span>`;
+  wrap.appendChild(el);
+  setTimeout(() => { el.classList.add('hide'); setTimeout(() => el.remove(), 300); }, 3500);
+}
+
+/* ═══════════════════════════════════════
+   MODAL
+═══════════════════════════════════════ */
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+/* ═══════════════════════════════════════
+   LOGOUT
+═══════════════════════════════════════ */
+function handleLogout() {
+  localStorage.removeItem('whispr_token');
+  localStorage.removeItem('whispr_user');
+  window.location.href = 'login.html';
+}
+
+/* ═══════════════════════════════════════
+   API HELPERS
+═══════════════════════════════════════ */
+function getToken() { return localStorage.getItem('whispr_token'); }
+
+async function apiMain(resource, action, data = {}) {
+  const res = await fetch(API_MAIN, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: getToken(), resource, action, data })
+  });
+  return res.json();
+}
+
+async function apiObjects(resource, action, data = {}) {
+  const isHeavy = (resource === 'generate' || resource === 'objects' && action === 'parse');
+  const timeoutMs = isHeavy ? 120000 : 30000;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(API.getAll);
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    zones = Array.isArray(data) ? data : [data];
-    setStatus(true);
-    renderZones();
-    updateMap();
-  } catch {
-    setStatus(false);
-  }
-}
-
-async function submitZone() {
-  const name     = document.getElementById('fieldName').value.trim();
-  const latitude = parseFloat(document.getElementById('fieldLat').value);
-  const longitude= parseFloat(document.getElementById('fieldLng').value);
-  const radius   = parseFloat(document.getElementById('fieldRadius').value) || 100;
-  const audioUrl = document.getElementById('fieldAudio').value.trim();
-
-  if (!name || isNaN(latitude) || isNaN(longitude) || !audioUrl) {
-    showToast(t('toastFill'), 'error');
-    return;
-  }
-
-  const btn = document.getElementById('btnSubmit');
-  btn.disabled = true;
-
-  try {
-    if (editingId) {
-      const res = await fetch(API.update, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: editingId, name, latitude, longitude, radius, audioUrl }),
-      });
-      if (!res.ok) throw new Error();
-      const updated = await res.json();
-      zones = zones.map(z => z.id === editingId ? updated : z);
-      showToast(t('toastUpdated'), 'success');
-      cancelEdit();
-    } else {
-      const res = await fetch(API.post, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, latitude, longitude, radius, audioUrl }),
-      });
-      if (!res.ok) throw new Error();
-      const created = await res.json();
-      zones = [created, ...zones];
-      showToast(t('toastCreated'), 'success');
-      clearForm();
-    }
-    renderZones();
-    updateMap();
-  } catch {
-    showToast(t('toastError'), 'error');
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-function askDelete(id) {
-  deleteId = id;
-  document.getElementById('confirmDialog').classList.add('show');
-}
-
-function closeConfirm() {
-  deleteId = null;
-  document.getElementById('confirmDialog').classList.remove('show');
-}
-
-async function confirmDelete() {
-  if (!deleteId) return;
-  closeConfirm();
-  try {
-    const res = await fetch(API.delete, {
-      method: 'DELETE',
+    const res = await fetch(API_OBJECTS, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: deleteId }),
+      body: JSON.stringify({ token: getToken(), resource, action, data }),
+      signal: controller.signal
     });
-    if (!res.ok) throw new Error();
-    zones = zones.filter(z => z.id !== deleteId);
-    if (editingId === deleteId) cancelEdit();
-    showToast(t('toastDeleted'), 'success');
-    renderZones();
-    updateMap();
-  } catch {
-    showToast(t('toastError'), 'error');
+    clearTimeout(timer);
+    return res.json();
+  } catch(e) {
+    clearTimeout(timer);
+    if (e.name === 'AbortError') throw new Error('Превышено время ожидания. Попробуйте снова.');
+    throw e;
   }
-  deleteId = null;
 }
 
-// ============================================================
-// UI
-// ============================================================
-function renderZones() {
-  const list = document.getElementById('zonesList');
-  const count = document.getElementById('zonesCount');
+async function checkAuth() {
+  const token = getToken();
+  if (!token) { window.location.href = 'login.html'; return false; }
+  try {
+    const res = await fetch(API_AUTH, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'me', token })
+    });
+    const d = await res.json();
+    if (!d.success || !['admin','superadmin'].includes(d.user.role)) {
+      window.location.href = 'login.html'; return false;
+    }
+    return true;
+  } catch(e) {
+    window.location.href = 'login.html'; return false;
+  }
+}
 
-  count.textContent = typeof t('zonesCount') === 'function'
-    ? LANGS[lang].zonesCount(zones.length)
-    : `${zones.length}`;
+/* ═══════════════════════════════════════
+   ADMIN: LOAD ASSIGNED CITIES ONLY
+═══════════════════════════════════════ */
+async function loadAdminCities() {
+  try {
+    const user = JSON.parse(localStorage.getItem('whispr_user') || '{}');
+    const res = await apiMain('user_cities', 'list', { user_id: user.id });
+    const cityIds = (res.cities || []).map(c => c.city_id || c.id);
+    // Load full cities list then filter to assigned only
+    const allRes = await apiMain('cities', 'list', {});
+    allCitiesList = (allRes.cities || []).filter(c => cityIds.includes(c.id));
+    if (!allCitiesList.length) {
+      // fallback: use all active cities if no assignment found
+      allCitiesList = (allRes.cities || []).filter(c => c.is_active);
+    }
+    populateCitySelect();
+    // Auto-select first city
+    const sel = document.getElementById('obj-city-select');
+    if (allCitiesList.length) {
+      sel.value = allCitiesList[0].id;
+      onCitySelect();
+    }
+  } catch(e) {
+    console.error('loadAdminCities error:', e);
+  }
+}
 
-  if (!zones.length) {
-    list.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">🗺️</div>
-        <p><strong>${t('emptyTitle')}</strong><br>${t('emptyText')}</p>
-      </div>`;
+/* ═══════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════ */
+async function loadDashboard() {
+  try {
+    const [usersRes, citiesRes] = await Promise.all([
+      apiMain('users', 'list', { status: 'all' }),
+      apiMain('cities', 'list')
+    ]);
+
+    const users   = usersRes.users   || [];
+    const cities  = citiesRes.cities || [];
+    const pending = users.filter(u => u.status === 'pending').length;
+    const active  = users.filter(u => u.status === 'active').length;
+
+    document.getElementById('stat-pending').textContent = pending;
+    document.getElementById('stat-admins').textContent  = active;
+    document.getElementById('stat-cities').textContent  = cities.length;
+    document.getElementById('stat-objects').textContent = '—';
+
+    if (pending > 0) {
+      const badge = document.getElementById('pending-badge');
+      if (badge) { badge.textContent = pending; badge.style.display = 'block'; }
+      const dot = document.getElementById('mob-req-dot');
+      if (dot) dot.classList.add('show');
+    }
+
+    allRequests    = users;
+    allCitiesList  = cities;
+
+    const recentPending = users.filter(u => u.status === 'pending').slice(0, 5);
+    const dashList = document.getElementById('dash-requests-list');
+    if (!recentPending.length) {
+      dashList.innerHTML = `<div class="empty-state"><div class="empty-title">${t('no-requests')}</div></div>`;
+    } else {
+      dashList.innerHTML = `<div class="table-wrap"><table style="width:100%">
+        <thead><tr>
+          <th id="t-th-name2">${t('th-name')}</th>
+          <th>Email</th>
+          <th>${t('th-city-wish')}</th>
+          <th>${t('th-status')}</th>
+          <th>${t('th-actions')}</th>
+        </tr></thead>
+        <tbody>${recentPending.map(r => `<tr>
+          <td><div class="td-name">${r.name}</div></td>
+          <td><div class="td-email">${r.email}</div></td>
+          <td><span class="td-city">${r.city_wish || '—'}</span></td>
+          <td><span class="pill pill-pending">${t('pending-lbl')}</span></td>
+          <td><button class="btn btn-success btn-sm" onclick="showSection('requests')">${t('approve')}</button></td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+    }
+  } catch(e) {
+    toast(e.message, 'error');
+  }
+}
+
+/* ═══════════════════════════════════════
+   REQUESTS
+═══════════════════════════════════════ */
+let allRequests   = [];
+let requestFilter = 'all';
+
+async function loadRequests() {
+  document.getElementById('requests-tbody').innerHTML =
+    `<tr><td colspan="6"><div class="loading-row"><div class="spinner-sm"></div></div></td></tr>`;
+  try {
+    const res = await apiMain('users', 'list', { status: 'all' });
+    allRequests   = res.users || [];
+    allCitiesList = allCitiesList.length ? allCitiesList : (await apiMain('cities', 'list')).cities || [];
+    filterRequests(requestFilter);
+  } catch(e) {
+    toast(e.message, 'error');
+  }
+}
+
+function filterRequests(f) {
+  requestFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  const idx = ['all','pending','active','rejected'].indexOf(f);
+  document.querySelectorAll('.filter-btn')[idx]?.classList.add('active');
+  renderRequestsTable(allRequests.filter(r => f === 'all' || r.status === f));
+}
+
+function renderRequestsTable(rows) {
+  const tb = document.getElementById('requests-tbody');
+  if (!rows.length) {
+    tb.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-title">${t('no-requests')}</div></div></td></tr>`;
     return;
   }
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td><div class="td-name">${r.name}</div><div class="td-email">${r.email}</div></td>
+      <td><span style="font-size:12px">${r.phone || '—'}</span></td>
+      <td><span class="td-city">${r.city_wish || '—'}</span></td>
+      <td><span class="pill pill-${r.status}">${t(r.status + '-lbl')}</span></td>
+      <td><span style="font-family:var(--mono);font-size:11px;color:var(--text3)">${new Date(r.created_at).toLocaleDateString('uk')}</span></td>
+      <td><div class="btn-group">
+        ${r.status === 'pending' ? `
+          <button class="btn btn-success btn-sm" onclick='openApproveModal(${JSON.stringify(r).replace(/'/g,"\'")})'>${t('approve')}</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectAdmin(${r.id})">${t('reject')}</button>
+        ` : `
+          <button class="btn btn-ghost btn-sm" onclick='openEditAdminModal(${JSON.stringify(r).replace(/'/g,"\'")})'>${t('edit-admin')}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteAdmin(${r.id})">${t('delete-admin')}</button>
+        `}
+      </div></td>
+    </tr>
+  `).join('');
+}
 
-  list.innerHTML = zones.map(z => `
-    <div class="zone-card ${editingId === z.id ? 'active' : ''}" onclick="selectZone(${z.id})">
-      <div class="zone-name">${escHtml(z.name)}</div>
-      <div class="zone-meta">
-        <span>📍 ${z.latitude.toFixed(4)}, ${z.longitude.toFixed(4)}</span>
-        <span>⭕ ${z.radius}m</span>
+/* ═══════════════════════════════════════
+   APPROVE / REJECT
+═══════════════════════════════════════ */
+let approvingAdmin = null;
+let allCitiesList  = [];
+
+function openApproveModal(admin) {
+  approvingAdmin = typeof admin === 'string' ? JSON.parse(admin) : admin;
+  document.getElementById('approve-admin-name').textContent     = approvingAdmin.name;
+  document.getElementById('approve-admin-email').textContent    = approvingAdmin.email;
+  document.getElementById('approve-admin-city-wish').textContent =
+    approvingAdmin.city_wish ? `${t('city-wish-lbl')}: ${approvingAdmin.city_wish}` : '';
+  renderApprovesCityList();
+  openModal('modal-approve');
+}
+
+function renderApprovesCityList() {
+  const list = document.getElementById('approve-cities-list');
+  if (!allCitiesList.length) {
+    list.innerHTML = `<div style="color:var(--text3);font-size:12px">${t('loading')}</div>`;
+    return;
+  }
+  list.innerHTML = allCitiesList.map(c => `
+    <div class="city-select-item" data-id="${c.id}" onclick="this.classList.toggle('selected')">
+      <div>
+        <div class="city-select-name">${c.name}</div>
+        <div class="city-select-country">${c.country}</div>
       </div>
-      <div class="zone-audio">🔊 ${escHtml(z.audio_url)}</div>
-      <div class="zone-actions">
-        <button class="btn-sm btn-edit" onclick="event.stopPropagation();editZone(${z.id})">${t('btnEdit')}</button>
-        <button class="btn-sm btn-delete" onclick="event.stopPropagation();askDelete(${z.id})">${t('btnDelete')}</button>
+      <span class="pill pill-${c.is_active ? 'active' : 'draft'}" style="margin-left:auto">${c.is_active ? t('active-lbl') : t('draft-lbl')}</span>
+    </div>
+  `).join('');
+}
+
+async function confirmApprove() {
+  const cityIds = [...document.querySelectorAll('#approve-cities-list .city-select-item.selected')]
+    .map(el => parseInt(el.dataset.id));
+  const btn = document.getElementById('t-confirm-approve-btn');
+  btn.disabled = true;
+  try {
+    const res = await apiMain('users', 'approve', { user_id: approvingAdmin.id, city_ids: cityIds });
+    if (res.success) {
+      toast(`${approvingAdmin.name} — ${t('confirm-approve')}`, 'success');
+      closeModal('modal-approve');
+      loadRequests();
+      loadDashboard();
+    } else {
+      toast(res.error || 'Error', 'error');
+    }
+  } catch(e) { toast(e.message, 'error'); }
+  btn.disabled = false;
+}
+
+async function rejectAdmin(id) {
+  try {
+    const res = await apiMain('users', 'reject', { user_id: id });
+    if (res.success) {
+      toast(t('reject'), 'success');
+      loadRequests();
+      loadDashboard();
+    } else { toast(res.error, 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+/* ═══════════════════════════════════════
+   CITIES
+═══════════════════════════════════════ */
+async function loadCities() {
+  document.getElementById('cities-grid').innerHTML =
+    `<div class="loading-row" style="grid-column:1/-1"><div class="spinner-sm"></div></div>`;
+  try {
+    const [citiesRes, usersRes] = await Promise.all([
+      apiMain('cities', 'list'),
+      allRequests.length ? Promise.resolve({ users: allRequests }) : apiMain('users', 'list', { status: 'all' })
+    ]);
+    allCitiesList = citiesRes.cities || [];
+    if (!allRequests.length) allRequests = usersRes.users || [];
+    renderCitiesGrid(allCitiesList);
+    populateCitySelect();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function renderCitiesGrid(cities) {
+  const grid = document.getElementById('cities-grid');
+  if (!cities.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-title">${t('no-requests')}</div></div>`;
+    return;
+  }
+  grid.innerHTML = cities.map(c => `
+    <div class="city-card">
+      <div class="city-card-head">
+        <div class="city-card-name">${c.name}</div>
+        <span class="pill pill-${c.is_active ? 'active' : 'draft'}">${c.is_active ? t('active-lbl') : t('draft-lbl')}</span>
+      </div>
+      <div class="city-card-body">
+        <div class="city-card-meta">
+          <span>${c.country}</span>
+          <span>${parseFloat(c.center_lat).toFixed(4)}, ${parseFloat(c.center_lng).toFixed(4)}</span>
+        </div>
+        <div class="city-card-langs">${(c.languages||[]).map(l=>`<span class="city-card-lang">${l}</span>`).join('')}</div>
+        <div class="city-admins">${(c.admins||[]).map(a=>`<div class="city-admin-chip"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><circle cx="4.5" cy="3" r="2" fill="currentColor" opacity=".7"/><path d="M1 8c0-1.9 1.6-3.5 3.5-3.5S8 6.1 8 8" stroke="currentColor" stroke-width="1.1" fill="none"/></svg>${a.name}</div>`).join('') || `<span style="font-size:11px;color:var(--text3)">—</span>`}</div>
+      </div>
+      <div class="city-card-foot">
+        <button class="btn btn-ghost btn-sm" onclick='openEditCity(${JSON.stringify(c).replace(/'/g,"\'")})'>${t('edit')}</button>
+        <button class="btn btn-${c.is_active?'danger':'success'} btn-sm" onclick="toggleCityActive_api(${c.id},${!c.is_active})">${c.is_active?t('deactivate'):t('activate')}</button>
       </div>
     </div>
   `).join('');
 }
 
-function selectZone(id) {
-  const zone = zones.find(z => z.id === id);
-  if (!zone) return;
-  document.querySelectorAll('.zone-card').forEach(c => c.classList.remove('active'));
-  const card = document.querySelector(`.zone-card[onclick*="selectZone(${id})"]`);
-  if (card) card.classList.add('active');
-  flyToZone(zone);
+let editingCityId = null;
+
+function openCreateCity() {
+  editingCityId = null;
+  document.getElementById('city-edit-id').value = '';
+  document.getElementById('city-name-input').value = '';
+  document.getElementById('city-country-input').value = 'Ukraine';
+  document.getElementById('city-lat-input').value = '';
+  document.getElementById('city-lng-input').value = '';
+  document.querySelectorAll('#modal-city .lang-toggle[data-lang]').forEach(el => el.classList.toggle('on', el.dataset.lang === 'uk'));
+  const tog = document.getElementById('city-active-toggle');
+  tog.dataset.active = 'false';
+  tog.classList.remove('on');
+  document.getElementById('t-city-active-val').textContent = t('city-active-off');
+  document.getElementById('t-modal-city-title').textContent = t('modal-city-create');
+  renderCityAdminsList([]);
+  document.getElementById('city-search-input').value = '';
+  openModal('modal-city');
+  initCityModalMap(null, null);
 }
 
-function editZone(id) {
-  const zone = zones.find(z => z.id === id);
-  if (!zone) return;
-  editingId = id;
-  document.getElementById('fieldName').value   = zone.name;
-  document.getElementById('fieldLat').value    = zone.latitude;
-  document.getElementById('fieldLng').value    = zone.longitude;
-  document.getElementById('fieldRadius').value = zone.radius;
-  document.getElementById('fieldAudio').value  = zone.audio_url;
-  document.getElementById('formTitle').textContent = t('editZone');
-  document.querySelector('#btnSubmit [data-i18n]').textContent = t('btnUpdate');
-  document.getElementById('btnCancel').style.display = '';
-  renderZones();
-  flyToZone(zone);
-  // scroll to top on mobile
-  document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+function openEditCity(city) {
+  const c = typeof city === 'string' ? JSON.parse(city) : city;
+  editingCityId = c.id;
+  document.getElementById('city-edit-id').value = c.id;
+  document.getElementById('city-name-input').value = c.name;
+  document.getElementById('city-country-input').value = c.country;
+  document.getElementById('city-lat-input').value = c.center_lat;
+  document.getElementById('city-lng-input').value = c.center_lng;
+  const langs = c.languages || ['uk'];
+  document.querySelectorAll('#modal-city .lang-toggle[data-lang]').forEach(el => el.classList.toggle('on', langs.includes(el.dataset.lang)));
+  const tog = document.getElementById('city-active-toggle');
+  tog.dataset.active = String(c.is_active);
+  tog.classList.toggle('on', c.is_active);
+  document.getElementById('t-city-active-val').textContent = c.is_active ? t('city-active-on') : t('city-active-off');
+  document.getElementById('t-modal-city-title').textContent = t('modal-city-edit');
+  const currentAdminIds = (c.admins || []).map(a => a.id);
+  renderCityAdminsList(currentAdminIds);
+  document.getElementById('city-search-input').value = c.name || '';
+  openModal('modal-city');
+  initCityModalMap(c.center_lat, c.center_lng);
 }
 
-function cancelEdit() {
-  editingId = null;
-  clearForm();
-  document.getElementById('formTitle').textContent = t('newZone');
-  document.querySelector('#btnSubmit [data-i18n]').textContent = t('btnCreate');
-  document.getElementById('btnCancel').style.display = 'none';
-  renderZones();
+function toggleCityLang(el) { el.classList.toggle('on'); }
+
+/* ═══════════════════════════════════════
+   CITY MODAL MAP
+═══════════════════════════════════════ */
+let cityModalMap    = null;
+let cityModalMarker = null;
+let citySearchTimer = null;
+
+function initCityModalMap(lat, lng) {
+  const center = (lat && lng) ? [lat, lng] : [49.5883, 34.5514];
+  if (!cityModalMap) {
+    setTimeout(() => {
+      cityModalMap = L.map('city-modal-map', { center, zoom: 12 });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OSM'
+      }).addTo(cityModalMap);
+      cityModalMap.on('click', onCityModalMapClick);
+      if (lat && lng) placeCityModalMarker(lat, lng);
+    }, 150);
+  } else {
+    cityModalMap.setView(center, 12);
+    if (lat && lng) placeCityModalMarker(lat, lng);
+    else if (cityModalMarker) { cityModalMarker.remove(); cityModalMarker = null; }
+    setTimeout(() => cityModalMap.invalidateSize(), 200);
+  }
 }
 
-function clearForm() {
-  ['fieldName','fieldLat','fieldLng','fieldAudio'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('fieldRadius').value = '100';
+function onCityModalMapClick(e) {
+  placeCityModalMarker(e.latlng.lat, e.latlng.lng);
+  document.getElementById('city-lat-input').value = e.latlng.lat.toFixed(6);
+  document.getElementById('city-lng-input').value = e.latlng.lng.toFixed(6);
 }
 
-function setStatus(online) {
-  lastOnline = online;
-  updateStatus(online);
+function placeCityModalMarker(lat, lng) {
+  if (cityModalMarker) cityModalMarker.remove();
+  cityModalMarker = L.marker([lat, lng], {
+    icon: L.divIcon({
+      className: '',
+      html: `<div style="width:12px;height:12px;border-radius:50%;background:#c8622a;border:2px solid #fff;box-shadow:0 0 0 4px rgba(200,98,42,.3)"></div>`,
+      iconAnchor: [6, 6]
+    })
+  }).addTo(cityModalMap);
 }
 
-function updateStatus(online) {
-  document.getElementById('statusDot').className = 'status-dot' + (online ? '' : ' offline');
-  document.getElementById('statusText').textContent = online ? t('statusOnline') : t('statusOffline');
+function debounceCitySearch(val) {
+  clearTimeout(citySearchTimer);
+  if (val.length < 2) return;
+  citySearchTimer = setTimeout(() => searchCityOnMap(val), 600);
 }
 
-function showToast(msg, type = 'success') {
-  const c = document.getElementById('toastContainer');
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.innerHTML = `<span class="toast-icon">${type === 'success' ? '✓' : '⚠'}</span><span>${msg}</span>`;
-  c.appendChild(el);
-  setTimeout(() => {
-    el.style.animation = 'slideOut 0.3s ease forwards';
-    setTimeout(() => el.remove(), 300);
-  }, 2800);
+async function searchCityOnMap(query) {
+  const q = query || document.getElementById('city-search-input').value.trim();
+  if (!q) return;
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1&addressdetails=1`,
+      { headers: { 'Accept-Language': 'uk,ru,en', 'User-Agent': 'WhisprCity/1.0' } }
+    );
+    const data = await res.json();
+    if (!data.length) { toast('Місто не знайдено', 'error'); return; }
+    const place = data[0];
+    const lat = parseFloat(place.lat);
+    const lng = parseFloat(place.lon);
+    document.getElementById('city-lat-input').value = lat.toFixed(6);
+    document.getElementById('city-lng-input').value = lng.toFixed(6);
+    if (!document.getElementById('city-name-input').value) {
+      const name = place.address?.city || place.address?.town || place.name;
+      if (name) document.getElementById('city-name-input').value = name;
+    }
+    if (cityModalMap) {
+      cityModalMap.setView([lat, lng], 13);
+      placeCityModalMarker(lat, lng);
+    }
+  } catch(e) { toast('Помилка пошуку', 'error'); }
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+/* ═══════════════════════════════════════
+   EDIT / DELETE ADMIN
+═══════════════════════════════════════ */
+let editingAdmin = null;
+
+function openEditAdminModal(admin) {
+  editingAdmin = typeof admin === 'string' ? JSON.parse(admin) : admin;
+  document.getElementById('edit-admin-id').value       = editingAdmin.id;
+  document.getElementById('edit-admin-name').value     = editingAdmin.name || '';
+  document.getElementById('edit-admin-phone').value    = editingAdmin.phone || '';
+  document.getElementById('edit-admin-city-wish').value = editingAdmin.city_wish || '';
+  document.getElementById('t-modal-edit-admin-title').textContent = t('modal-edit-admin-title');
+  document.getElementById('t-admin-name-label').textContent      = t('admin-name-label');
+  document.getElementById('t-admin-phone-label').textContent     = t('admin-phone-label');
+  document.getElementById('t-admin-city-wish-label').textContent = t('admin-city-wish-label');
+  document.getElementById('t-assign-cities-label2').textContent  = t('assign-cities');
+  document.getElementById('t-cancel-edit-admin-btn').textContent = t('cancel');
+  document.getElementById('t-save-edit-admin-btn').textContent   = t('save');
+
+  // Список городов с текущими назначениями
+  const list = document.getElementById('edit-admin-cities-list');
+  list.innerHTML = allCitiesList.map(c => {
+    const assigned = (editingAdmin.cities || []).some(ec => ec.id === c.id);
+    return `<div class="city-select-item ${assigned ? 'selected' : ''}" data-id="${c.id}"
+                 onclick="this.classList.toggle('selected')">
+      <div>
+        <div class="city-select-name">${c.name}</div>
+        <div class="city-select-country">${c.country}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  openModal('modal-edit-admin');
 }
 
-// ============================================================
-// INIT
-// ============================================================
-initMap();
-fetchZones();
-setInterval(fetchZones, 30000);
-applyI18n();
+async function saveAdminEdit() {
+  const btn = document.getElementById('t-save-edit-admin-btn');
+  btn.disabled = true;
+  try {
+    // Сохраняем данные пользователя
+    const res = await apiMain('users', 'update', {
+      user_id:   editingAdmin.id,
+      name:      document.getElementById('edit-admin-name').value.trim(),
+      phone:     document.getElementById('edit-admin-phone').value.trim(),
+      city_wish: document.getElementById('edit-admin-city-wish').value.trim(),
+    });
+    if (!res.success) { toast(res.error || 'Error', 'error'); btn.disabled = false; return; }
+
+    // Diff городов
+    const selectedCityIds  = [...document.querySelectorAll('#edit-admin-cities-list .city-select-item.selected')].map(el => parseInt(el.dataset.id));
+    const currentCityIds   = (editingAdmin.cities || []).map(c => c.id);
+    const toAdd    = selectedCityIds.filter(id => !currentCityIds.includes(id));
+    const toRemove = currentCityIds.filter(id => !selectedCityIds.includes(id));
+    for (const cityId of toAdd)    await apiMain('user_cities', 'assign',   { user_id: editingAdmin.id, city_ids: [cityId] });
+    for (const cityId of toRemove) await apiMain('user_cities', 'unassign', { user_id: editingAdmin.id, city_id: cityId });
+
+    toast(t('save'), 'success');
+    closeModal('modal-edit-admin');
+    loadRequests();
+  } catch(e) { toast(e.message, 'error'); }
+  btn.disabled = false;
+}
+
+async function deleteAdmin(id) {
+  if (!confirm(t('confirm-delete-admin'))) return;
+  try {
+    const res = await apiMain('users', 'delete', { user_id: id });
+    if (res.success) { toast(t('delete-admin'), 'success'); loadRequests(); loadDashboard(); }
+    else toast(res.error, 'error');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function renderCityAdminsList(selectedIds) {
+  const list = document.getElementById('city-admins-list');
+  if (!list) return;
+  const activeAdmins = allRequests.filter(u => u.status === 'active');
+  if (!activeAdmins.length) {
+    list.innerHTML = `<div style="font-size:12px;color:var(--text3)">${t('no-requests')}</div>`;
+    return;
+  }
+  list.innerHTML = activeAdmins.map(a => `
+    <div class="city-select-item ${selectedIds.includes(a.id) ? 'selected' : ''}"
+         data-admin-id="${a.id}"
+         onclick="this.classList.toggle('selected')">
+      <div>
+        <div class="city-select-name">${a.name}</div>
+        <div class="city-select-country">${a.email}</div>
+      </div>
+      ${selectedIds.includes(a.id) ? `<span class="pill pill-active" style="margin-left:auto">${t('active-lbl')}</span>` : ''}
+    </div>
+  `).join('');
+}
+
+function toggleCityActive() {
+  const tog = document.getElementById('city-active-toggle');
+  const isActive = tog.dataset.active === 'true';
+  tog.dataset.active = String(!isActive);
+  tog.classList.toggle('on', !isActive);
+  document.getElementById('t-city-active-val').textContent = !isActive ? t('city-active-on') : t('city-active-off');
+}
+
+async function toggleCityActive_api(id, active) {
+  try {
+    const res = await apiMain('cities', 'update', { city_id: id, is_active: active });
+    if (res.success) { toast(active ? t('activate') : t('deactivate'), 'success'); loadCities(); }
+    else toast(res.error, 'error');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function saveCity() {
+  const name    = document.getElementById('city-name-input').value.trim();
+  const country = document.getElementById('city-country-input').value.trim() || 'Ukraine';
+  const lat     = parseFloat(document.getElementById('city-lat-input').value);
+  const lng     = parseFloat(document.getElementById('city-lng-input').value);
+  const langs   = [...document.querySelectorAll('#modal-city .lang-toggle[data-lang].on')].map(el => el.dataset.lang);
+  const active  = document.getElementById('city-active-toggle').dataset.active === 'true';
+
+  if (!name)      { toast(t('city-name-label') + ' required', 'error'); return; }
+  if (!lat || !lng) { toast('Coordinates required', 'error'); return; }
+  if (!langs.length) { toast('Select at least one language', 'error'); return; }
+
+  try {
+    let res;
+    if (editingCityId) {
+      res = await apiMain('cities', 'update', { city_id: editingCityId, name, country, center_lat: lat, center_lng: lng, languages: langs, is_active: active });
+    } else {
+      res = await apiMain('cities', 'create', { name, country, center_lat: lat, center_lng: lng, languages: langs, is_active: active });
+    }
+    if (res.success) {
+      const cityId = res.city?.id || editingCityId;
+      if (cityId) {
+        // Выбранные сейчас
+        const selectedAdmins = [...document.querySelectorAll('#city-admins-list .city-select-item.selected')]
+          .map(el => parseInt(el.dataset.adminId));
+        // Текущие (были когда открывали модалку)
+        const currentCity   = allCitiesList.find(c => c.id === cityId);
+        const currentAdmins = (currentCity?.admins || []).map(a => a.id);
+        // Добавляем новых
+        const toAdd    = selectedAdmins.filter(id => !currentAdmins.includes(id));
+        // Убираем снятых
+        const toRemove = currentAdmins.filter(id => !selectedAdmins.includes(id));
+        for (const adminId of toAdd) {
+          await apiMain('user_cities', 'assign', { user_id: adminId, city_ids: [cityId] });
+        }
+        for (const adminId of toRemove) {
+          await apiMain('user_cities', 'unassign', { user_id: adminId, city_id: cityId });
+        }
+      }
+      toast(t('save'), 'success');
+      closeModal('modal-city');
+      loadCities();
+      loadDashboard();
+    } else { toast(res.error, 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+/* ═══════════════════════════════════════
+   OBJECTS SECTION
+═══════════════════════════════════════ */
+let parseMap     = null;
+let parseMarker  = null;
+let parseCircle  = null;
+let parseCoords  = null;
+let parseObjects = [];
+let currentCity  = null;
+
+const CATEGORIES = [
+  { id: 'historic',   key: 'cat-historic' },
+  { id: 'museum',     key: 'cat-museum'   },
+  { id: 'church',     key: 'cat-church'   },
+  { id: 'restaurant', key: 'cat-restaurant' },
+  { id: 'park',       key: 'cat-park'     },
+  { id: 'tourism',    key: 'cat-tourism'  },
+];
+
+function renderCategories() {
+  const group = document.getElementById('categories-group');
+  if (!group) return;
+  group.innerHTML = CATEGORIES.map(c => `
+    <div class="check-item checked" data-cat="${c.id}" onclick="this.classList.toggle('checked')">${t(c.key)}</div>
+  `).join('');
+}
+
+function initObjectsSection() {
+  renderCategories();
+  if (!allCitiesList.length) {
+    apiMain('cities', 'list').then(res => {
+      allCitiesList = res.cities || [];
+      populateCitySelect();
+    });
+  } else {
+    populateCitySelect();
+  }
+  if (!parseMap) {
+    // Инициализируем сразу без timeout чтобы Leaflet не ломал grid
+    parseMap = L.map('parse-map', { center: [49.5883, 34.5514], zoom: 14 });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(parseMap);
+    parseMap.on('click', onMapClick);
+    // После рендера DOM — пересчитываем размер
+    setTimeout(() => { parseMap.invalidateSize(); parseMap.invalidateSize(); }, 300);
+  }
+}
+
+function populateCitySelect() {
+  const sel = document.getElementById('obj-city-select');
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">${t('city-select-placeholder')}</option>` +
+    allCitiesList.map(c => `<option value="${c.id}" ${cur == c.id ? 'selected' : ''}>${c.name}</option>`).join('');
+  // Автовибір першого міста якщо ще нічого не вибрано
+  if (!cur && allCitiesList.length) {
+    sel.value = allCitiesList[0].id;
+    onCitySelect();
+  }
+}
+
+function onCitySelect() {
+  const cityId = document.getElementById('obj-city-select').value;
+  if (!cityId) { document.getElementById('objects-content').style.display = 'none'; return; }
+  currentCity = allCitiesList.find(c => c.id == cityId);
+  document.getElementById('objects-content').style.display = 'block';
+  if (parseMap && currentCity) {
+    parseMap.setView([currentCity.center_lat, currentCity.center_lng], 14);
+    setTimeout(() => { parseMap.invalidateSize(); parseMap.invalidateSize(); }, 300);
+  }
+  loadSavedObjects();
+}
+
+function onMapClick(e) {
+  parseCoords = e.latlng;
+  const radius = parseInt(document.getElementById('radius-slider').value);
+  if (parseMarker) parseMarker.remove();
+  if (parseCircle) parseCircle.remove();
+  parseMarker = L.marker(e.latlng, {
+    icon: L.divIcon({ className: '', html: `<div style="width:12px;height:12px;border-radius:50%;background:#c8622a;border:2px solid #fff;box-shadow:0 0 0 4px rgba(200,98,42,.25)"></div>`, iconAnchor: [6,6] })
+  }).addTo(parseMap);
+  parseCircle = L.circle(e.latlng, { radius, color: '#c8622a', fillColor: '#c8622a', fillOpacity: .06, weight: 1.5 }).addTo(parseMap);
+  document.getElementById('coords-display').textContent = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+  document.getElementById('btn-parse').disabled = false;
+}
+
+function onRadiusChange() {
+  const radius = parseInt(document.getElementById('radius-slider').value);
+  document.getElementById('radius-val').textContent = radius;
+  if (parseCircle && parseCoords) parseCircle.setRadius(radius);
+}
+
+function onCountChange() {
+  document.getElementById('count-val').textContent = document.getElementById('count-slider').value;
+}
+
+async function startParse() {
+  if (!parseCoords || !currentCity) return;
+  const btn = document.getElementById('btn-parse');
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner-sm"></div> ${t('loading')}`;
+
+  const cats = [...document.querySelectorAll('#categories-group .check-item.checked')].map(el => el.dataset.cat);
+
+  try {
+    const res = await apiObjects('objects', 'parse', {
+      city_name: currentCity.name,
+      country:   currentCity.country,
+      lat:       parseCoords.lat,
+      lng:       parseCoords.lng,
+      radius:    parseInt(document.getElementById('radius-slider').value),
+      count:     parseInt(document.getElementById('count-slider').value),
+      categories: cats
+    });
+
+    if (res.success && res.places) {
+      parseObjects = res.places;
+      renderParseResults(parseObjects);
+    } else {
+      toast(res.error || 'Parse error', 'error');
+    }
+  } catch(e) { toast(e.message, 'error'); }
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M5 7.5h5M8 5.5l2 2-2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> ${t('parse-btn')}`;
+}
+
+function renderParseResults(places) {
+  const panel = document.getElementById('parse-results-panel');
+  const grid  = document.getElementById('parse-objects-grid');
+  const count = document.getElementById('parse-count');
+  panel.style.display = 'block';
+  count.textContent   = places.length;
+
+  grid.innerHTML = places.map((p, i) => `
+    <div class="obj-card selected" data-idx="${i}" onclick="toggleObjectCard(this)">
+      <div class="obj-check"></div>
+      <div class="obj-content">
+        <div class="obj-name">${p.name}</div>
+        <div class="obj-cat">${p.category}</div>
+        ${p.tags?.description ? `<div class="obj-desc">${p.tags.description}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+  updateSaveBtn();
+}
+
+function toggleObjectCard(el) { el.classList.toggle('selected'); updateSaveBtn(); }
+
+function selectAllObjects() {
+  const cards = document.querySelectorAll('.obj-card');
+  const allSel = [...cards].every(c => c.classList.contains('selected'));
+  cards.forEach(c => c.classList.toggle('selected', !allSel));
+  updateSaveBtn();
+}
+
+function updateSaveBtn() {
+  const btn = document.getElementById('btn-save-objects');
+  if (btn) btn.disabled = document.querySelectorAll('.obj-card.selected').length === 0;
+}
+
+async function saveSelectedObjects() {
+  const selected = [...document.querySelectorAll('.obj-card.selected')]
+    .map(el => parseObjects[parseInt(el.dataset.idx)]);
+
+  if (!selected.length || !currentCity) return;
+
+  const btn = document.getElementById('btn-save-objects');
+  btn.disabled = true;
+
+  try {
+    const res = await apiObjects('objects', 'save', {
+      city_id: parseInt(document.getElementById('obj-city-select').value),
+      objects: selected.map(p => ({
+        name:      p.name,
+        category:  p.category,
+        latitude:  p.latitude,
+        longitude: p.longitude,
+        radius:    100,
+        osm_id:    p.osm_id
+      }))
+    });
+    if (res.success) {
+      toast(`${t('save-selected')}: ${res.objects.length}`, 'success');
+      document.getElementById('parse-results-panel').style.display = 'none';
+      parseObjects = [];
+      loadSavedObjects();
+    } else { toast(res.error, 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+  btn.disabled = false;
+}
+
+async function loadSavedObjects() {
+  const cityId = document.getElementById('obj-city-select').value;
+  if (!cityId) return;
+  document.getElementById('saved-objects-tbody').innerHTML =
+    `<tr><td colspan="4"><div class="loading-row"><div class="spinner-sm"></div></div></td></tr>`;
+  try {
+    const res = await apiObjects('objects', 'list', { city_id: parseInt(cityId) });
+    renderSavedObjects(res.objects || []);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+let savedObjects = [];
+const generatingRows = new Set(); // object_id-ов в процессе генерации
+
+function setRowGenerating(objId, type, isOn) {
+  if (isOn) generatingRows.add(objId + '-' + type);
+  else generatingRows.delete(objId + '-' + type);
+  // Перерисовываем строку если она в DOM
+  const existing = savedObjects.find(o => o.id === objId);
+  if (existing) renderSavedObjects(savedObjects);
+}
+
+function renderSavedObjects(objects) {
+  savedObjects = objects;
+  updateBulkBar();
+  const tb = document.getElementById('saved-objects-tbody');
+  if (!objects.length) {
+    tb.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+      <div class="empty-title">${t('no-objects')}</div>
+      <div class="empty-sub">${t('no-objects-sub')}</div>
+    </div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = objects.map(o => {
+    const hasText  = o.cards && o.cards.some(c => c.status === 'generated' || c.status === 'ready' || c.text_status === 'generated' || c.text_status === 'ready');
+    const hasAudio = o.audio_count > 0 || (o.cards && o.cards.some(c => c.has_audio || c.audio_count > 0));
+    const genText  = generatingRows.has(o.id + '-text');
+    const genAudio = generatingRows.has(o.id + '-audio');
+
+    return `<tr data-obj-id="${o.id}">
+      <td style="width:32px"><input type="checkbox" class="obj-check obj-row-check" data-id="${o.id}" onchange="onObjCheckChange()"></td>
+      <td class="td-name">${o.name}</td>
+      <td><span class="pill pill-draft">${o.category}</span></td>
+      <td><div class="pipeline-row">
+        <span class="pipe-step done">saved</span>
+        <span class="pipe-arrow">›</span>
+        <span class="pipe-step ${genText?'generating':(hasText?'done':'empty')}">${t('gen-text')}</span>
+        <span class="pipe-arrow">›</span>
+        <span class="pipe-step ${genAudio?'generating':(hasAudio?'done':'empty')}">${t('gen-audio')}</span>
+      </div></td>
+      <td><div class="btn-group">
+        <button class="btn btn-ghost btn-sm" onclick='openEditObjModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 9.5h2l5-5-2-2-5 5v2z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="btn btn-amber btn-sm" onclick='openGenTextModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'>${genText?'<div class=\"spinner-sm\"></div> ':''}${t('gen-text')}</button>
+        <button class="btn btn-ghost btn-sm" onclick='openGenAudioModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'>${genAudio?'<div class=\"spinner-sm\"></div> ':''}${t('gen-audio')}</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function onObjCheckChange() {
+  updateBulkBar();
+  const checks = document.querySelectorAll('.obj-row-check');
+  const allChecked = [...checks].every(c => c.checked);
+  const checkAll = document.getElementById('obj-check-all');
+  if (checkAll) checkAll.checked = allChecked && checks.length > 0;
+}
+
+function toggleAllObjects(master) {
+  document.querySelectorAll('.obj-row-check').forEach(c => c.checked = master.checked);
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const selected = document.querySelectorAll('.obj-row-check:checked');
+  const btn = document.getElementById('btn-bulk-delete');
+  if (!btn) return;
+  if (selected.length > 0) {
+    btn.style.display = '';
+    const lbl = document.getElementById('t-bulk-delete-btn');
+    if (lbl) lbl.textContent = t('bulk-delete-btn') + ' (' + selected.length + ')';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+async function bulkDeleteObjects() {
+  const ids = [...document.querySelectorAll('.obj-row-check:checked')].map(c => parseInt(c.dataset.id));
+  if (!ids.length) return;
+  if (!await customConfirm(`Удалить ${ids.length} объект(ов)?`, 'Удалить')) return;
+  try {
+    await Promise.all(ids.map(id => apiObjects('objects', 'delete', { object_id: id })));
+    toast(`Удалено ${ids.length} объектов`, 'success');
+    const checkAll = document.getElementById('obj-check-all');
+    if (checkAll) checkAll.checked = false;
+    loadSavedObjects();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+/* ═══════════════════════════════════════
+   GEN TEXT MODAL
+═══════════════════════════════════════ */
+let genTextObject = null;
+
+function openGenTextModal(obj) {
+  genTextObject = typeof obj === 'string' ? JSON.parse(obj) : obj;
+  document.getElementById('gen-text-obj-name').textContent = genTextObject.name;
+  openModal('modal-gen-text');
+}
+
+async function confirmGenText() {
+  const langs = [...document.querySelectorAll('#modal-gen-text .lang-toggle.on')].map(el => el.dataset.lang);
+  if (!langs.length) { toast('Выберите хотя бы один язык', 'error'); return; }
+  closeModal('modal-gen-text');
+  setRowGenerating(genTextObject.id, 'text', true);
+  try {
+    const res = await apiObjects('generate', 'text', { object_id: genTextObject.id, languages: langs });
+    if (res.success) {
+      toast(`Тексты готовы: ${genTextObject.name}`, 'success');
+      loadSavedObjects();
+    } else { toast(res.error || 'Ошибка генерации текста', 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+  setRowGenerating(genTextObject.id, 'text', false);
+}
+
+/* ═══════════════════════════════════════
+   GEN AUDIO MODAL
+═══════════════════════════════════════ */
+let genAudioObject = null;
+
+function openGenAudioModal(obj) {
+  genAudioObject = typeof obj === 'string' ? JSON.parse(obj) : obj;
+  document.getElementById('gen-audio-obj-name').textContent = genAudioObject.name;
+  openModal('modal-gen-audio');
+}
+
+async function confirmGenAudio() {
+  const voice = document.getElementById('voice-select').value;
+  const langs = [...document.querySelectorAll('#audio-lang-toggles .lang-toggle.on')].map(el => el.dataset.lang);
+  if (!langs.length) { toast('Выберите хотя бы один язык', 'error'); return; }
+
+  closeModal('modal-gen-audio');
+  setRowGenerating(genAudioObject.id, 'audio', true);
+
+  try {
+    const cardsRes = await apiObjects('cards', 'list', { object_id: genAudioObject.id });
+    const cards = cardsRes.cards || [];
+
+    let ok = 0, fail = 0;
+    for (let i = 0; i < langs.length; i++) {
+      const lang = langs[i];
+      const card = cards.find(c => c.lang_code === lang);
+      if (!card) { toast(`Нет текста для ${lang.toUpperCase()} — пропущено`, 'error'); fail++; continue; }
+      try {
+        const res = await apiObjects('generate', 'audio', { card_id: card.id, voice });
+        if (res.success) ok++; else { toast(`Ошибка ${lang.toUpperCase()}: ${res.error||''}`, 'error'); fail++; }
+      } catch(e) { toast(`${lang.toUpperCase()}: ${e.message}`, 'error'); fail++; }
+    }
+
+    if (ok > 0) {
+      toast(`Аудио готово: ${ok} язык(ов)${fail ? ', ошибок: '+fail : ''}`, 'success');
+      loadSavedObjects();
+    } else {
+      toast('Генерация не удалась. Убедитесь что тексты сгенерированы.', 'error');
+    }
+  } catch(e) { toast(e.message, 'error'); }
+
+  setRowGenerating(genAudioObject.id, 'audio', false);
+}
+
+
+
+
+
+/* ═══════════════════════════════════════
+   CUSTOM CONFIRM
+═══════════════════════════════════════ */
+let _confirmResolve = null;
+
+function customConfirm(msg, okLabel = 'Удалить', title = 'Подтвердите действие') {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent   = msg;
+  document.getElementById('confirm-ok-btn').textContent = okLabel;
+  document.getElementById('confirm-overlay').classList.add('open');
+  return new Promise(resolve => { _confirmResolve = resolve; });
+}
+
+function confirmResolve(val) {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  if (_confirmResolve) { _confirmResolve(val); _confirmResolve = null; }
+}
+
+
+/* ═══════════════════════════════════════
+   ADD OBJECT MODAL
+═══════════════════════════════════════ */
+let addObjMap      = null;
+let addObjMarker   = null;
+let addObjAddrTimer = null;
+
+function openAddObjectModal() {
+  if (!currentCity) { toast('Сначала выберите город', 'error'); return; }
+  document.getElementById('add-obj-name').value = '';
+  document.getElementById('add-obj-addr').value = '';
+  document.getElementById('add-obj-lat').value  = '';
+  document.getElementById('add-obj-lng').value  = '';
+  document.getElementById('add-obj-addr-dropdown').style.display = 'none';
+  openModal('modal-add-obj');
+  setTimeout(() => initAddObjMap(), 200);
+}
+
+function initAddObjMap() {
+  const center = [currentCity.center_lat, currentCity.center_lng];
+  if (!addObjMap) {
+    addObjMap = L.map('add-obj-map', { center, zoom: 14 });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(addObjMap);
+    addObjMap.on('click', onAddObjMapClick);
+  } else {
+    addObjMap.setView(center, 14);
+    if (addObjMarker) { addObjMarker.remove(); addObjMarker = null; }
+  }
+  setTimeout(() => addObjMap.invalidateSize(), 100);
+}
+
+function onAddObjMapClick(e) {
+  placeAddObjMarker(e.latlng.lat, e.latlng.lng);
+  document.getElementById('add-obj-lat').value = e.latlng.lat.toFixed(6);
+  document.getElementById('add-obj-lng').value = e.latlng.lng.toFixed(6);
+  // Reverse geocode для адреса
+  fetch(`https://nominatim.openstreetmap.org/reverse?lat=${e.latlng.lat}&lon=${e.latlng.lng}&format=json`,
+    { headers: { 'Accept-Language': 'uk,ru', 'User-Agent': 'WhisprCity/1.0' } })
+    .then(r => r.json())
+    .then(d => {
+      if (d.display_name) document.getElementById('add-obj-addr').value = d.display_name.split(',').slice(0,3).join(', ');
+    }).catch(() => {});
+}
+
+function placeAddObjMarker(lat, lng) {
+  if (addObjMarker) addObjMarker.remove();
+  addObjMarker = L.marker([lat, lng], {
+    icon: L.divIcon({
+      className: '',
+      html: `<div style="width:14px;height:14px;border-radius:50%;background:#c8622a;border:2px solid #fff;box-shadow:0 0 0 4px rgba(200,98,42,.3)"></div>`,
+      iconAnchor: [7, 7]
+    })
+  }).addTo(addObjMap);
+}
+
+function onAddObjAddrInput(val) {
+  clearTimeout(addObjAddrTimer);
+  const dd = document.getElementById('add-obj-addr-dropdown');
+  if (val.length < 3) { dd.style.display = 'none'; return; }
+  addObjAddrTimer = setTimeout(() => searchAddObjAddr(val), 500);
+}
+
+async function searchAddObjAddr(q) {
+  const dd = document.getElementById('add-obj-addr-dropdown');
+  try {
+    const city = currentCity ? `, ${currentCity.name}` : '';
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + city)}&format=json&limit=5&addressdetails=1`,
+      { headers: { 'Accept-Language': 'uk,ru,en', 'User-Agent': 'WhisprCity/1.0' } }
+    );
+    const data = await res.json();
+    if (!data.length) { dd.style.display = 'none'; return; }
+    dd.innerHTML = data.map(p => {
+      const short = p.display_name.split(',').slice(0,3).join(', ');
+      return `<div class="addr-option" onclick="selectAddObjAddr(${p.lat}, ${p.lon}, '${short.replace(/'/g,"\'")}')">
+        <strong>${short}</strong>
+      </div>`;
+    }).join('');
+    dd.style.display = 'block';
+  } catch(e) { dd.style.display = 'none'; }
+}
+
+function selectAddObjAddr(lat, lng, label) {
+  lat = parseFloat(lat); lng = parseFloat(lng);
+  document.getElementById('add-obj-addr').value = label;
+  document.getElementById('add-obj-lat').value  = lat.toFixed(6);
+  document.getElementById('add-obj-lng').value  = lng.toFixed(6);
+  document.getElementById('add-obj-addr-dropdown').style.display = 'none';
+  if (addObjMap) { addObjMap.setView([lat, lng], 17); placeAddObjMarker(lat, lng); }
+  // Автозаполнение названия если пустое
+  if (!document.getElementById('add-obj-name').value) {
+    document.getElementById('add-obj-name').value = label.split(',')[0].trim();
+  }
+}
+
+async function saveNewObject() {
+  const name     = document.getElementById('add-obj-name').value.trim();
+  const category = document.getElementById('add-obj-category').value;
+  const lat      = parseFloat(document.getElementById('add-obj-lat').value);
+  const lng      = parseFloat(document.getElementById('add-obj-lng').value);
+
+  if (!name)       { toast('Введите название', 'error'); return; }
+  if (!lat || !lng){ toast('Укажите координаты на карте или через поиск', 'error'); return; }
+
+  const btn = document.querySelector('#modal-add-obj .btn-primary');
+  const origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner-sm"></div>';
+
+  try {
+    const res = await apiObjects('objects', 'save', {
+      city_id: currentCity.id,
+      objects: [{ name, category, latitude: lat, longitude: lng, radius: 50, osm_id: 'manual_' + Date.now() }]
+    });
+    if (res.success) {
+      toast(`Объект добавлен: ${name}`, 'success');
+      closeModal('modal-add-obj');
+      loadSavedObjects();
+    } else { toast(res.error || 'Ошибка сохранения', 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+
+  btn.disabled = false;
+  btn.innerHTML = origHTML;
+}
+
+// Закрывать dropdown при клике вне
+document.addEventListener('click', e => {
+  if (!e.target.closest('.addr-wrap')) {
+    const dd = document.getElementById('add-obj-addr-dropdown');
+    if (dd) dd.style.display = 'none';
+  }
+});
+
+/* ═══════════════════════════════════════
+   EDIT OBJECT MODAL
+═══════════════════════════════════════ */
+let editingObj    = null;
+let editObjCards  = [];
+let editTextLang  = 'uk';
+let editAudioLang = 'uk';
+let currentAudio  = null;
+
+async function openEditObjModal(obj) {
+  editingObj = typeof obj === 'string' ? JSON.parse(obj) : obj;
+  document.getElementById('edit-obj-name').value = editingObj.name || '';
+  document.getElementById('edit-obj-audio-list').innerHTML = '<div class="loading-row"><div class="spinner-sm"></div></div>';
+
+  // Load cards
+  try {
+    const res = await apiObjects('cards', 'list', { object_id: editingObj.id });
+    editObjCards = res.cards || [];
+  } catch(e) { editObjCards = []; }
+
+  const langs = editObjCards.length
+    ? [...new Set(editObjCards.map(c => c.lang_code))]
+    : ['uk', 'ru', 'en'];
+  editTextLang  = langs[0] || 'uk';
+  editAudioLang = langs[0] || 'uk';
+
+  renderEditObjLangTabs(langs);
+  renderEditObjAudioLangTabs(langs);
+  switchEditObjLang(editTextLang);
+  openModal('modal-edit-obj');
+  await loadEditObjAudio();
+}
+
+function renderEditObjLangTabs(langs) {
+  const el = document.getElementById('edit-obj-lang-tabs');
+  el.innerHTML = langs.map(l => `
+    <button class="lang-tab ${l === editTextLang ? 'active' : ''}" onclick="switchEditObjLang('${l}')">${l.toUpperCase()}</button>
+  `).join('');
+}
+
+function renderEditObjAudioLangTabs(langs) {
+  const el = document.getElementById('edit-obj-audio-lang-tabs');
+  el.innerHTML = langs.map(l => `
+    <button class="lang-tab ${l === editAudioLang ? 'active' : ''}" onclick="switchEditObjAudioLang('${l}')">${l.toUpperCase()}</button>
+  `).join('');
+}
+
+function switchEditObjLang(lang) {
+  editTextLang = lang;
+  document.querySelectorAll('#edit-obj-lang-tabs .lang-tab').forEach(b =>
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === lang));
+  const card = editObjCards.find(c => c.lang_code === lang);
+  document.getElementById('edit-obj-text').value = card ? (card.text || '') : '';
+}
+
+function switchEditObjAudioLang(lang) {
+  editAudioLang = lang;
+  document.querySelectorAll('#edit-obj-audio-lang-tabs .lang-tab').forEach(b =>
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === lang));
+  loadEditObjAudio();
+}
+
+async function loadEditObjAudio() {
+  const card = editObjCards.find(c => c.lang_code === editAudioLang);
+  const list = document.getElementById('edit-obj-audio-list');
+  if (!card) { list.innerHTML = '<div style="font-size:12px;color:var(--text3)">Нет текста для этого языка</div>'; return; }
+  list.innerHTML = '<div class="loading-row"><div class="spinner-sm"></div></div>';
+  try {
+    const res = await apiObjects('audio', 'list', { card_id: card.id });
+    const audios = res.audio_files || res.audio || [];
+    if (!audios.length) {
+      list.innerHTML = '<div style="font-size:12px;color:var(--text3)">Нет аудиофайлов</div>';
+      return;
+    }
+    list.innerHTML = audios.map(a => `
+      <div class="audio-item ${a.is_active ? 'active-audio' : ''}" data-audio-id="${a.id}">
+        <button class="audio-play-btn" onclick="playAudio('${a.url}', this)" title="Слушать">
+          <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>
+        </button>
+        <div class="audio-meta">
+          <div class="audio-voice">${a.voice || 'manual'}${a.duration_sec ? ' · ' + a.duration_sec + 's' : ''}
+            ${a.is_active ? '<span class="audio-active-badge">● active</span>' : ''}
+          </div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px;font-family:var(--mono)">${a.url ? a.url.split('/').pop().substring(0,40) : ''}</div>
+        </div>
+        <div class="btn-group">
+          ${!a.is_active ? `<button class="btn btn-success btn-sm" onclick="setAudioActive(${a.id}, ${card.id})" title="Сделать активным">✓</button>` : ''}
+          <button class="btn btn-danger btn-sm" onclick="deleteAudio(${a.id}, ${card.id})" title="Удалить">✕</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--text3)">Ошибка загрузки</div>';
+  }
+}
+
+const PLAY_ICON  = '<svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>';
+const PAUSE_ICON = '<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><rect x="0" y="0" width="4" height="10"/><rect x="6" y="0" width="4" height="10"/></svg>';
+let currentAudioBtn = null;
+
+function resetAudioBtn() {
+  if (currentAudioBtn) { currentAudioBtn.innerHTML = PLAY_ICON; currentAudioBtn = null; }
+}
+
+function playAudio(url, btn) {
+  // Если нажали ту же кнопку — пауза/возобновление
+  if (currentAudio && currentAudioBtn === btn) {
+    if (currentAudio.paused) {
+      currentAudio.play();
+      btn.innerHTML = PAUSE_ICON;
+    } else {
+      currentAudio.pause();
+      btn.innerHTML = PLAY_ICON;
+    }
+    return;
+  }
+  // Останавливаем предыдущий
+  if (currentAudio) { currentAudio.pause(); resetAudioBtn(); currentAudio = null; }
+  if (!url) return;
+  currentAudio = new Audio(url);
+  currentAudioBtn = btn;
+  currentAudio.play();
+  btn.innerHTML = PAUSE_ICON;
+  currentAudio.onended = () => { resetAudioBtn(); currentAudio = null; };
+}
+
+async function saveCardText() {
+  const card = editObjCards.find(c => c.lang_code === editTextLang);
+  if (!card) { toast('Нет карточки для этого языка', 'error'); return; }
+  const text = document.getElementById('edit-obj-text').value.trim();
+  try {
+    const res = await apiObjects('cards', 'update', {
+      object_id: editingObj.id, lang_code: editTextLang, text, text_status: 'ready'
+    });
+    if (res.success) {
+      card.text = text; card.text_status = 'ready';
+      toast('Текст сохранён', 'success');
+    } else { toast(res.error, 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function saveEditObj() {
+  const name = document.getElementById('edit-obj-name').value.trim();
+  if (!name) { toast('Введите название', 'error'); return; }
+  try {
+    const res = await apiObjects('objects', 'update', { object_id: editingObj.id, name });
+    if (res.success) {
+      toast('Объект сохранён', 'success');
+      closeModal('modal-edit-obj');
+      loadSavedObjects();
+    } else { toast(res.error, 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function setAudioActive(audioId, cardId) {
+  try {
+    await apiObjects('audio', 'set_active', { audio_id: audioId });
+    toast('Активный аудиофайл изменён', 'success');
+    loadEditObjAudio();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteAudio(audioId, cardId) {
+  if (!await customConfirm('Удалить аудиофайл?', 'Удалить')) return;
+  try {
+    await apiObjects('audio', 'delete', { audio_id: audioId });
+    toast('Аудио удалено', 'success');
+    loadEditObjAudio();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function uploadAudioManually() {
+  const fileInput = document.getElementById('edit-obj-audio-file');
+  const voice     = document.getElementById('edit-obj-upload-voice').value;
+  const card      = editObjCards.find(c => c.lang_code === editAudioLang);
+
+  if (!fileInput.files[0]) { toast('Выберите файл', 'error'); return; }
+  if (!card) { toast('Нет карточки для этого языка', 'error'); return; }
+
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'ml_default');
+  formData.append('folder', 'whispr_audio');
+  formData.append('resource_type', 'video');
+
+  try {
+    const uploadRes = await fetch('https://api.cloudinary.com/v1_1/dzxvshxvk/video/upload', {
+      method: 'POST', body: formData
+    });
+    const uploadData = await uploadRes.json();
+    if (!uploadData.secure_url) throw new Error('Cloudinary upload failed');
+
+    const saveRes = await apiObjects('audio', 'save', {
+      card_id: card.id,
+      url: uploadData.secure_url,
+      voice,
+      duration_sec: Math.round(uploadData.duration || 0)
+    });
+    if (saveRes.success || saveRes.audio) {
+      toast('Аудио загружено', 'success');
+      fileInput.value = '';
+      loadEditObjAudio();
+    } else { toast(saveRes.error || 'Save error', 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+/* ═══════════════════════════════════════
+   THEME
+═══════════════════════════════════════ */
+function toggleTheme() {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const newTheme = isLight ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('whispr_theme', newTheme);
+  document.getElementById('theme-icon-dark').style.display  = newTheme === 'light' ? 'none' : '';
+  document.getElementById('theme-icon-light').style.display = newTheme === 'light' ? '' : 'none';
+  // Обновляем карту Leaflet
+  if (parseMap) setTimeout(() => parseMap.invalidateSize(), 100);
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('whispr_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  if (saved === 'light') {
+    document.getElementById('theme-icon-dark').style.display  = 'none';
+    document.getElementById('theme-icon-light').style.display = '';
+  }
+}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+(async function init() {
+  const savedLang = localStorage.getItem('whispr_lang');
+  if (savedLang && i18n[savedLang]) {
+    lang = savedLang;
+    document.querySelectorAll('.lang-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent.trim().toLowerCase() === (savedLang === 'uk' ? 'ua' : savedLang));
+    });
+  }
+
+  const user = JSON.parse(localStorage.getItem('whispr_user') || '{}');
+  if (user.name) {
+    document.getElementById('tb-name').textContent = user.name;
+    document.getElementById('tb-role').textContent = user.role || 'superadmin';
+    document.getElementById('tb-avatar').textContent = user.name.substring(0, 2).toUpperCase();
+  }
+
+  initTheme();
+  renderLang();
+
+  const ok = await checkAuth();
+  if (!ok) return;
+
+  // Admin: load assigned cities then go straight to objects
+  await loadAdminCities();
+  showSection('objects');
+})();
 </script>
+
+<!-- ═══ MOBILE BOTTOM NAV ═══ -->
+<nav class="mob-nav" id="mob-nav">
+  <div class="mob-nav-items">
+    <button class="mob-nav-btn active" id="mob-objects" onclick="showSection('objects',this)">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M5 9h8M9 5c-2 2-3 4-3 4s1 2 3 4M9 5c2 2 3 4 3 4s-1 2-3 4" stroke="currentColor" stroke-width="1" fill="none"/>
+      </svg>
+      <span id="t-mob-objects"></span>
+    </button>
+  </div>
+</nav>
+
 </body>
 </html>
