@@ -2507,25 +2507,22 @@ async function checkAuth() {
 ═══════════════════════════════════════ */
 async function loadAdminCities() {
   try {
-    const user = JSON.parse(localStorage.getItem('whispr_user') || '{}');
-    const res = await apiMain('user_cities', 'list', { user_id: user.id });
-    const cityIds = (res.cities || []).map(c => c.city_id || c.id);
-    // Load full cities list then filter to assigned only
-    const allRes = await apiMain('cities', 'list', {});
-    allCitiesList = (allRes.cities || []).filter(c => cityIds.includes(c.id));
-    if (!allCitiesList.length) {
-      // fallback: use all active cities if no assignment found
-      allCitiesList = (allRes.cities || []).filter(c => c.is_active);
-    }
+    // API now filters cities by role automatically:
+    // superadmin gets all, admin gets only assigned cities
+    const res = await apiMain('cities', 'list', {});
+    allCitiesList = (res.cities || []).filter(c => c.is_active);
     populateCitySelect();
     // Auto-select first city
     const sel = document.getElementById('obj-city-select');
     if (allCitiesList.length) {
       sel.value = allCitiesList[0].id;
       onCitySelect();
+    } else {
+      toast('Немає призначених міст. Зверніться до суперадміна.', 'error');
     }
   } catch(e) {
     console.error('loadAdminCities error:', e);
+    toast('Помилка завантаження міст', 'error');
   }
 }
 
