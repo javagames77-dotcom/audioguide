@@ -3201,23 +3201,11 @@ let savedObjects = [];
 const generatingRows = new Set(); // object_id-ов в процессе генерации
 
 function setRowGenerating(objId, type, isOn) {
-  const row = document.querySelector(`tr[data-obj-id="${objId}"]`);
-  if (!row) return;
   if (isOn) generatingRows.add(objId + '-' + type);
   else generatingRows.delete(objId + '-' + type);
-  // Pipeline step
-  const steps = row.querySelectorAll('.pipe-step');
-  const idx = type === 'text' ? 1 : 2;
-  if (steps[idx]) {
-    if (isOn) steps[idx].classList.add('generating');
-    else steps[idx].classList.remove('generating');
-  }
-  // Action button
-  const btns = row.querySelectorAll('.btn-amber, .btn-ghost');
-  btns.forEach(b => {
-    const isTarget = type === 'text' ? b.classList.contains('btn-amber') : (b.textContent.trim() === t('gen-audio'));
-    if (isTarget) b.classList.toggle('btn-generating', isOn);
-  });
+  // Перерисовываем строку если она в DOM
+  const existing = savedObjects.find(o => o.id === objId);
+  if (existing) renderSavedObjects(savedObjects);
 }
 
 function renderSavedObjects(objects) {
@@ -3234,6 +3222,8 @@ function renderSavedObjects(objects) {
   tb.innerHTML = objects.map(o => {
     const hasText  = o.cards && o.cards.some(c => c.status === 'generated' || c.status === 'ready' || c.text_status === 'generated' || c.text_status === 'ready');
     const hasAudio = o.audio_count > 0 || (o.cards && o.cards.some(c => c.has_audio || c.audio_count > 0));
+    const genText  = generatingRows.has(o.id + '-text');
+    const genAudio = generatingRows.has(o.id + '-audio');
     return `<tr data-obj-id="${o.id}">
       <td style="width:32px"><input type="checkbox" class="obj-check obj-row-check" data-id="${o.id}" onchange="onObjCheckChange()"></td>
       <td class="td-name">${o.name}</td>
@@ -3247,8 +3237,8 @@ function renderSavedObjects(objects) {
       </div></td>
       <td><div class="btn-group">
         <button class="btn btn-ghost btn-sm" onclick='openEditObjModal(${JSON.stringify(o).replace(/'/g,"\'")})'><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 9.5h2l5-5-2-2-5 5v2z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <button class="btn btn-amber btn-sm" onclick='openGenTextModal(${JSON.stringify(o).replace(/'/g,"\'")})'>${t('gen-text')}</button>
-        <button class="btn btn-ghost btn-sm" onclick='openGenAudioModal(${JSON.stringify(o).replace(/'/g,"\'")})'>${t('gen-audio')}</button>
+        <button class="btn btn-amber btn-sm ${genText?'btn-generating':''}" onclick='openGenTextModal(${JSON.stringify(o).replace(/'/g,"\'")}'>${genText?'<div class=\"spinner-sm\"></div> ':''}${t('gen-text')}</button>
+        <button class="btn btn-ghost btn-sm ${genAudio?'btn-generating':''}" onclick='openGenAudioModal(${JSON.stringify(o).replace(/'/g,"\'")}'>${genAudio?'<div class=\"spinner-sm\"></div> ':''}${t('gen-audio')}</button>
       </div></td>
     </tr>`;
   }).join('');
