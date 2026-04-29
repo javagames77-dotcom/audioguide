@@ -3013,7 +3013,6 @@ let currentCity  = null;
 
 const CATEGORIES = [
   { id: 'historic',   key: 'cat-historic' },
-  { id: 'monument',   key: 'cat-monument' },
   { id: 'museum',     key: 'cat-museum'   },
   { id: 'church',     key: 'cat-church'   },
   { id: 'restaurant', key: 'cat-restaurant' },
@@ -3045,7 +3044,7 @@ function initObjectsSection() {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(parseMap);
     parseMap.on('click', onMapClick);
     // После рендера DOM — пересчитываем размер
-    requestAnimationFrame(() => parseMap.invalidateSize());
+    setTimeout(() => { parseMap.invalidateSize(); parseMap.invalidateSize(); }, 300);
   }
 }
 
@@ -3054,6 +3053,11 @@ function populateCitySelect() {
   const cur = sel.value;
   sel.innerHTML = `<option value="">${t('city-select-placeholder')}</option>` +
     allCitiesList.map(c => `<option value="${c.id}" ${cur == c.id ? 'selected' : ''}>${c.name}</option>`).join('');
+  // Автовибір першого міста якщо ще нічого не вибрано
+  if (!cur && allCitiesList.length) {
+    sel.value = allCitiesList[0].id;
+    onCitySelect();
+  }
 }
 
 function onCitySelect() {
@@ -3063,7 +3067,7 @@ function onCitySelect() {
   document.getElementById('objects-content').style.display = 'block';
   if (parseMap && currentCity) {
     parseMap.setView([currentCity.center_lat, currentCity.center_lng], 14);
-    setTimeout(() => parseMap.invalidateSize(), 50);
+    setTimeout(() => { parseMap.invalidateSize(); parseMap.invalidateSize(); }, 300);
   }
   loadSavedObjects();
 }
