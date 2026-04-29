@@ -3222,6 +3222,8 @@ function renderSavedObjects(objects) {
   tb.innerHTML = objects.map(o => {
     const hasText  = o.cards && o.cards.some(c => c.status === 'generated' || c.status === 'ready' || c.text_status === 'generated' || c.text_status === 'ready');
     const hasAudio = o.audio_count > 0 || (o.cards && o.cards.some(c => c.has_audio || c.audio_count > 0));
+    const genText  = generatingRows.has(o.id + '-text');
+    const genAudio = generatingRows.has(o.id + '-audio');
 
     return `<tr data-obj-id="${o.id}">
       <td style="width:32px"><input type="checkbox" class="obj-check obj-row-check" data-id="${o.id}" onchange="onObjCheckChange()"></td>
@@ -3230,14 +3232,14 @@ function renderSavedObjects(objects) {
       <td><div class="pipeline-row">
         <span class="pipe-step done">saved</span>
         <span class="pipe-arrow">›</span>
-        <span class="pipe-step ${hasText?'done':'empty'}">${t('gen-text')}</span>
+        <span class="pipe-step ${genText?'generating':(hasText?'done':'empty')}">${t('gen-text')}</span>
         <span class="pipe-arrow">›</span>
-        <span class="pipe-step ${hasAudio?'done':'empty'}">${t('gen-audio')}</span>
+        <span class="pipe-step ${genAudio?'generating':(hasAudio?'done':'empty')}">${t('gen-audio')}</span>
       </div></td>
       <td><div class="btn-group">
         <button class="btn btn-ghost btn-sm" onclick='openEditObjModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 9.5h2l5-5-2-2-5 5v2z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <button class="btn btn-amber btn-sm" onclick='openGenTextModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'>${t('gen-text')}</button>
-        <button class="btn btn-ghost btn-sm" onclick='openGenAudioModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'>${t('gen-audio')}</button>
+        <button class="btn btn-amber btn-sm" onclick='openGenTextModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'>${genText?'<div class=\"spinner-sm\"></div> ':''}${t('gen-text')}</button>
+        <button class="btn btn-ghost btn-sm" onclick='openGenAudioModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'>${genAudio?'<div class=\"spinner-sm\"></div> ':''}${t('gen-audio')}</button>
       </div></td>
     </tr>`;
   }).join('');
