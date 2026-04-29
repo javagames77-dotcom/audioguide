@@ -157,6 +157,19 @@ body {
 .lang-btn:hover { color: var(--text2); }
 .lang-btn.active { background: var(--accent); color: #fff; }
 
+.theme-toggle {
+  width: 28px; height: 28px;
+  background: none;
+  border: 1px solid var(--line2);
+  border-radius: var(--radius-sm);
+  color: var(--text2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--tr);
+  margin-left: 2px;
+}
+.theme-toggle:hover { color: var(--text); border-color: var(--line2); background: var(--bg3); }
+
 .btn-logout {
   display: flex;
   align-items: center;
@@ -1138,19 +1151,6 @@ input[type=range]::-webkit-slider-thumb {
   .topbar-avatar { width: 28px; height: 28px; font-size: 10px; }
   .btn-logout span { display: none; }
   .btn-logout { padding: 6px 8px; }
-  .theme-toggle {
-  width: 28px; height: 28px;
-  background: none;
-  border: 1px solid var(--line2);
-  border-radius: var(--radius-sm);
-  color: var(--text2);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all var(--tr);
-  margin-left: 2px;
-}
-.theme-toggle:hover { color: var(--text); border-color: var(--line2); background: var(--bg3); }
-
 .lang-btn { padding: 3px 7px; font-size: 9px; }
 
   /* Grid → single column */
