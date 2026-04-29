@@ -1141,6 +1141,24 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 
+.addr-dropdown {
+  position: absolute; z-index: 9999;
+  background: var(--bg2); border: 1px solid var(--line2);
+  border-radius: var(--radius-sm); overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  max-height: 200px; overflow-y: auto;
+  width: 100%;
+}
+.addr-option {
+  padding: 9px 12px; font-size: 12px; color: var(--text2);
+  cursor: pointer; border-bottom: 1px solid var(--line);
+  transition: background var(--tr);
+}
+.addr-option:last-child { border-bottom: none; }
+.addr-option:hover { background: var(--bg3); color: var(--text); }
+.addr-option strong { color: var(--text); }
+.addr-wrap { position: relative; }
+
 /* ═══════════════════════════════════════
    CUSTOM CONFIRM DIALOG
 ═══════════════════════════════════════ */
@@ -1487,6 +1505,9 @@ input[type=range]::-webkit-slider-thumb {
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4 3v7h4V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   <span id="t-bulk-delete-btn"></span>
                 </button>
+                <button class="btn btn-primary btn-sm" onclick="openAddObjectModal()">
+                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </button>
                 <button class="btn btn-ghost btn-sm" onclick="loadSavedObjects()" id="t-refresh-btn">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6a4 4 0 1 1-1.2-2.8M10 2v3H7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
@@ -1516,6 +1537,75 @@ input[type=range]::-webkit-slider-thumb {
 
 </main>
 
+
+
+<!-- MODAL: Add Object -->
+<div class="modal-overlay" id="modal-add-obj">
+  <div class="modal" style="max-width:540px;width:96vw">
+    <div class="modal-head">
+      <div class="modal-title">Добавить объект</div>
+      <button class="modal-close" onclick="closeModal('modal-add-obj')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Название -->
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Название объекта</label>
+        <input type="text" class="form-input" id="add-obj-name" placeholder="Успенський собор">
+      </div>
+
+      <!-- Категория -->
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Категория</label>
+        <select class="form-select" id="add-obj-category">
+          <option value="historic">Исторические места</option>
+          <option value="museum">Музеи</option>
+          <option value="church">Церкви</option>
+          <option value="park">Парки</option>
+          <option value="restaurant">Рестораны</option>
+          <option value="tourism">Аттракции</option>
+        </select>
+      </div>
+
+      <!-- Адрес с автокомплитом -->
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Адрес</label>
+        <div class="addr-wrap">
+          <input type="text" class="form-input" id="add-obj-addr"
+            placeholder="Введите адрес..."
+            autocomplete="off"
+            oninput="onAddObjAddrInput(this.value)">
+          <div class="addr-dropdown" id="add-obj-addr-dropdown" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- Координаты (readonly) -->
+      <div class="form-row form-row-2" style="margin-bottom:14px">
+        <div class="form-group">
+          <label class="form-label">Latitude</label>
+          <input type="number" class="form-input" id="add-obj-lat" step="0.000001" placeholder="49.588300">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Longitude</label>
+          <input type="number" class="form-input" id="add-obj-lng" step="0.000001" placeholder="34.551400">
+        </div>
+      </div>
+
+      <!-- Карта -->
+      <div id="add-obj-map" style="height:240px;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg3)"></div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-obj')">Отмена</button>
+      <button class="btn btn-primary" onclick="saveNewObject()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 6.5l4 4 6-6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Сохранить
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL: Edit Object -->
 <div class="modal-overlay" id="modal-edit-obj">
@@ -3296,6 +3386,140 @@ function confirmResolve(val) {
   document.getElementById('confirm-overlay').classList.remove('open');
   if (_confirmResolve) { _confirmResolve(val); _confirmResolve = null; }
 }
+
+
+/* ═══════════════════════════════════════
+   ADD OBJECT MODAL
+═══════════════════════════════════════ */
+let addObjMap      = null;
+let addObjMarker   = null;
+let addObjAddrTimer = null;
+
+function openAddObjectModal() {
+  if (!currentCity) { toast('Сначала выберите город', 'error'); return; }
+  document.getElementById('add-obj-name').value = '';
+  document.getElementById('add-obj-addr').value = '';
+  document.getElementById('add-obj-lat').value  = '';
+  document.getElementById('add-obj-lng').value  = '';
+  document.getElementById('add-obj-addr-dropdown').style.display = 'none';
+  openModal('modal-add-obj');
+  setTimeout(() => initAddObjMap(), 200);
+}
+
+function initAddObjMap() {
+  const center = [currentCity.center_lat, currentCity.center_lng];
+  if (!addObjMap) {
+    addObjMap = L.map('add-obj-map', { center, zoom: 14 });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(addObjMap);
+    addObjMap.on('click', onAddObjMapClick);
+  } else {
+    addObjMap.setView(center, 14);
+    if (addObjMarker) { addObjMarker.remove(); addObjMarker = null; }
+  }
+  setTimeout(() => addObjMap.invalidateSize(), 100);
+}
+
+function onAddObjMapClick(e) {
+  placeAddObjMarker(e.latlng.lat, e.latlng.lng);
+  document.getElementById('add-obj-lat').value = e.latlng.lat.toFixed(6);
+  document.getElementById('add-obj-lng').value = e.latlng.lng.toFixed(6);
+  // Reverse geocode для адреса
+  fetch(`https://nominatim.openstreetmap.org/reverse?lat=${e.latlng.lat}&lon=${e.latlng.lng}&format=json`,
+    { headers: { 'Accept-Language': 'uk,ru', 'User-Agent': 'WhisprCity/1.0' } })
+    .then(r => r.json())
+    .then(d => {
+      if (d.display_name) document.getElementById('add-obj-addr').value = d.display_name.split(',').slice(0,3).join(', ');
+    }).catch(() => {});
+}
+
+function placeAddObjMarker(lat, lng) {
+  if (addObjMarker) addObjMarker.remove();
+  addObjMarker = L.marker([lat, lng], {
+    icon: L.divIcon({
+      className: '',
+      html: `<div style="width:14px;height:14px;border-radius:50%;background:#c8622a;border:2px solid #fff;box-shadow:0 0 0 4px rgba(200,98,42,.3)"></div>`,
+      iconAnchor: [7, 7]
+    })
+  }).addTo(addObjMap);
+}
+
+function onAddObjAddrInput(val) {
+  clearTimeout(addObjAddrTimer);
+  const dd = document.getElementById('add-obj-addr-dropdown');
+  if (val.length < 3) { dd.style.display = 'none'; return; }
+  addObjAddrTimer = setTimeout(() => searchAddObjAddr(val), 500);
+}
+
+async function searchAddObjAddr(q) {
+  const dd = document.getElementById('add-obj-addr-dropdown');
+  try {
+    const city = currentCity ? `, ${currentCity.name}` : '';
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + city)}&format=json&limit=5&addressdetails=1`,
+      { headers: { 'Accept-Language': 'uk,ru,en', 'User-Agent': 'WhisprCity/1.0' } }
+    );
+    const data = await res.json();
+    if (!data.length) { dd.style.display = 'none'; return; }
+    dd.innerHTML = data.map(p => {
+      const short = p.display_name.split(',').slice(0,3).join(', ');
+      return `<div class="addr-option" onclick="selectAddObjAddr(${p.lat}, ${p.lon}, '${short.replace(/'/g,"\'")}')">
+        <strong>${short}</strong>
+      </div>`;
+    }).join('');
+    dd.style.display = 'block';
+  } catch(e) { dd.style.display = 'none'; }
+}
+
+function selectAddObjAddr(lat, lng, label) {
+  lat = parseFloat(lat); lng = parseFloat(lng);
+  document.getElementById('add-obj-addr').value = label;
+  document.getElementById('add-obj-lat').value  = lat.toFixed(6);
+  document.getElementById('add-obj-lng').value  = lng.toFixed(6);
+  document.getElementById('add-obj-addr-dropdown').style.display = 'none';
+  if (addObjMap) { addObjMap.setView([lat, lng], 17); placeAddObjMarker(lat, lng); }
+  // Автозаполнение названия если пустое
+  if (!document.getElementById('add-obj-name').value) {
+    document.getElementById('add-obj-name').value = label.split(',')[0].trim();
+  }
+}
+
+async function saveNewObject() {
+  const name     = document.getElementById('add-obj-name').value.trim();
+  const category = document.getElementById('add-obj-category').value;
+  const lat      = parseFloat(document.getElementById('add-obj-lat').value);
+  const lng      = parseFloat(document.getElementById('add-obj-lng').value);
+
+  if (!name)       { toast('Введите название', 'error'); return; }
+  if (!lat || !lng){ toast('Укажите координаты на карте или через поиск', 'error'); return; }
+
+  const btn = document.querySelector('#modal-add-obj .btn-primary');
+  const origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner-sm"></div>';
+
+  try {
+    const res = await apiObjects('objects', 'save', {
+      city_id: currentCity.id,
+      objects: [{ name, category, latitude: lat, longitude: lng, radius: 50, osm_id: 'manual_' + Date.now() }]
+    });
+    if (res.success) {
+      toast(`Объект добавлен: ${name}`, 'success');
+      closeModal('modal-add-obj');
+      loadSavedObjects();
+    } else { toast(res.error || 'Ошибка сохранения', 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+
+  btn.disabled = false;
+  btn.innerHTML = origHTML;
+}
+
+// Закрывать dropdown при клике вне
+document.addEventListener('click', e => {
+  if (!e.target.closest('.addr-wrap')) {
+    const dd = document.getElementById('add-obj-addr-dropdown');
+    if (dd) dd.style.display = 'none';
+  }
+});
 
 /* ═══════════════════════════════════════
    EDIT OBJECT MODAL
