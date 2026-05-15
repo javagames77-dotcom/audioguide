@@ -1065,13 +1065,15 @@ function renderResults(data) {
     const div = document.createElement('div');
     div.className = 'zone-result';
     div.id = 'zone-' + zoneKey;
+    const dialogue = zoneData.dialogue || [];
+    const dialogueJson = JSON.stringify(dialogue).replace(/`/g, '\\`').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const fullText = zoneData.fullText || '';
     div.innerHTML = `
       <div class="zone-result-header" onclick="toggleZone('${zoneKey}')">
         <div class="zone-result-icon" style="background:${cfg.bg};color:${cfg.color}"><i class="ti ${cfg.icon}"></i></div>
         <span class="zone-result-title">${cfg.label}</span>
         <span class="zone-result-score ${sc}">${zonePct}% · ${yes}/${tot}</span>
-        ${fullText ? `<button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;margin-right:8px" onclick="event.stopPropagation();showDialog('${escHtml(cfg.label)}',\`${escHtml(fullText)}\`,'${zoneKey}')"><i class="ti ti-message-2"></i> Діалог</button>` : ''}
+        ${fullText || dialogue.length > 0 ? `<button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;margin-right:8px" onclick="event.stopPropagation();showDialog('${escHtml(cfg.label)}','${escHtml(fullText)}','${zoneKey}','${dialogueJson}')"><i class="ti ti-message-2"></i> Діалог</button>` : ''}
         <i class="ti ti-chevron-down zone-chevron"></i>
       </div>
       <div class="zone-result-body" id="zone-body-${zoneKey}">
@@ -1360,35 +1362,36 @@ function toggleTheme() {
 }
 
 // ==================== DIALOG ====================
-function formatDialogue(text) {
+function formatDialogue(text, dialogue) {
+  // Use structured dialogue if available
+  if (dialogue && dialogue.length > 0) {
+    const staffColor = 'var(--accent)';
+    const customerColor = 'var(--success)';
+    let html = '';
+    dialogue.forEach(line => {
+      const isStaff = line.speaker && !line.speaker.includes('Клієнт') && !line.speaker.includes('клієнт');
+      const align = isStaff ? 'flex-start' : 'flex-end';
+      const bg = isStaff ? 'var(--bg3)' : 'var(--accent-glow)';
+      const border = isStaff ? '1px solid var(--border)' : '1px solid var(--accent)30';
+      const labelColor = isStaff ? staffColor : customerColor;
+      const label = line.speaker || (isStaff ? 'Персонал' : 'Клієнт');
+      html += `<div style="display:flex;flex-direction:column;align-items:${align};margin-bottom:10px">
+        <span style="font-size:10px;color:${labelColor};font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">${escHtml(label)}</span>
+        <div style="background:${bg};border:${border};border-radius:12px;padding:8px 14px;max-width:80%;font-size:13px;color:var(--text2);line-height:1.6">${escHtml(line.text || '')}</div>
+      </div>`;
+    });
+    return html;
+  }
+  // Fallback: plain text if no dialogue
   if (!text) return '<em style="color:var(--text3)">Текст недоступний</em>';
-  // Split into sentences and format as dialogue bubbles
-  const sentences = text
-    .replace(/([.!?])\s+/g, '$1\n')
-    .split('\n')
-    .map(s => s.trim())
-    .filter(s => s.length > 2);
-
-  let html = '';
-  sentences.forEach((s, i) => {
-    // Alternate speaker sides: even = staff (left), odd = customer (right)
-    const isStaff = i % 2 === 0;
-    const align = isStaff ? 'flex-start' : 'flex-end';
-    const bg = isStaff ? 'var(--bg3)' : 'var(--accent-glow)';
-    const border = isStaff ? '1px solid var(--border)' : '1px solid var(--accent)30';
-    const label = isStaff ? 'Персонал' : 'Покупець';
-    const labelColor = isStaff ? 'var(--text3)' : 'var(--accent)';
-    html += `<div style="display:flex;flex-direction:column;align-items:${align};margin-bottom:10px;max-width:100%">
-      <span style="font-size:10px;color:${labelColor};font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">${label}</span>
-      <div style="background:${bg};border:${border};border-radius:12px;padding:8px 14px;max-width:80%;font-size:13px;color:var(--text2);line-height:1.6">${s}</div>
-    </div>`;
-  });
-  return html;
+  return `<div style="font-size:13px;color:var(--text2);line-height:1.8;white-space:pre-wrap;font-family:'DM Mono',monospace;font-weight:300">${escHtml(text)}</div>`;
 }
 
-function showDialog(zoneName, text, zoneKey) {
+function showDialog(zoneName, text, zoneKey, dialogueJson) {
   document.getElementById('dialog-title').textContent = zoneName + ' — Повний діалог';
-  document.getElementById('dialog-text').innerHTML = formatDialogue(text);
+  let dialogue = [];
+  try { dialogue = JSON.parse(dialogueJson || '[]'); } catch(e) {}
+  document.getElementById('dialog-text').innerHTML = formatDialogue(text, dialogue);
 
   // Setup audio player in dialog
   const dialogAudio = document.getElementById('dialog-audio');
