@@ -1090,7 +1090,7 @@ function renderResults(data) {
     `;
     container.appendChild(div);
     // open first zone by default
-    if (Object.keys(zones).indexOf(zoneKey) === 0) toggleZone(zoneKey);
+    if (Object.keys(zones).indexOf(zoneKey) === 0) openZone(zoneKey);
   });
 
   // Photos
@@ -1115,10 +1115,9 @@ function renderResults(data) {
         </div>
       </div>`;
     }).join('');
-    // Force open
-    const photosBody = document.getElementById('zone-body-photos');
-    if (photosBody) photosBody.style.display = 'block';
     photosZone.classList.add('open');
+    const photosBody = document.getElementById('zone-body-photos');
+    photosBody.style.cssText = 'display:block !important; padding:0 20px 20px;';
   }
 }
 
@@ -1127,6 +1126,15 @@ function toggleZone(zoneKey) {
   const el = document.getElementById('zone-' + zoneKey);
   if (!el) return;
   el.classList.toggle('open');
+  const body = el.querySelector('.zone-result-body');
+  if (body) body.style.display = el.classList.contains('open') ? 'block' : 'none';
+}
+function openZone(zoneKey) {
+  const el = document.getElementById('zone-' + zoneKey);
+  if (!el) return;
+  el.classList.add('open');
+  const body = el.querySelector('.zone-result-body');
+  if (body) body.style.display = 'block';
 }
 
 // ==================== AUDIO PLAYER ====================
