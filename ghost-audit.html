@@ -9,6 +9,25 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
+  --bg:#f8f7ff;
+  --bg2:#ffffff;
+  --bg3:#f1effe;
+  --bg4:#e9e4fb;
+  --border:#a855f718;
+  --border2:#a855f730;
+  --accent:#7c3aed;
+  --accent2:#6d28d9;
+  --accent-glow:#a855f715;
+  --text:#1a0a2e;
+  --text2:#4a3a6e;
+  --text3:#9d8ec0;
+  --success:#059669;
+  --danger:#dc2626;
+  --warning:#d97706;
+  --radius:10px;
+  --radius-lg:16px;
+}
+body.dark{
   --bg:#0a0a0f;
   --bg2:#0f0f18;
   --bg3:#14141f;
@@ -24,8 +43,6 @@
   --success:#34d399;
   --danger:#f87171;
   --warning:#fbbf24;
-  --radius:10px;
-  --radius-lg:16px;
 }
 body{
   font-family:'Syne',sans-serif;
@@ -486,7 +503,12 @@ nav{
       <div class="logo-mark">GA</div>
       GhostAudit
     </div>
-    <div class="nav-badge">Mystery Intelligence Suite</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="nav-badge">Mystery Intelligence Suite</div>
+      <button class="btn btn-ghost" id="btn-theme" onclick="toggleTheme()" style="padding:8px 12px">
+        <i class="ti ti-sun" id="theme-icon"></i>
+      </button>
+    </div>
   </nav>
 
   <div class="upload-wrap">
@@ -679,7 +701,6 @@ nav{
     </div>
     <div class="nav-badge">Обробка...</div>
   </nav>
-  <div class="progress-wrap">
     <div class="progress-icon"><i class="ti ti-brain"></i></div>
     <div class="progress-title">AI аналізує аудит</div>
     <div class="progress-sub">Обробка може тривати 30–60 секунд.<br>Не закривайте вкладку.</div>
@@ -723,7 +744,12 @@ nav{
       <div class="logo-mark">GA</div>
       GhostAudit
     </div>
-    <div class="nav-badge" id="results-nav-badge">Аналіз завершено</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="nav-badge" id="results-nav-badge">Аналіз завершено</div>
+      <button class="btn btn-ghost" onclick="toggleTheme()" style="padding:8px 12px">
+        <i class="ti ti-sun" id="theme-icon2"></i>
+      </button>
+    </div>
   </nav>
   <div class="results-wrap">
     <div class="results-header">
@@ -1015,10 +1041,16 @@ function renderResults(data) {
       const badgeTxt = c.result === 'yes' ? 'Так' : c.result === 'no' ? 'Ні' : 'Н/Д';
 
       let stampHtml = '';
-      if (c.timestamp_start !== undefined && audioFiles[zoneKey]) {
-        stampHtml = `<button class="audio-stamp" onclick="playAt('${zoneKey}','${c.timestamp_start}','${c.timestamp_end || (c.timestamp_start + 10)}','${escHtml(c.quote || '')}','${escHtml(cfg.label)}')">
+      const ts = c.timestamp_approx !== undefined ? c.timestamp_approx : c.timestamp_start;
+      if (ts !== undefined && audioFiles[zoneKey]) {
+        stampHtml = `<button class="audio-stamp" onclick="playAt('${zoneKey}','${ts}','${escHtml(c.quote || '')}','${escHtml(cfg.label)}')">
           <i class="ti ti-player-play"></i>
-          <span>${fmtTime(c.timestamp_start)}${c.timestamp_end ? ' – ' + fmtTime(c.timestamp_end) : ''}</span>
+          <span>~${fmtTime(ts)}</span>
+        </button>`;
+      } else if (audioFiles[zoneKey]) {
+        stampHtml = `<button class="audio-stamp" onclick="playAt('${zoneKey}',0,'${escHtml(c.quote || '')}','${escHtml(cfg.label)}')">
+          <i class="ti ti-player-play"></i>
+          <span>Грати</span>
         </button>`;
       }
 
@@ -1033,11 +1065,13 @@ function renderResults(data) {
     const div = document.createElement('div');
     div.className = 'zone-result';
     div.id = 'zone-' + zoneKey;
+    const fullText = zoneData.fullText || '';
     div.innerHTML = `
       <div class="zone-result-header" onclick="toggleZone('${zoneKey}')">
         <div class="zone-result-icon" style="background:${cfg.bg};color:${cfg.color}"><i class="ti ${cfg.icon}"></i></div>
         <span class="zone-result-title">${cfg.label}</span>
         <span class="zone-result-score ${sc}">${zonePct}% · ${yes}/${tot}</span>
+        ${fullText ? `<button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;margin-right:8px" onclick="event.stopPropagation();showDialog('${escHtml(cfg.label)}',\`${escHtml(fullText)}\`)"><i class="ti ti-message-2"></i> Діалог</button>` : ''}
         <i class="ti ti-chevron-down zone-chevron"></i>
       </div>
       <div class="zone-result-body" id="zone-body-${zoneKey}">
@@ -1088,28 +1122,19 @@ function toggleZone(zoneKey) {
 }
 
 // ==================== AUDIO PLAYER ====================
-function playAt(zone, start, end, quote, zoneName) {
+function playAt(zone, start, quote, zoneName) {
   const src = audioFiles[zone];
   if (!src) { showToast('Аудіофайл недоступний', 'error'); return; }
   const audio = document.getElementById('global-audio');
   if (audio.src !== src) { audio.src = src; }
-  audio.currentTime = parseFloat(start);
+  audio.currentTime = parseFloat(start) || 0;
   audio.play();
-  currentAudioZone = { zone, start: parseFloat(start), end: parseFloat(end) };
   document.getElementById('player-zone-name').textContent = zoneName;
   document.getElementById('player-quote').textContent = quote || '—';
   document.getElementById('audio-player-bar').classList.add('visible');
   document.getElementById('player-play-icon').className = 'ti ti-player-pause';
   document.getElementById('player-play-btn').classList.add('playing');
-
-  audio.ontimeupdate = () => {
-    if (currentAudioZone && audio.currentTime >= currentAudioZone.end) {
-      audio.pause();
-      document.getElementById('player-play-icon').className = 'ti ti-player-play';
-      document.getElementById('player-play-btn').classList.remove('playing');
-    }
-    updatePlayerUI();
-  };
+  audio.ontimeupdate = () => updatePlayerUI();
 }
 function togglePlay() {
   const audio = document.getElementById('global-audio');
@@ -1326,8 +1351,38 @@ function showToast(msg, type = 'success') {
   setTimeout(() => t.classList.remove('show'), 3500);
 }
 
+// ==================== THEME ====================
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark');
+  document.querySelectorAll('[id^="theme-icon"]').forEach(el => {
+    el.className = isDark ? 'ti ti-moon' : 'ti ti-sun';
+  });
+}
+
+// ==================== DIALOG ====================
+function showDialog(zoneName, text) {
+  document.getElementById('dialog-title').textContent = zoneName + ' — Повний діалог';
+  document.getElementById('dialog-text').textContent = text;
+  document.getElementById('dialog-modal').classList.add('open');
+}
+function closeDialog() {
+  document.getElementById('dialog-modal').classList.remove('open');
+}
+
 // Set default datetime
 document.getElementById('meta-date').value = new Date().toISOString().slice(0,16);
 </script>
+
+<!-- DIALOG MODAL -->
+<div class="modal-overlay" id="dialog-modal">
+  <div class="modal" style="width:620px;max-height:80vh;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="modal-title" id="dialog-title">Діалог</div>
+      <button class="btn btn-ghost" style="padding:6px 10px" onclick="closeDialog()"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="dialog-text" style="font-size:14px;color:var(--text2);line-height:1.8;white-space:pre-wrap;overflow-y:auto;flex:1;padding-right:8px;font-family:'DM Mono',monospace;font-weight:300"></div>
+  </div>
+</div>
+
 </body>
 </html>
