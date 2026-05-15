@@ -1096,7 +1096,8 @@ function renderResults(data) {
   // Photos
   const photos = data.photos || {};
   if (Object.keys(photos).length > 0) {
-    document.getElementById('photos-zone-result').style.display = 'block';
+    const photosZone = document.getElementById('photos-zone-result');
+    photosZone.style.display = 'block';
     const grid = document.getElementById('photos-result-grid');
     const photoConfig = {
       'photo-cleanliness': { label: 'Чистота' },
@@ -1114,7 +1115,10 @@ function renderResults(data) {
         </div>
       </div>`;
     }).join('');
-    toggleZone('photos');
+    // Force open
+    const photosBody = document.getElementById('zone-body-photos');
+    if (photosBody) photosBody.style.display = 'block';
+    photosZone.classList.add('open');
   }
 }
 
