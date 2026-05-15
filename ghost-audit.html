@@ -783,7 +783,7 @@ nav{
         <span class="zone-result-score score-mid" id="photo-score-badge">Аналіз</span>
         <i class="ti ti-chevron-down zone-chevron"></i>
       </div>
-      <div class="zone-result-body" id="zone-body-photos">
+      <div class="zone-result-body" id="zone-body-photos" style="display:none;padding:0 20px 20px;">
         <div class="photos-result-grid" id="photos-result-grid"></div>
       </div>
     </div>
@@ -1117,7 +1117,7 @@ function renderResults(data) {
     }).join('');
     photosZone.classList.add('open');
     const photosBody = document.getElementById('zone-body-photos');
-    photosBody.style.cssText = 'display:block !important; padding:0 20px 20px;';
+    photosBody.setAttribute('style', 'display:block !important; padding:0 20px 20px;');
   }
 }
 
