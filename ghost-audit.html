@@ -1066,14 +1066,16 @@ function renderResults(data) {
     div.className = 'zone-result';
     div.id = 'zone-' + zoneKey;
     const dialogue = zoneData.dialogue || [];
-    const dialogueJson = JSON.stringify(dialogue).replace(/`/g, '\\`').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const fullText = zoneData.fullText || '';
+    // Store dialogue in global map for safe access
+    window._dialogues = window._dialogues || {};
+    window._dialogues[zoneKey] = { dialogue, fullText };
     div.innerHTML = `
       <div class="zone-result-header" onclick="toggleZone('${zoneKey}')">
         <div class="zone-result-icon" style="background:${cfg.bg};color:${cfg.color}"><i class="ti ${cfg.icon}"></i></div>
         <span class="zone-result-title">${cfg.label}</span>
         <span class="zone-result-score ${sc}">${zonePct}% · ${yes}/${tot}</span>
-        ${fullText || dialogue.length > 0 ? `<button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;margin-right:8px" onclick="event.stopPropagation();showDialog('${escHtml(cfg.label)}','${escHtml(fullText)}','${zoneKey}','${dialogueJson}')"><i class="ti ti-message-2"></i> Діалог</button>` : ''}
+        ${fullText || dialogue.length > 0 ? `<button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;margin-right:8px" onclick="event.stopPropagation();showDialog('${escHtml(cfg.label)}','${zoneKey}')"><i class="ti ti-message-2"></i> Діалог</button>` : ''}
         <i class="ti ti-chevron-down zone-chevron"></i>
       </div>
       <div class="zone-result-body" id="zone-body-${zoneKey}">
@@ -1387,13 +1389,14 @@ function formatDialogue(text, dialogue) {
   return `<div style="font-size:13px;color:var(--text2);line-height:1.8;white-space:pre-wrap;font-family:'DM Mono',monospace;font-weight:300">${escHtml(text)}</div>`;
 }
 
-function showDialog(zoneName, text, zoneKey, dialogueJson) {
+function showDialog(zoneName, zoneKey) {
+  const data = (window._dialogues || {})[zoneKey] || {};
+  const dialogue = data.dialogue || [];
+  const text = data.fullText || '';
+
   document.getElementById('dialog-title').textContent = zoneName + ' — Повний діалог';
-  let dialogue = [];
-  try { dialogue = JSON.parse(dialogueJson || '[]'); } catch(e) {}
   document.getElementById('dialog-text').innerHTML = formatDialogue(text, dialogue);
 
-  // Setup audio player in dialog
   const dialogAudio = document.getElementById('dialog-audio');
   const src = audioFiles[zoneKey];
   if (src && dialogAudio) {
