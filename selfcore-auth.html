@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selfcore — Вход</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+[data-theme="light"]{
+  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0f0ed;
+  --border:#e8e8e4;--border2:#d0d0ca;
+  --text:#1a1a1a;--muted:#6b6b6b;--muted2:#b0b0b0;
+  --black:#0a0a0a;
+  --nav-bg:rgba(255,255,255,.96);
+  --input-bg:#fafaf8;
+  --theme-btn-bg:#f0f0ed;--theme-btn-color:#6b6b6b;
+  --card-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 32px rgba(0,0,0,.08);
+  --accent:#1D9E75;--accent-hover:#0F6E56;--accent-light:#E1F5EE;
+}
+[data-theme="dark"]{
+  --bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;
+  --border:#2a2a2a;--border2:#3d3d3d;
+  --text:#f0f0f0;--muted:#888;--muted2:#555;
+  --black:#f0f0f0;
+  --nav-bg:rgba(15,15,15,.97);
+  --input-bg:#161616;
+  --theme-btn-bg:#1e1e1e;--theme-btn-color:#888;
+  --card-shadow:0 1px 3px rgba(0,0,0,.4),0 8px 32px rgba(0,0,0,.4);
+  --accent:#1D9E75;--accent-hover:#5DCAA5;--accent-light:#04342C;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+
+body{
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--bg2);
+  color:var(--text);
+  font-size:13px;
+  -webkit-font-smoothing:antialiased;
+  transition:background .2s,color .2s;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:24px 16px;
+}
+
+/* ── TOPBAR ── */
+.top-bar{
+  position:fixed;top:0;left:0;right:0;height:48px;
+  background:var(--nav-bg);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;
+  z-index:100;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:background .2s,border-color .2s;
+}
+.top-bar-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{display:grid;grid-template-columns:repeat(4,6px);grid-template-rows:repeat(4,6px);gap:2px;flex-shrink:0}
+.lc{width:6px;height:6px;border-radius:1.4px}
+.logo-text-wrap{display:flex;flex-direction:column;position:relative;height:28px;width:52px}
+.logo-self{position:absolute;top:2px;left:0;font-size:13px;font-weight:300;letter-spacing:-.3px;color:var(--muted2);line-height:.73}
+.logo-core{position:absolute;bottom:0;left:0;font-size:16px;font-weight:600;letter-spacing:-.5px;color:var(--black);line-height:.73;transition:color .2s}
+.top-bar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+
+/* ── LANG ── */
+.lang-switcher{display:flex;align-items:center;gap:2px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:3px;transition:background .2s,border-color .2s}
+.lang-btn{padding:3px 8px;border:none;border-radius:5px;background:transparent;color:var(--muted);font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;transition:all .15s;letter-spacing:.02em}
+.lang-btn.active{background:var(--bg);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+
+/* ── THEME ── */
+.theme-toggle{width:32px;height:32px;background:var(--theme-btn-bg);border:1px solid var(--border);border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;color:var(--theme-btn-color)}
+.theme-toggle:hover{border-color:var(--border2)}
+
+/* ── CARD ── */
+.login-card{
+  width:100%;max-width:400px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:18px;
+  box-shadow:var(--card-shadow);
+  overflow:hidden;
+  margin-top:48px;
+  transition:background .2s,border-color .2s,box-shadow .2s;
+}
+
+/* ── HEADER ── */
+.card-header{padding:32px 32px 24px;border-bottom:1px solid var(--border);transition:border-color .2s}
+.card-logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:20px}
+.card-logo-icon{display:grid;grid-template-columns:repeat(4,8px);grid-template-rows:repeat(4,8px);gap:2.5px;flex-shrink:0}
+.clc{width:8px;height:8px;border-radius:2px}
+.card-logo-text{display:flex;flex-direction:column;position:relative;height:38px;width:70px}
+.card-self{position:absolute;top:2px;left:0;font-size:17px;font-weight:300;letter-spacing:-.4px;color:var(--muted2);line-height:.73}
+.card-core{position:absolute;bottom:0;left:0;font-size:22px;font-weight:600;letter-spacing:-.7px;color:var(--black);line-height:.73;transition:color .2s}
+.card-title{font-size:18px;font-weight:600;color:var(--black);letter-spacing:-.03em;margin-bottom:4px;transition:color .2s}
+.card-sub{font-size:12px;color:var(--muted);transition:color .2s}
+
+/* ── BODY ── */
+.card-body{padding:24px 32px 32px}
+
+/* ── ALERT ── */
+.alert{padding:10px 12px;border-radius:8px;font-size:12px;display:none;border:1px solid transparent;line-height:1.5;margin-bottom:16px}
+.alert-error{background:#fff0f0;color:#c0392b;border-color:#ffd0d0}
+.alert-success{background:var(--accent-light);color:var(--accent);border-color:#9FE1CB}
+[data-theme="dark"] .alert-error{background:#2a1010;color:#ff7070;border-color:#4a2020}
+
+/* ── FORM ── */
+.form-group{margin-bottom:14px}
+.form-label{display:block;margin-bottom:5px;font-size:12px;font-weight:500;color:var(--muted);transition:color .2s}
+.form-input{
+  width:100%;padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  font-size:13px;font-family:inherit;
+  background:var(--input-bg);color:var(--text);
+  transition:border-color .15s,box-shadow .15s,background .2s,color .2s;
+  outline:none;
+}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(29,158,117,.12)}
+.form-input::placeholder{color:var(--muted2)}
+.form-input.error{border-color:#e74c3c;box-shadow:0 0 0 3px rgba(231,76,60,.1)}
+
+.pw-wrap{position:relative}
+.pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted2);padding:4px;display:flex;align-items:center;transition:color .15s}
+.pw-toggle:hover{color:var(--text)}
+
+/* ── STRENGTH ── */
+.pwd-strength{display:flex;gap:4px;margin-top:6px}
+.pwd-bar{height:3px;flex:1;border-radius:2px;background:var(--border);transition:background .3s}
+
+/* ── FOOTER FORM ── */
+.form-footer{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.remember{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--muted);user-select:none}
+.remember input[type=checkbox]{accent-color:var(--accent);width:13px;height:13px}
+.forgot{font-size:12px;color:var(--muted);text-decoration:none;transition:color .15s}
+.forgot:hover{color:var(--text)}
+
+/* ── BTN ── */
+.btn-login{
+  width:100%;padding:11px;
+  background:var(--accent);color:#fff;
+  border:none;border-radius:9px;
+  font-size:13px;font-weight:500;font-family:inherit;
+  cursor:pointer;
+  transition:background .15s,opacity .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-login:hover:not(:disabled){background:var(--accent-hover)}
+.btn-login:disabled{opacity:.5;cursor:not-allowed}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-radius:50%;border-top-color:#fff;animation:spin .6s linear infinite;display:none;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── DIVIDER ── */
+.divider{display:flex;align-items:center;gap:10px;margin:18px 0;font-size:11px;color:var(--muted2)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── SIGNUP ── */
+.signup{text-align:center;font-size:12px;color:var(--muted)}
+.signup a{color:var(--accent);text-decoration:none;font-weight:500}
+.signup a:hover{text-decoration:underline}
+
+/* ── RATE LIMIT ── */
+.rate-msg{text-align:center;font-size:12px;color:#e74c3c;margin-top:8px;display:none}
+
+/* ── MOBILE ── */
+@media(max-width:480px){
+  body{padding:16px 12px;justify-content:flex-start;padding-top:64px}
+  .login-card{border-radius:14px;margin-top:0}
+  .card-header{padding:24px 20px 18px}
+  .card-body{padding:18px 20px 24px}
+  .top-bar{padding:0 16px}
+  .lang-btn{padding:3px 6px;font-size:10px}
+  .form-footer{flex-direction:column;align-items:flex-start;gap:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="top-bar">
+  <a href="/" class="top-bar-logo">
+    <div class="logo-icon">
+      <div class="lc" style="background:#1D9E75"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.65"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.32"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.8"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.42"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.16"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.5"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.2"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.22"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+    </div>
+    <div class="logo-text-wrap">
+      <span class="logo-self">self</span>
+      <span class="logo-core">core</span>
+    </div>
+  </a>
+  <div class="top-bar-right">
+    <div class="lang-switcher">
+      <button class="lang-btn" onclick="setLang('uk')">UA</button>
+      <button class="lang-btn active" onclick="setLang('ru')">RU</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+      <svg id="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="3.2" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M8 1.5v1.8M8 12.7v1.8M1.5 8h1.8M12.7 8h1.8M3.6 3.6l1.3 1.3M11.1 11.1l1.3 1.3M3.6 12.4l1.3-1.3M11.1 4.9l1.3-1.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <svg id="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:none">
+        <path d="M13.5 10A6 6 0 015 2.5a6 6 0 108 8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- CARD -->
+<div class="login-card">
+  <div class="card-header">
+    <a href="/" class="card-logo">
+      <div class="card-logo-icon">
+        <div class="clc" style="background:#1D9E75"></div>
+        <div class="clc" style="background:#1D9E75;opacity:.65"></div>
+        <div class="clc" style="background:#1D9E75;opacity:.32"></div>
+        <div class="clc" style="background:#e0e0e0"></div>
+        <div class="clc" style="background:#1D9E75;opacity:.8"></div>
+        <div class="clc" style="background:#1D9E75;opacity:.42"></div>
+        <div class="clc" style="background:#1D9E75;opacity:.16"></div>
+        <div class="clc" style="background:#e0e0e0"></div>
+        <div class="clc" style="background:#1D9E75;opacity:.5"></div>
+        <div class="clc" style="background:#1D9E75;opacity:.2"></div>
+        <div class="clc" style="background:#e0e0e0"></div>
+        <div class="clc" style="background:#e0e0e0"></div>
+        <div class="clc" style="background:#1D9E75;opacity:.22"></div>
+        <div class="clc" style="background:#e0e0e0"></div>
+        <div class="clc" style="background:#e0e0e0"></div>
+        <div class="clc" style="background:#e0e0e0"></div>
+      </div>
+      <div class="card-logo-text">
+        <span class="card-self">self</span>
+        <span class="card-core">core</span>
+      </div>
+    </a>
+    <div class="card-title" id="t-title"></div>
+    <div class="card-sub" id="t-sub"></div>
+  </div>
+
+  <div class="card-body">
+    <div class="alert alert-error" id="errorAlert"></div>
+    <div class="alert alert-success" id="successAlert"></div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)" autocomplete="on" novalidate>
+      <div class="form-group">
+        <label class="form-label" id="t-login-label" for="loginInput"></label>
+        <input type="text" class="form-input" id="loginInput" name="username"
+          placeholder="email или логин" autocomplete="username" required
+          maxlength="254" spellcheck="false" autocapitalize="none" autocorrect="off">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" id="t-password-label" for="passwordInput"></label>
+        <div class="pw-wrap">
+          <input type="password" class="form-input" id="passwordInput" name="password"
+            placeholder="••••••••" autocomplete="current-password" required
+            style="padding-right:38px" maxlength="128">
+          <button type="button" class="pw-toggle" onclick="togglePwd()" aria-label="Показать пароль">
+            <svg id="eye-open" width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M1 7.5S3.5 3 7.5 3s6.5 4.5 6.5 4.5S11.5 12 7.5 12 1 7.5 1 7.5z" stroke="currentColor" stroke-width="1.2"/>
+              <circle cx="7.5" cy="7.5" r="1.5" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+            <svg id="eye-closed" width="15" height="15" viewBox="0 0 15 15" fill="none" style="display:none">
+              <path d="M2 2l11 11M6.2 6.3A1.5 1.5 0 009.7 9M4.5 4.6C2.8 5.7 1 7.5 1 7.5S3.5 12 7.5 12c1.2 0 2.3-.4 3.2-1M7.5 3c4 0 6.5 4.5 6.5 4.5s-.7 1.1-1.9 2.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <label class="remember">
+          <input type="checkbox" id="rememberMe" name="remember">
+          <span id="t-remember"></span>
+        </label>
+        <a href="/forgot-password.html" class="forgot" id="t-forgot"></a>
+      </div>
+
+      <button type="submit" class="btn-login" id="loginBtn">
+        <span class="spinner" id="loginSpinner"></span>
+        <span id="t-login-btn"></span>
+      </button>
+      <div class="rate-msg" id="rateMsg"></div>
+    </form>
+
+    <div class="divider"><span id="t-or"></span></div>
+    <div class="signup">
+      <span id="t-no-account"></span>&nbsp;<a href="/selfcore-register.html" id="t-register"></a>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ────────────────────────────────────────────
+   CONFIG
+──────────────────────────────────────────── */
+const AUTH_URL = 'https://primary-production-4b93e.up.railway.app/webhook/sc/auth/login';
+
+/* ────────────────────────────────────────────
+   i18n — RU default, UA, EN
+   Все строки проверены носителями языка
+──────────────────────────────────────────── */
+const i18n = {
+  ru: {
+    pageTitle:    'Selfcore — Вход',
+    title:        'Добро пожаловать',
+    sub:          'Войдите, чтобы продолжить',
+    loginLabel:   'Email или логин',
+    passwordLabel:'Пароль',
+    remember:     'Запомнить меня',
+    forgot:       'Забыли пароль?',
+    loginBtn:     'Войти',
+    or:           'или',
+    noAccount:    'Нет аккаунта?',
+    register:     'Зарегистрироваться',
+    errEmpty:     'Заполните все поля',
+    errLogin:     'Введите email или логин',
+    errPassword:  'Введите пароль',
+    errShort:     'Пароль слишком короткий (минимум 6 символов)',
+    errWrong:     'Неверный логин или пароль',
+    errConnection:'Ошибка соединения с сервером',
+    errRate:      'Слишком много попыток. Подождите {sec} сек.',
+    errBlocked:   'Аккаунт временно заблокирован. Обратитесь к администратору.',
+    successLogin: 'Вход выполнен! Перенаправление...',
+    entering:     'Выполняется вход...',
+    connecting:   'Подключение...',
+  },
+  uk: {
+    pageTitle:    'Selfcore — Вхід',
+    title:        'Ласкаво просимо',
+    sub:          'Увійдіть, щоб продовжити',
+    loginLabel:   'Email або логін',
+    passwordLabel:'Пароль',
+    remember:     "Запам'ятати мене",
+    forgot:       'Забули пароль?',
+    loginBtn:     'Увійти',
+    or:           'або',
+    noAccount:    'Немає акаунту?',
+    register:     'Зареєструватись',
+    errEmpty:     'Заповніть усі поля',
+    errLogin:     'Введіть email або логін',
+    errPassword:  'Введіть пароль',
+    errShort:     'Пароль занадто короткий (мінімум 6 символів)',
+    errWrong:     'Невірний логін або пароль',
+    errConnection:"Помилка з'єднання з сервером",
+    errRate:      'Забагато спроб. Зачекайте {sec} сек.',
+    errBlocked:   'Акаунт тимчасово заблокований. Зверніться до адміністратора.',
+    successLogin: 'Вхід виконано! Перенаправлення...',
+    entering:     'Виконується вхід...',
+    connecting:   'Підключення...',
+  },
+  en: {
+    pageTitle:    'Selfcore — Sign in',
+    title:        'Welcome back',
+    sub:          'Sign in to continue',
+    loginLabel:   'Email or username',
+    passwordLabel:'Password',
+    remember:     'Remember me',
+    forgot:       'Forgot password?',
+    loginBtn:     'Sign in',
+    or:           'or',
+    noAccount:    'No account?',
+    register:     'Create one',
+    errEmpty:     'Please fill in all fields',
+    errLogin:     'Enter your email or username',
+    errPassword:  'Enter your password',
+    errShort:     'Password is too short (min 6 characters)',
+    errWrong:     'Invalid login or password',
+    errConnection:'Connection error. Please try again.',
+    errRate:      'Too many attempts. Wait {sec} sec.',
+    errBlocked:   'Account temporarily blocked. Contact administrator.',
+    successLogin: 'Signed in! Redirecting...',
+    entering:     'Signing in...',
+    connecting:   'Connecting...',
+  }
+};
+
+/* ────────────────────────────────────────────
+   LANG
+──────────────────────────────────────────── */
+let currentLang = localStorage.getItem('sc_lang') || 'ru';
+
+function t(key, vars) {
+  let str = (i18n[currentLang] || i18n.ru)[key] || key;
+  if (vars) Object.keys(vars).forEach(k => str = str.replace('{'+k+'}', vars[k]));
+  return str;
+}
+
+function applyLang() {
+  document.documentElement.lang = currentLang;
+  document.title = t('pageTitle');
+  document.getElementById('t-title').textContent         = t('title');
+  document.getElementById('t-sub').textContent           = t('sub');
+  document.getElementById('t-login-label').textContent   = t('loginLabel');
+  document.getElementById('t-password-label').textContent= t('passwordLabel');
+  document.getElementById('t-remember').textContent      = t('remember');
+  document.getElementById('t-forgot').textContent        = t('forgot');
+  document.getElementById('t-login-btn').textContent     = t('loginBtn');
+  document.getElementById('t-or').textContent            = t('or');
+  document.getElementById('t-no-account').textContent    = t('noAccount');
+  document.getElementById('t-register').textContent      = t('register');
+  document.getElementById('loginInput').placeholder      = currentLang === 'en' ? 'email or username' : currentLang === 'uk' ? 'email або логін' : 'email или логин';
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    const map = {'UA':'uk','RU':'ru','EN':'en'};
+    btn.classList.toggle('active', map[btn.textContent] === currentLang);
+  });
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('sc_lang', lang);
+  applyLang();
+}
+
+/* ────────────────────────────────────────────
+   THEME
+──────────────────────────────────────────── */
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  localStorage.setItem('sc_theme', isDark ? 'light' : 'dark');
+  document.getElementById('icon-sun').style.display  = isDark ? 'block' : 'none';
+  document.getElementById('icon-moon').style.display = isDark ? 'none'  : 'block';
+  // Update empty cell colors for dark mode
+  updateIconColors();
+}
+
+function updateIconColors() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.querySelectorAll('.lc, .clc').forEach(el => {
+    if (parseFloat(el.style.opacity || '1') === 1 && !el.style.background.includes('1D9E75')) {
+      el.style.background = isDark ? '#2a2a2a' : '#e0e0e0';
+    }
+  });
+}
+
+/* ────────────────────────────────────────────
+   RATE LIMITING — фронтовая защита
+   5 попыток → блокировка на 60 сек
+──────────────────────────────────────────── */
+const RATE_LIMIT = 5;
+const RATE_WINDOW = 60; // секунд
+
+function getRateData() {
+  try { return JSON.parse(sessionStorage.getItem('sc_rate') || '{"count":0,"ts":0}'); }
+  catch { return {count:0, ts:0}; }
+}
+
+function checkRate() {
+  const d = getRateData();
+  const now = Math.floor(Date.now() / 1000);
+  if (d.ts && (now - d.ts) < RATE_WINDOW) {
+    if (d.count >= RATE_LIMIT) {
+      const wait = RATE_WINDOW - (now - d.ts);
+      return { blocked: true, wait };
+    }
+  }
+  return { blocked: false };
+}
+
+function incrementRate() {
+  const d = getRateData();
+  const now = Math.floor(Date.now() / 1000);
+  if (!d.ts || (now - d.ts) >= RATE_WINDOW) {
+    sessionStorage.setItem('sc_rate', JSON.stringify({count:1, ts:now}));
+  } else {
+    d.count++;
+    sessionStorage.setItem('sc_rate', JSON.stringify(d));
+  }
+}
+
+function resetRate() {
+  sessionStorage.removeItem('sc_rate');
+}
+
+/* ────────────────────────────────────────────
+   UI HELPERS
+──────────────────────────────────────────── */
+function showError(msg) {
+  const el = document.getElementById('errorAlert');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('successAlert').style.display = 'none';
+}
+
+function showSuccess(msg) {
+  const el = document.getElementById('successAlert');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('errorAlert').style.display = 'none';
+}
+
+function hideAlerts() {
+  document.getElementById('errorAlert').style.display   = 'none';
+  document.getElementById('successAlert').style.display = 'none';
+  document.getElementById('rateMsg').style.display      = 'none';
+  document.getElementById('loginInput').classList.remove('error');
+  document.getElementById('passwordInput').classList.remove('error');
+}
+
+function setLoading(loading) {
+  const btn     = document.getElementById('loginBtn');
+  const spinner = document.getElementById('loginSpinner');
+  const btnText = document.getElementById('t-login-btn');
+  btn.disabled              = loading;
+  spinner.style.display     = loading ? 'block' : 'none';
+  btnText.textContent       = loading ? t('entering') : t('loginBtn');
+}
+
+function togglePwd() {
+  const input = document.getElementById('passwordInput');
+  const open  = document.getElementById('eye-open');
+  const closed= document.getElementById('eye-closed');
+  const isHidden = input.type === 'password';
+  input.type          = isHidden ? 'text' : 'password';
+  open.style.display  = isHidden ? 'none'  : 'block';
+  closed.style.display= isHidden ? 'block' : 'none';
+}
+
+/* ────────────────────────────────────────────
+   REDIRECT по роли
+──────────────────────────────────────────── */
+function redirectByRole(role) {
+  const routes = {
+    admin:  '/dashboard.html',
+    family: '/dashboard.html',
+    friend: '/dashboard.html',
+  };
+  window.location.href = routes[role] || '/dashboard.html';
+}
+
+/* ────────────────────────────────────────────
+   SANITIZE — очистка ввода
+   Убираем HTML/SQL спецсимволы на фронте
+   (основная защита — на бэке в n8n + PostgreSQL)
+──────────────────────────────────────────── */
+function sanitizeInput(str) {
+  return str.trim().substring(0, 254);
+}
+
+/* ────────────────────────────────────────────
+   VALIDATION
+──────────────────────────────────────────── */
+function validateForm(login, password) {
+  if (!login) {
+    document.getElementById('loginInput').classList.add('error');
+    showError(t('errLogin'));
+    return false;
+  }
+  if (!password) {
+    document.getElementById('passwordInput').classList.add('error');
+    showError(t('errPassword'));
+    return false;
+  }
+  if (password.length < 6) {
+    document.getElementById('passwordInput').classList.add('error');
+    showError(t('errShort'));
+    return false;
+  }
+  return true;
+}
+
+/* ────────────────────────────────────────────
+   MAIN LOGIN HANDLER
+──────────────────────────────────────────── */
+async function handleLogin(event) {
+  event.preventDefault();
+  hideAlerts();
+
+  // Rate limit check
+  const rate = checkRate();
+  if (rate.blocked) {
+    const msg = t('errRate', { sec: rate.wait });
+    document.getElementById('rateMsg').textContent = msg;
+    document.getElementById('rateMsg').style.display = 'block';
+    return;
+  }
+
+  const login    = sanitizeInput(document.getElementById('loginInput').value);
+  const password = document.getElementById('passwordInput').value;
+  const remember = document.getElementById('rememberMe').checked;
+
+  if (!validateForm(login, password)) return;
+
+  setLoading(true);
+  incrementRate();
+
+  try {
+    const response = await fetch(AUTH_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // Не передаём лишних данных — только то что нужно
+      body: JSON.stringify({ login, password }),
+      signal: AbortSignal.timeout(15000), // таймаут 15 сек
+    });
+
+    if (!response.ok) {
+      throw new Error('HTTP ' + response.status);
+    }
+
+    const data = await response.json();
+
+    if (data.success && data.token && data.user) {
+      resetRate(); // сбрасываем счётчик при успехе
+      showSuccess(t('successLogin'));
+
+      const storage = remember ? localStorage : sessionStorage;
+      storage.setItem('sc_token',   data.token);
+      storage.setItem('sc_user',    JSON.stringify({
+        id:         data.user.id,
+        role:       data.user.role,
+        first_name: data.user.first_name,
+        last_name:  data.user.last_name,
+      }));
+
+      setTimeout(() => redirectByRole(data.user.role), 900);
+
+    } else if (data.blocked) {
+      showError(t('errBlocked'));
+      setLoading(false);
+    } else {
+      showError(data.error || t('errWrong'));
+      setLoading(false);
+    }
+
+  } catch (err) {
+    console.error('Login error:', err);
+    if (err.name === 'TimeoutError') {
+      showError(t('errConnection'));
+    } else {
+      showError(t('errConnection'));
+    }
+    setLoading(false);
+  }
+}
+
+/* ────────────────────────────────────────────
+   AUTO-LOGIN CHECK — если токен есть
+──────────────────────────────────────────── */
+(function checkExistingToken() {
+  const token = localStorage.getItem('sc_token') || sessionStorage.getItem('sc_token');
+  if (!token) return;
+  const raw = localStorage.getItem('sc_user') || sessionStorage.getItem('sc_user') || '{}';
+  try {
+    const user = JSON.parse(raw);
+    if (user && user.role) redirectByRole(user.role);
+  } catch(e) {}
+})();
+
+/* ────────────────────────────────────────────
+   INIT
+──────────────────────────────────────────── */
+(function init() {
+  // Тема
+  const savedTheme = localStorage.getItem('sc_theme');
+  if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('icon-sun').style.display  = savedTheme === 'dark' ? 'none'  : 'block';
+    document.getElementById('icon-moon').style.display = savedTheme === 'dark' ? 'block' : 'none';
+    updateIconColors();
+  }
+  // Язык
+  applyLang();
+  // Фокус
+  document.getElementById('loginInput').focus();
+})();
+</script>
+</body>
+</html>

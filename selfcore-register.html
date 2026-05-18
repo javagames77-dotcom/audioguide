@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selfcore — Регистрация</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+[data-theme="light"]{--bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0f0ed;--border:#e8e8e4;--border2:#d0d0ca;--text:#1a1a1a;--muted:#6b6b6b;--muted2:#b0b0b0;--black:#0a0a0a;--nav-bg:rgba(255,255,255,.96);--input-bg:#fafaf8;--theme-btn-bg:#f0f0ed;--theme-btn-color:#6b6b6b;--card-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 32px rgba(0,0,0,.08);--accent:#1D9E75;--accent-hover:#0F6E56;--accent-light:#E1F5EE;--success:#16a34a;--success-bg:#f0fff4;--success-border:#bbf7d0;--danger:#c0392b;--danger-bg:#fff0f0;--danger-border:#ffd0d0}
+[data-theme="dark"]{--bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--border:#2a2a2a;--border2:#3d3d3d;--text:#f0f0f0;--muted:#888;--muted2:#555;--black:#f0f0f0;--nav-bg:rgba(15,15,15,.97);--input-bg:#161616;--theme-btn-bg:#1e1e1e;--theme-btn-color:#888;--card-shadow:0 1px 3px rgba(0,0,0,.4),0 8px 32px rgba(0,0,0,.4);--accent:#1D9E75;--accent-hover:#5DCAA5;--accent-light:#04342C;--success:#4ade80;--success-bg:#0a2010;--success-border:#1a4030;--danger:#ff7070;--danger-bg:#2a1010;--danger-border:#4a2020}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg2);color:var(--text);font-size:13px;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s;display:flex;flex-direction:column;align-items:center;padding:72px 16px 40px}
+.top-bar{position:fixed;top:0;left:0;right:0;height:48px;background:var(--nav-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;z-index:100;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background .2s,border-color .2s}
+.top-bar-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{display:grid;grid-template-columns:repeat(4,6px);grid-template-rows:repeat(4,6px);gap:2px;flex-shrink:0}
+.lc{width:6px;height:6px;border-radius:1.4px}
+.logo-text-wrap{display:flex;flex-direction:column;position:relative;height:28px;width:52px}
+.logo-self{position:absolute;top:2px;left:0;font-size:13px;font-weight:300;letter-spacing:-.3px;color:var(--muted2);line-height:.73}
+.logo-core{position:absolute;bottom:0;left:0;font-size:16px;font-weight:600;letter-spacing:-.5px;color:var(--black);line-height:.73;transition:color .2s}
+.top-bar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.lang-switcher{display:flex;align-items:center;gap:2px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:3px}
+.lang-btn{padding:3px 8px;border:none;border-radius:5px;background:transparent;color:var(--muted);font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;transition:all .15s;letter-spacing:.02em}
+.lang-btn.active{background:var(--bg);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.theme-toggle{width:32px;height:32px;background:var(--theme-btn-bg);border:1px solid var(--border);border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;color:var(--theme-btn-color)}
+.theme-toggle:hover{border-color:var(--border2)}
+.page-header{width:100%;max-width:440px;text-align:center;margin-bottom:20px}
+.page-title{font-size:20px;font-weight:600;color:var(--black);letter-spacing:-.03em;margin-bottom:4px;transition:color .2s}
+.page-sub{font-size:12px;color:var(--muted)}
+.card{width:100%;max-width:440px;background:var(--bg);border:1px solid var(--border);border-radius:16px;box-shadow:var(--card-shadow);overflow:hidden;transition:background .2s,border-color .2s}
+.form-body{padding:24px}
+.section-label{font-size:10px;font-weight:500;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;margin-top:20px;padding-bottom:8px;border-bottom:1px solid var(--border);transition:color .2s,border-color .2s}
+.section-label:first-child{margin-top:0}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{margin-bottom:12px}
+.form-label{display:block;margin-bottom:5px;font-size:12px;font-weight:500;color:var(--muted);transition:color .2s}
+.req{color:var(--accent);margin-left:2px}
+.form-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--input-bg);color:var(--text);transition:border-color .15s,box-shadow .15s,background .2s,color .2s;outline:none}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(29,158,117,.12)}
+.form-input::placeholder{color:var(--muted2)}
+.form-hint{font-size:11px;color:var(--muted2);margin-top:4px;line-height:1.4}
+.pw-wrap{position:relative}
+.pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted2);padding:4px;display:flex;align-items:center;transition:color .15s}
+.pw-toggle:hover{color:var(--text)}
+.pwd-strength{display:flex;gap:4px;margin-top:6px}
+.pwd-bar{height:3px;flex:1;border-radius:2px;background:var(--border);transition:background .3s}
+.alert{padding:9px 12px;border-radius:8px;margin-bottom:16px;font-size:12px;display:none;border:1px solid transparent;line-height:1.4}
+.alert.show{display:block}
+.alert-error{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-border)}
+.btn-submit{width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:background .15s,opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px}
+.btn-submit:hover:not(:disabled){background:var(--accent-hover)}
+.btn-submit:disabled{opacity:.45;cursor:not-allowed}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-radius:50%;border-top-color:#fff;animation:spin .6s linear infinite;display:none;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.success-state{display:none;padding:40px 24px;text-align:center}
+.success-state.show{display:block}
+.success-icon{width:52px;height:52px;border-radius:50%;background:var(--accent-light);border:1px solid #9FE1CB;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--accent)}
+.success-title{font-size:16px;font-weight:600;color:var(--black);margin-bottom:8px;letter-spacing:-.02em;transition:color .2s}
+.success-msg{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.btn-go{display:inline-flex;align-items:center;justify-content:center;padding:9px 24px;background:var(--accent);border:none;border-radius:8px;color:#fff;text-decoration:none;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;font-family:inherit}
+.btn-go:hover{background:var(--accent-hover)}
+.card-footer{padding:14px 24px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--muted);transition:border-color .2s,color .2s}
+.card-footer a{color:var(--accent);text-decoration:none;font-weight:500}
+.card-footer a:hover{text-decoration:underline}
+@media(max-width:520px){
+  body{padding:64px 12px 32px}
+  .card{border-radius:12px}
+  .form-body{padding:18px 16px}
+  .form-row{grid-template-columns:1fr;gap:0}
+  .card-footer{padding:12px 16px}
+  .success-state{padding:32px 16px}
+  .top-bar{padding:0 16px}
+  .lang-btn{padding:3px 6px;font-size:10px}
+  .page-title{font-size:17px}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="/selfcore-auth.html" class="top-bar-logo">
+    <div class="logo-icon">
+      <div class="lc" style="background:#1D9E75"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.65"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.32"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.8"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.42"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.16"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.5"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.2"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+      <div class="lc" style="background:#1D9E75;opacity:.22"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+      <div class="lc" style="background:#e0e0e0"></div>
+    </div>
+    <div class="logo-text-wrap">
+      <span class="logo-self">self</span>
+      <span class="logo-core">core</span>
+    </div>
+  </a>
+  <div class="top-bar-right">
+    <div class="lang-switcher">
+      <button class="lang-btn" onclick="setLang('uk')">UA</button>
+      <button class="lang-btn active" onclick="setLang('ru')">RU</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <svg id="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v1.8M8 12.7v1.8M1.5 8h1.8M12.7 8h1.8M3.6 3.6l1.3 1.3M11.1 11.1l1.3 1.3M3.6 12.4l1.3-1.3M11.1 4.9l1.3-1.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <svg id="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:none"><path d="M13.5 10A6 6 0 015 2.5a6 6 0 108 8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="page-header">
+  <div class="page-title" id="t-page-title"></div>
+  <div class="page-sub" id="t-page-sub"></div>
+</div>
+
+<div class="card">
+
+  <div class="form-body" id="formBody">
+    <div class="alert alert-error" id="errorAlert"></div>
+
+    <form id="registerForm" onsubmit="handleSubmit(event)" novalidate autocomplete="on">
+
+      <div class="section-label" id="t-section-personal"></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="firstName"><span id="t-label-fname"></span><span class="req">*</span></label>
+          <input type="text" class="form-input" id="firstName" name="first_name" maxlength="100" autocomplete="given-name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="lastName"><span id="t-label-lname"></span></label>
+          <input type="text" class="form-input" id="lastName" name="last_name" maxlength="100" autocomplete="family-name">
+        </div>
+      </div>
+
+      <div class="section-label" id="t-section-account"></div>
+
+      <div class="form-group">
+        <label class="form-label" for="loginInput"><span id="t-label-login"></span><span class="req">*</span></label>
+        <input type="text" class="form-input" id="loginInput" name="username" maxlength="50" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+        <div class="form-hint" id="t-hint-login"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="emailInput"><span id="t-label-email"></span><span class="req">*</span></label>
+        <input type="email" class="form-input" id="emailInput" name="email" maxlength="254" autocomplete="email" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="passwordInput"><span id="t-label-password"></span><span class="req">*</span></label>
+        <div class="pw-wrap">
+          <input type="password" class="form-input" id="passwordInput" name="new-password" maxlength="128" autocomplete="new-password" required style="padding-right:38px" oninput="checkStrength(this.value)">
+          <button type="button" class="pw-toggle" onclick="togglePwd()">
+            <svg id="eye-open" width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1 7.5S3.5 3 7.5 3s6.5 4.5 6.5 4.5S11.5 12 7.5 12 1 7.5 1 7.5z" stroke="currentColor" stroke-width="1.2"/><circle cx="7.5" cy="7.5" r="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+            <svg id="eye-closed" width="15" height="15" viewBox="0 0 15 15" fill="none" style="display:none"><path d="M2 2l11 11M6.2 6.3A1.5 1.5 0 009.7 9M4.5 4.6C2.8 5.7 1 7.5 1 7.5S3.5 12 7.5 12c1.2 0 2.3-.4 3.2-1M7.5 3c4 0 6.5 4.5 6.5 4.5s-.7 1.1-1.9 2.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="pwd-strength">
+          <div class="pwd-bar" id="bar1"></div>
+          <div class="pwd-bar" id="bar2"></div>
+          <div class="pwd-bar" id="bar3"></div>
+          <div class="pwd-bar" id="bar4"></div>
+        </div>
+        <div class="form-hint" id="t-hint-password"></div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">
+        <span class="spinner" id="submitSpinner"></span>
+        <span id="t-submit-btn"></span>
+      </button>
+
+    </form>
+  </div>
+
+  <div class="success-state" id="successState">
+    <div class="success-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="success-title" id="successTitle"></div>
+    <div class="success-msg" id="successMsg"></div>
+    <button class="btn-go" onclick="window.location.href='/selfcore-auth.html'" id="t-go-login"></button>
+  </div>
+
+  <div class="card-footer" id="cardFooter">
+    <span id="t-have-account"></span>&nbsp;<a href="/selfcore-auth.html" id="t-signin"></a>
+  </div>
+
+</div>
+
+<script>
+const REGISTER_URL = 'https://primary-production-4b93e.up.railway.app/webhook/sc/auth/register';
+
+const i18n = {
+  ru: {
+    pageTitle:'Регистрация', pageSub:'Создайте аккаунт Selfcore',
+    sectionPersonal:'Личные данные', sectionAccount:'Аккаунт',
+    labelFname:'Имя', labelLname:'Фамилия', labelLogin:'Логин',
+    hintLogin:'Латиница, цифры, точка, подчёркивание (3-50 символов)',
+    labelEmail:'Email', labelPassword:'Пароль',
+    hintPassword:'Минимум 6 символов',
+    submitBtn:'Создать аккаунт', sending:'Создаём аккаунт...',
+    successTitle:'Аккаунт создан!',
+    successMsg:'Добро пожаловать в Selfcore.',
+    goLogin:'Войти', haveAccount:'Уже есть аккаунт?', signin:'Войти',
+    errFname:'Укажите имя',
+    errLogin:'Логин: латиница, цифры, точка, подчёркивание (3-50 символов)',
+    errEmail:'Укажите корректный email',
+    errPassword:'Пароль минимум 6 символов',
+    errConnection:'Ошибка соединения с сервером',
+    strengthWeak:'Слабый', strengthFair:'Средний', strengthGood:'Хороший', strengthStrong:'Надёжный',
+  },
+  uk: {
+    pageTitle:'Реєстрація', pageSub:'Створіть акаунт Selfcore',
+    sectionPersonal:'Особисті дані', sectionAccount:'Акаунт',
+    labelFname:'Ім\'я', labelLname:'Прізвище', labelLogin:'Логін',
+    hintLogin:'Латиниця, цифри, крапка, підкреслення (3-50 символів)',
+    labelEmail:'Email', labelPassword:'Пароль',
+    hintPassword:'Мінімум 6 символів',
+    submitBtn:'Створити акаунт', sending:'Створюємо акаунт...',
+    successTitle:'Акаунт створено!',
+    successMsg:'Ласкаво просимо до Selfcore.',
+    goLogin:'Увійти', haveAccount:'Вже є акаунт?', signin:'Увійти',
+    errFname:'Вкажіть ім\'я',
+    errLogin:'Логін: латиниця, цифри, крапка, підкреслення (3-50 символів)',
+    errEmail:'Вкажіть коректний email',
+    errPassword:'Пароль мінімум 6 символів',
+    errConnection:'Помилка з\'єднання з сервером',
+    strengthWeak:'Слабкий', strengthFair:'Середній', strengthGood:'Хороший', strengthStrong:'Надійний',
+  },
+  en: {
+    pageTitle:'Sign up', pageSub:'Create your Selfcore account',
+    sectionPersonal:'Personal info', sectionAccount:'Account',
+    labelFname:'First name', labelLname:'Last name', labelLogin:'Username',
+    hintLogin:'Letters, numbers, dot, underscore (3-50 characters)',
+    labelEmail:'Email', labelPassword:'Password',
+    hintPassword:'At least 6 characters',
+    submitBtn:'Create account', sending:'Creating account...',
+    successTitle:'Account created!',
+    successMsg:'Welcome to Selfcore.',
+    goLogin:'Sign in', haveAccount:'Already have an account?', signin:'Sign in',
+    errFname:'Enter your first name',
+    errLogin:'Username: letters, numbers, dot, underscore (3-50 characters)',
+    errEmail:'Enter a valid email',
+    errPassword:'Password must be at least 6 characters',
+    errConnection:'Connection error. Please try again.',
+    strengthWeak:'Weak', strengthFair:'Fair', strengthGood:'Good', strengthStrong:'Strong',
+  }
+};
+
+let currentLang = localStorage.getItem('sc_lang') || 'ru';
+function t(k){ return (i18n[currentLang]||i18n.ru)[k]||k; }
+
+function applyLang(){
+  document.documentElement.lang = currentLang;
+  document.title = 'Selfcore — '+t('pageTitle');
+  document.getElementById('t-page-title').textContent     = t('pageTitle');
+  document.getElementById('t-page-sub').textContent       = t('pageSub');
+  document.getElementById('t-section-personal').textContent= t('sectionPersonal');
+  document.getElementById('t-section-account').textContent = t('sectionAccount');
+  document.getElementById('t-label-fname').textContent    = t('labelFname');
+  document.getElementById('t-label-lname').textContent    = t('labelLname');
+  document.getElementById('t-label-login').textContent    = t('labelLogin');
+  document.getElementById('t-hint-login').textContent     = t('hintLogin');
+  document.getElementById('t-label-email').textContent    = t('labelEmail');
+  document.getElementById('t-label-password').textContent = t('labelPassword');
+  document.getElementById('t-hint-password').textContent  = t('hintPassword');
+  document.getElementById('t-submit-btn').textContent     = t('submitBtn');
+  document.getElementById('successTitle').textContent     = t('successTitle');
+  document.getElementById('successMsg').textContent       = t('successMsg');
+  document.getElementById('t-go-login').textContent       = t('goLogin');
+  document.getElementById('t-have-account').textContent   = t('haveAccount');
+  document.getElementById('t-signin').textContent         = t('signin');
+  document.querySelectorAll('.lang-btn').forEach(btn=>{
+    const map={'UA':'uk','RU':'ru','EN':'en'};
+    btn.classList.toggle('active', map[btn.textContent]===currentLang);
+  });
+}
+
+function setLang(lang){ currentLang=lang; localStorage.setItem('sc_lang',lang); applyLang(); }
+
+function toggleTheme(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',isDark?'light':'dark');
+  localStorage.setItem('sc_theme',isDark?'light':'dark');
+  document.getElementById('icon-sun').style.display =isDark?'block':'none';
+  document.getElementById('icon-moon').style.display=isDark?'none':'block';
+}
+
+function togglePwd(){
+  const i=document.getElementById('passwordInput');
+  const h=i.type==='password';
+  i.type=h?'text':'password';
+  document.getElementById('eye-open').style.display =h?'none':'block';
+  document.getElementById('eye-closed').style.display=h?'block':'none';
+}
+
+function checkStrength(pwd){
+  let s=0;
+  if(pwd.length>=6)s++;
+  if(pwd.length>=10)s++;
+  if(/[A-Z]/.test(pwd)&&/[0-9]/.test(pwd))s++;
+  if(/[^A-Za-z0-9]/.test(pwd))s++;
+  const c=['#e74c3c','#e67e22','#f1c40f','#1D9E75'];
+  for(let i=1;i<=4;i++){
+    document.getElementById('bar'+i).style.background=i<=s?c[s-1]:'var(--border)';
+  }
+}
+
+function showError(msg){
+  const el=document.getElementById('errorAlert');
+  el.textContent=msg; el.classList.add('show');
+}
+function hideError(){ document.getElementById('errorAlert').classList.remove('show'); }
+
+function setLoading(loading){
+  const btn=document.getElementById('submitBtn');
+  const sp=document.getElementById('submitSpinner');
+  const bt=document.getElementById('t-submit-btn');
+  btn.disabled=loading;
+  sp.style.display=loading?'block':'none';
+  bt.textContent=loading?t('sending'):t('submitBtn');
+}
+
+async function handleSubmit(e){
+  e.preventDefault(); hideError();
+  const firstName=document.getElementById('firstName').value.trim();
+  const lastName =document.getElementById('lastName').value.trim();
+  const login    =document.getElementById('loginInput').value.trim();
+  const email    =document.getElementById('emailInput').value.trim();
+  const password =document.getElementById('passwordInput').value;
+
+  if(!firstName){showError(t('errFname'));return;}
+  if(!login||!/^[a-zA-Z0-9._]{3,50}$/.test(login)){showError(t('errLogin'));return;}
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showError(t('errEmail'));return;}
+  if(!password||password.length<6){showError(t('errPassword'));return;}
+
+  setLoading(true);
+  try{
+    const res=await fetch(REGISTER_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({first_name:firstName,last_name:lastName,login,email,password,role:'user',lang:currentLang}),
+      signal:AbortSignal.timeout(15000)
+    });
+    const data=await res.json();
+    if(data.success&&data.token){
+      sessionStorage.setItem('sc_token',data.token);
+      sessionStorage.setItem('sc_user',JSON.stringify(data.user));
+      document.getElementById('formBody').style.display='none';
+      document.getElementById('cardFooter').style.display='none';
+      document.getElementById('successState').classList.add('show');
+    } else {
+      showError(data.error||t('errConnection'));
+      setLoading(false);
+    }
+  } catch(err){
+    showError(t('errConnection'));
+    setLoading(false);
+  }
+}
+
+(function init(){
+  const savedTheme=localStorage.getItem('sc_theme');
+  if(savedTheme){
+    document.documentElement.setAttribute('data-theme',savedTheme);
+    document.getElementById('icon-sun').style.display =savedTheme==='dark'?'none':'block';
+    document.getElementById('icon-moon').style.display=savedTheme==='dark'?'block':'none';
+  }
+  applyLang();
+  document.getElementById('firstName').focus();
+})();
+</script>
+</body>
+</html>
