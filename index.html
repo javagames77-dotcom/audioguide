@@ -235,7 +235,7 @@
         <button class="btn btn-primary" id="btn-rec" onclick="toggleRecording()">🔴 Запис</button>
         <button class="btn btn-ghost btn-sm" id="btn-clear-audio" onclick="clearAudio()" style="display:none">✕ Очистити</button>
       </div>
-      <div id="rec-timer" style="font-size:11px;color:var(--accent);margin-top:8px;display:none">⏱ 0 сек</div>
+      <div id="rec-timer" style="font-size:11px;color:var(--accent);margin-top:8px;display:none">⏱ 0 сек &nbsp;<span id="wake-indicator" style="display:none;color:var(--success)">· 🔆 екран не гасне</span></div>
       <audio id="audio-playback" controls></audio>
       <div class="output" id="out-audio">Натисни «Запис» щоб розпочати</div>
     </div>
@@ -346,6 +346,7 @@ let audioChunks = [];
 let recInterval = null;
 let recStart = null;
 let watchId = null;
+let wakeLock = null;
 
 // ─── UTILS ───────────────────────────────────────────────
 function badge(id, cls, text) {
@@ -477,6 +478,9 @@ async function toggleRecording() {
     mediaRecorder.onstop = async () => {
       stream.getTracks().forEach(t => t.stop());
       clearInterval(recInterval);
+      // release screen lock
+      if (wakeLock) { await wakeLock.release(); wakeLock = null; }
+      document.getElementById('wake-indicator').style.display = 'none';
       document.getElementById('rec-timer').style.display = 'none';
       const blob = new Blob(audioChunks, { type: mimeType || 'audio/webm' });
       state.audioBlob = blob;
@@ -493,6 +497,14 @@ async function toggleRecording() {
     };
     recStart = Date.now();
     mediaRecorder.start();
+
+    // keep screen on during recording
+    if ('wakeLock' in navigator) {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        document.getElementById('wake-indicator').style.display = 'inline';
+      } catch(e) { console.warn('WakeLock:', e); }
+    }
     let secs = 0;
     const timer = document.getElementById('rec-timer');
     timer.style.display = 'block';
@@ -849,6 +861,18 @@ async function sendToWebhook() {
     document.getElementById('btn-send').disabled = false;
   }
 }
+
+// ─── WAKE LOCK: re-acquire after tab switch ───────────────
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible' && mediaRecorder && mediaRecorder.state === 'recording') {
+    if ('wakeLock' in navigator) {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        document.getElementById('wake-indicator').style.display = 'inline';
+      } catch(e) { console.warn('WakeLock re-acquire:', e); }
+    }
+  }
+});
 
 // ─── SERVICE WORKER REGISTRATION ─────────────────────────
 async function registerSW() {
