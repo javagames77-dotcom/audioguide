@@ -9,7 +9,20 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>GhostAudit Probe</title>
 <link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
+  /* ── GEO CHIPS ── */
+  .geo-chip {
+    flex: 1; min-width: 130px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px;
+  }
+  .geo-chip.active { border-color: var(--accent); background: rgba(140,100,201,.08); }
+  .geo-chip.best { border-color: var(--success); background: var(--success-bg); }
+  .chip-label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .chip-acc { font-size: 22px; font-weight: 700; letter-spacing: -.03em; color: var(--text); line-height: 1; }
+  .chip-acc span { font-size: 11px; font-weight: 400; color: var(--muted); }
+  .chip-coords { font-size: 10px; color: var(--muted); margin-top: 4px; font-family: 'SF Mono', monospace; }
   :root {
     --bg: #0e0e12;
     --bg2: #16161c;
@@ -234,17 +247,19 @@
       <div class="card-icon">📍</div>
       <div class="card-info">
         <h2>Геолокація</h2>
-        <p>getCurrentPosition → lat/lng/accuracy</p>
+        <p>GPS · Cell/WiFi · порівняння точності</p>
       </div>
       <span class="status-badge s-idle" id="badge-geo">Idle</span>
     </div>
     <div class="card-body">
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="getGeo()">📍 Визначити</button>
+        <button class="btn btn-primary" onclick="getBothGeo()">📍 Визначити обидва</button>
         <button class="btn btn-ghost btn-sm" onclick="watchGeo()" id="btn-watch">👁 Watch</button>
         <button class="btn btn-ghost btn-sm" id="btn-stop-watch" onclick="stopWatch()" style="display:none">■ Стоп</button>
       </div>
-      <div class="output" id="out-geo">Натисни «Визначити» для отримання координат</div>
+      <div id="geo-chips" style="display:none; margin-top:12px; gap:8px; flex-wrap:wrap;"></div>
+      <div id="geo-map" style="display:none; margin-top:12px; border-radius:12px; overflow:hidden; height:240px; border:1px solid var(--border);"></div>
+      <div class="output" id="out-geo">Натисни «Визначити обидва» для порівняння джерел</div>
     </div>
   </div>
 
@@ -500,24 +515,163 @@ function clearAudio() {
 }
 
 // ─── 3. GEOLOCATION ──────────────────────────────────────
-function getGeo() {
+let geoMap = null;
+let geoMarkers = {};
+
+function initMap(lat, lng) {
+  const mapEl = document.getElementById('geo-map');
+  mapEl.style.display = 'block';
+  if (!geoMap) {
+    // lazy load Leaflet JS
+    if (!window.L) {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+      s.onload = () => createMap(lat, lng);
+      document.head.appendChild(s);
+    } else {
+      createMap(lat, lng);
+    }
+  } else {
+    geoMap.setView([lat, lng], 16);
+  }
+}
+
+function createMap(lat, lng) {
+  geoMap = L.map('geo-map', { zoomControl: true, attributionControl: false }).setView([lat, lng], 16);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19
+  }).addTo(geoMap);
+}
+
+function addMapMarker(id, lat, lng, accuracy, color, label) {
+  if (!window.L || !geoMap) return;
+
+  // remove old
+  if (geoMarkers[id]) {
+    geoMarkers[id].marker.remove();
+    geoMarkers[id].circle.remove();
+  }
+
+  const circle = L.circle([lat, lng], {
+    radius: accuracy,
+    color: color, fillColor: color, fillOpacity: 0.1, weight: 2
+  }).addTo(geoMap);
+
+  const icon = L.divIcon({
+    html: `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5)"></div><div style="font-size:10px;font-weight:700;color:${color};white-space:nowrap;margin-top:2px;text-shadow:0 1px 2px #000">${label}</div>`,
+    className: '', iconAnchor: [7, 7]
+  });
+
+  const marker = L.marker([lat, lng], { icon }).addTo(geoMap)
+    .bindPopup(`<b>${label}</b><br>${lat.toFixed(6)}, ${lng.toFixed(6)}<br>±${Math.round(accuracy)}m`);
+
+  geoMarkers[id] = { marker, circle };
+
+  // fit bounds to show both markers if both exist
+  const pts = Object.values(geoMarkers).map(m => m.marker.getLatLng());
+  if (pts.length > 1) {
+    geoMap.fitBounds(L.latLngBounds(pts).pad(0.3));
+  } else {
+    geoMap.setView([lat, lng], accuracy < 50 ? 17 : accuracy < 200 ? 15 : 13);
+  }
+}
+
+function renderChips(gpsPos, cellPos) {
+  const chips = document.getElementById('geo-chips');
+  chips.style.display = 'flex';
+
+  const gpsBest = gpsPos && (!cellPos || gpsPos.accuracy <= cellPos.accuracy);
+  const cellBest = cellPos && (!gpsPos || cellPos.accuracy < gpsPos.accuracy);
+
+  chips.innerHTML = `
+    <div class="geo-chip ${gpsPos ? (gpsBest ? 'best' : 'active') : ''}">
+      <div class="chip-label">🛰 GPS <span style="color:var(--success);font-size:9px">${gpsBest ? '✓ точніше' : ''}</span></div>
+      <div class="chip-acc">${gpsPos ? Math.round(gpsPos.accuracy) : '—'}<span> м</span></div>
+      <div class="chip-coords">${gpsPos ? `${gpsPos.latitude.toFixed(5)}, ${gpsPos.longitude.toFixed(5)}` : 'очікування…'}</div>
+    </div>
+    <div class="geo-chip ${cellPos ? (cellBest ? 'best' : 'active') : ''}">
+      <div class="chip-label">📡 Cell/WiFi <span style="color:var(--success);font-size:9px">${cellBest ? '✓ точніше' : ''}</span></div>
+      <div class="chip-acc">${cellPos ? Math.round(cellPos.accuracy) : '—'}<span> м</span></div>
+      <div class="chip-coords">${cellPos ? `${cellPos.latitude.toFixed(5)}, ${cellPos.longitude.toFixed(5)}` : 'очікування…'}</div>
+    </div>
+  `;
+}
+
+let gpsResult = null;
+let cellResult = null;
+
+function getBothGeo() {
+  gpsResult = null; cellResult = null;
   badge('geo', 'active', 'Loading…');
-  out('geo', 'Визначаємо позицію…');
+  out('geo', '⏳ Запит Cell/WiFi (швидко)…');
+  renderChips(null, null);
+
+  // STEP 1 — fast: low accuracy = cell towers / WiFi
   navigator.geolocation.getCurrentPosition(
     pos => {
-      state.lat = pos.coords.latitude.toFixed(6);
-      state.lng = pos.coords.longitude.toFixed(6);
-      state.accuracy = Math.round(pos.coords.accuracy);
-      badge('geo', 'ok', 'OK');
-      out('geo', `✓ ${state.lat}, ${state.lng}\n± ${state.accuracy}m · altitude: ${pos.coords.altitude ? pos.coords.altitude.toFixed(1)+'m' : 'N/A'}`, 'ok');
-      updateSummary();
+      cellResult = pos.coords;
+      out('geo', `📡 Cell/WiFi отримано ±${Math.round(pos.coords.accuracy)}m\n⏳ Чекаємо GPS…`);
+      renderChips(gpsResult, cellResult);
+      initMap(pos.coords.latitude, pos.coords.longitude);
+      addMapMarker('cell', pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy, '#f59e0b', 'Cell/WiFi');
+      checkBothDone();
     },
     err => {
-      badge('geo', 'err', 'Error');
-      out('geo', '✗ ' + err.message, 'err');
+      out('geo', `📡 Cell/WiFi: ✗ ${err.message}\n⏳ Чекаємо GPS…`);
+      checkBothDone();
     },
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
   );
+
+  // STEP 2 — slow: high accuracy = GPS
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      gpsResult = pos.coords;
+      renderChips(gpsResult, cellResult);
+      const lat = pos.coords.latitude, lng = pos.coords.longitude;
+      initMap(lat, lng);
+      addMapMarker('gps', lat, lng, pos.coords.accuracy, '#8C64C9', 'GPS');
+
+      state.lat = lat.toFixed(6);
+      state.lng = lng.toFixed(6);
+      state.accuracy = Math.round(pos.coords.accuracy);
+      updateSummary();
+      checkBothDone();
+    },
+    err => {
+      out('geo', `🛰 GPS: ✗ ${err.message}`);
+      badge('geo', 'warn', 'Partial');
+      checkBothDone();
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+}
+
+function checkBothDone() {
+  if (gpsResult || cellResult) {
+    const best = gpsResult || cellResult;
+    const src = gpsResult && cellResult ? 'GPS + Cell/WiFi' : gpsResult ? 'GPS' : 'Cell/WiFi';
+    const dist = gpsResult && cellResult ? calcDist(
+      gpsResult.latitude, gpsResult.longitude,
+      cellResult.latitude, cellResult.longitude
+    ) : null;
+
+    const lines = [`✓ Джерел: ${src}`];
+    if (gpsResult) lines.push(`🛰 GPS: ±${Math.round(gpsResult.accuracy)}m`);
+    if (cellResult) lines.push(`📡 Cell: ±${Math.round(cellResult.accuracy)}m`);
+    if (dist !== null) lines.push(`📏 Розбіжність між точками: ${dist < 1000 ? dist.toFixed(0)+'m' : (dist/1000).toFixed(2)+'km'}`);
+
+    out('geo', lines.join('\n'), 'ok');
+    badge('geo', 'ok', 'OK');
+  }
+}
+
+function calcDist(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLon = (lon2-lon1) * Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
 function watchGeo() {
@@ -529,7 +683,11 @@ function watchGeo() {
       state.lat = pos.coords.latitude.toFixed(6);
       state.lng = pos.coords.longitude.toFixed(6);
       state.accuracy = Math.round(pos.coords.accuracy);
-      out('geo', `👁 ${state.lat}, ${state.lng}\n± ${state.accuracy}m · оновлення ${new Date().toLocaleTimeString()}`, 'ok');
+      gpsResult = pos.coords;
+      renderChips(gpsResult, cellResult);
+      initMap(pos.coords.latitude, pos.coords.longitude);
+      addMapMarker('gps', pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy, '#8C64C9', 'GPS');
+      out('geo', `👁 GPS live · ±${state.accuracy}m · ${new Date().toLocaleTimeString()}`, 'ok');
       updateSummary();
     },
     err => { out('geo', '✗ ' + err.message, 'err'); badge('geo', 'err', 'Error'); },
