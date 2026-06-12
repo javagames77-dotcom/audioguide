@@ -453,13 +453,17 @@ async function toggleRecording() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     audioChunks = [];
-    mediaRecorder = new MediaRecorder(stream);
+    const mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4'
+                   : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
+                   : '';
+    const options = mimeType ? { mimeType } : {};
+    mediaRecorder = new MediaRecorder(stream, options);
     mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
     mediaRecorder.onstop = async () => {
       stream.getTracks().forEach(t => t.stop());
       clearInterval(recInterval);
       document.getElementById('rec-timer').style.display = 'none';
-      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      const blob = new Blob(audioChunks, { type: mimeType || 'audio/webm' });
       state.audioBlob = blob;
       state.audioDuration = Math.round((Date.now() - recStart) / 1000);
       state.audioB64 = await blobToB64(blob);
