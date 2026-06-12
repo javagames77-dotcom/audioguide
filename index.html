@@ -235,7 +235,7 @@
         <button class="btn btn-primary" id="btn-rec" onclick="toggleRecording()">🔴 Запис</button>
         <button class="btn btn-ghost btn-sm" id="btn-clear-audio" onclick="clearAudio()" style="display:none">✕ Очистити</button>
       </div>
-      <div id="rec-timer" style="font-size:11px;color:var(--accent);margin-top:8px;display:none">⏱ 0 сек &nbsp;<span id="wake-indicator" style="display:none;color:var(--success)">· 🔆 екран не гасне</span></div>
+      <div id="rec-timer" style="font-size:11px;color:var(--accent);margin-top:8px;display:none"><span id="rec-timer-text">⏱ 0 сек</span> &nbsp;<span id="wake-indicator" style="display:none;color:var(--success)">· 🔆 екран не гасне</span></div>
       <audio id="audio-playback" controls></audio>
       <div class="output" id="out-audio">Натисни «Запис» щоб розпочати</div>
     </div>
@@ -474,12 +474,12 @@ async function toggleRecording() {
                    : '';
     const options = mimeType ? { mimeType } : {};
     mediaRecorder = new MediaRecorder(stream, options);
-    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    // timeslice=250ms ensures chunks arrive on iOS before onstop fires
+    mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
     mediaRecorder.onstop = async () => {
       stream.getTracks().forEach(t => t.stop());
       clearInterval(recInterval);
-      // release screen lock
-      if (wakeLock) { await wakeLock.release(); wakeLock = null; }
+      if (wakeLock) { try { await wakeLock.release(); } catch(_){} wakeLock = null; }
       document.getElementById('wake-indicator').style.display = 'none';
       document.getElementById('rec-timer').style.display = 'none';
       const blob = new Blob(audioChunks, { type: mimeType || 'audio/webm' });
@@ -496,7 +496,7 @@ async function toggleRecording() {
       updateSummary();
     };
     recStart = Date.now();
-    mediaRecorder.start();
+    mediaRecorder.start(250); // timeslice: collect chunks every 250ms
 
     // keep screen on during recording
     if ('wakeLock' in navigator) {
@@ -506,9 +506,11 @@ async function toggleRecording() {
       } catch(e) { console.warn('WakeLock:', e); }
     }
     let secs = 0;
-    const timer = document.getElementById('rec-timer');
-    timer.style.display = 'block';
-    recInterval = setInterval(() => { secs++; timer.textContent = `⏱ ${secs} сек`; }, 1000);
+    const timerEl = document.getElementById('rec-timer');
+    const timerText = document.getElementById('rec-timer-text');
+    timerEl.style.display = 'block';
+    // update only the text node, not the whole innerHTML (preserves wake-indicator span)
+    recInterval = setInterval(() => { secs++; timerText.textContent = `⏱ ${secs} сек`; }, 1000);
     document.getElementById('btn-rec').textContent = '■ Стоп';
     out('audio', '🔴 Запис… натисни «Стоп» для завершення');
   } catch(e) {
