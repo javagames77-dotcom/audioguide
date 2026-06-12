@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#8C64C9">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>GhostAudit Probe</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  :root {
+    --bg: #0e0e12;
+    --bg2: #16161c;
+    --bg3: #1e1e26;
+    --border: #2a2a36;
+    --accent: #8C64C9;
+    --accent2: #a07ed8;
+    --text: #e8e8f0;
+    --muted: #7070888;
+    --muted: #707088;
+    --success: #4ade80;
+    --success-bg: rgba(74,222,128,.1);
+    --warn: #f59e0b;
+    --warn-bg: rgba(245,158,11,.1);
+    --danger: #f87171;
+    --danger-bg: rgba(248,113,113,.1);
+    --idle: #3a3a4a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(14,14,18,.92); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px; display: flex; align-items: center; gap: 12px;
+  }
+  header .ghost { font-size: 22px; }
+  header h1 { font-size: 15px; font-weight: 700; letter-spacing: -.02em; }
+  header h1 span { color: var(--accent); }
+  header .pill {
+    margin-left: auto; font-size: 10px; font-weight: 600; letter-spacing: .08em;
+    text-transform: uppercase; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 10px; color: var(--muted);
+  }
+
+  /* ── WEBHOOK BAR ── */
+  .webhook-bar {
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    padding: 10px 16px; display: flex; gap: 8px; align-items: center;
+  }
+  .webhook-bar label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .webhook-bar input {
+    flex: 1; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 10px; color: var(--text); font-size: 12px;
+    font-family: 'SF Mono', monospace; outline: none; min-width: 0;
+  }
+  .webhook-bar input:focus { border-color: var(--accent); }
+  .webhook-bar input::placeholder { color: var(--muted); opacity: .6; }
+
+  /* ── LAYOUT ── */
+  main { padding: 16px; display: flex; flex-direction: column; gap: 12px; max-width: 520px; margin: 0 auto; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+  }
+  .card-head {
+    padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-icon {
+    width: 38px; height: 38px; border-radius: 11px;
+    background: var(--bg3); display: flex; align-items: center;
+    justify-content: center; font-size: 18px; flex-shrink: 0;
+  }
+  .card-info { flex: 1; min-width: 0; }
+  .card-info h2 { font-size: 13px; font-weight: 600; letter-spacing: -.01em; }
+  .card-info p { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+  .status-badge {
+    font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    padding: 4px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+  }
+  .s-idle { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
+  .s-ok { background: var(--success-bg); color: var(--success); border: 1px solid rgba(74,222,128,.2); }
+  .s-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid rgba(245,158,11,.2); }
+  .s-err { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(248,113,113,.2); }
+  .s-active { background: rgba(140,100,201,.12); color: var(--accent2); border: 1px solid rgba(140,100,201,.3); animation: pulse 1.5s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+  .card-body { padding: 14px 16px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 16px; border-radius: 10px; border: none;
+    font-size: 12px; font-weight: 600; font-family: inherit;
+    cursor: pointer; transition: all .15s; letter-spacing: -.01em;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-primary:disabled { opacity: .4; cursor: default; }
+  .btn-ghost { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(248,113,113,.2); }
+  .btn-danger:hover { background: rgba(248,113,113,.2); }
+  .btn-sm { padding: 6px 12px; font-size: 11px; }
+
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ── OUTPUT AREA ── */
+  .output {
+    margin-top: 12px; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px; font-size: 11px;
+    color: var(--muted); line-height: 1.6; font-family: 'SF Mono', 'Fira Code', monospace;
+    min-height: 40px; word-break: break-all;
+  }
+  .output.ok { color: var(--success); border-color: rgba(74,222,128,.2); background: var(--success-bg); }
+  .output.err { color: var(--danger); border-color: rgba(248,113,113,.2); background: var(--danger-bg); }
+
+  /* ── CAMERA ── */
+  #camera-preview {
+    width: 100%; aspect-ratio: 16/9; background: #000;
+    border-radius: 10px; margin-top: 12px; object-fit: cover; display: none;
+  }
+  #photo-preview {
+    width: 100%; border-radius: 10px; margin-top: 10px; display: none;
+    border: 1px solid var(--border);
+  }
+
+  /* ── AUDIO ── */
+  #audio-playback {
+    width: 100%; margin-top: 12px; display: none;
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+  /* ── SEND ROW ── */
+  .send-row {
+    display: flex; align-items: center; gap: 8px; margin-top: 12px;
+    padding-top: 12px; border-top: 1px solid var(--border);
+  }
+  .send-row p { font-size: 11px; color: var(--muted); flex: 1; }
+  .send-badge {
+    font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;
+    background: var(--accent); color: #fff;
+  }
+
+  /* ── SUMMARY CARD ── */
+  .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .sum-cell {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 8px; text-align: center;
+  }
+  .sum-cell .ico { font-size: 18px; margin-bottom: 4px; }
+  .sum-cell .lbl { font-size: 9px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 4px; }
+  .sum-cell .val { font-size: 11px; font-weight: 600; color: var(--muted); }
+  .sum-cell.ok .val { color: var(--success); }
+  .sum-cell.err .val { color: var(--danger); }
+  .sum-cell.warn .val { color: var(--warn); }
+
+  .footer { padding: 24px 16px; text-align: center; font-size: 11px; color: var(--muted); opacity: .5; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="ghost">👻</span>
+  <h1>Ghost<span>Audit</span> Probe</h1>
+  <span class="pill" id="online-pill">● Online</span>
+</header>
+
+<div class="webhook-bar">
+  <label>n8n webhook</label>
+  <input type="url" id="webhook-url" placeholder="https://your-n8n.cloud/webhook/..." autocomplete="off" spellcheck="false">
+</div>
+
+<main>
+
+  <!-- ── 1. CAMERA ── -->
+  <div class="card" id="card-camera">
+    <div class="card-head">
+      <div class="card-icon">📷</div>
+      <div class="card-info">
+        <h2>Камера</h2>
+        <p>getUserMedia → фото → base64</p>
+      </div>
+      <span class="status-badge s-idle" id="badge-camera">Idle</span>
+    </div>
+    <div class="card-body">
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="startCamera()">▶ Запустити</button>
+        <button class="btn btn-ghost" id="btn-photo" onclick="takePhoto()" style="display:none">📸 Знімок</button>
+        <button class="btn btn-ghost btn-sm" id="btn-stop-camera" onclick="stopCamera()" style="display:none">■ Стоп</button>
+      </div>
+      <video id="camera-preview" autoplay playsinline muted></video>
+      <img id="photo-preview" alt="captured photo">
+      <div class="output" id="out-camera">Натисни «Запустити» щоб відкрити камеру</div>
+    </div>
+  </div>
+
+  <!-- ── 2. AUDIO ── -->
+  <div class="card" id="card-audio">
+    <div class="card-head">
+      <div class="card-icon">🎤</div>
+      <div class="card-info">
+        <h2>Аудіозапис</h2>
+        <p>MediaRecorder → playback → blob</p>
+      </div>
+      <span class="status-badge s-idle" id="badge-audio">Idle</span>
+    </div>
+    <div class="card-body">
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-rec" onclick="toggleRecording()">🔴 Запис</button>
+        <button class="btn btn-ghost btn-sm" id="btn-clear-audio" onclick="clearAudio()" style="display:none">✕ Очистити</button>
+      </div>
+      <div id="rec-timer" style="font-size:11px;color:var(--accent);margin-top:8px;display:none">⏱ 0 сек</div>
+      <audio id="audio-playback" controls></audio>
+      <div class="output" id="out-audio">Натисни «Запис» щоб розпочати</div>
+    </div>
+  </div>
+
+  <!-- ── 3. GEOLOCATION ── -->
+  <div class="card" id="card-geo">
+    <div class="card-head">
+      <div class="card-icon">📍</div>
+      <div class="card-info">
+        <h2>Геолокація</h2>
+        <p>getCurrentPosition → lat/lng/accuracy</p>
+      </div>
+      <span class="status-badge s-idle" id="badge-geo">Idle</span>
+    </div>
+    <div class="card-body">
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="getGeo()">📍 Визначити</button>
+        <button class="btn btn-ghost btn-sm" onclick="watchGeo()" id="btn-watch">👁 Watch</button>
+        <button class="btn btn-ghost btn-sm" id="btn-stop-watch" onclick="stopWatch()" style="display:none">■ Стоп</button>
+      </div>
+      <div class="output" id="out-geo">Натисни «Визначити» для отримання координат</div>
+    </div>
+  </div>
+
+  <!-- ── 4. OFFLINE ── -->
+  <div class="card" id="card-offline">
+    <div class="card-head">
+      <div class="card-icon">📶</div>
+      <div class="card-info">
+        <h2>Офлайн-режим</h2>
+        <p>Service Worker + cache + navigator.onLine</p>
+      </div>
+      <span class="status-badge s-idle" id="badge-offline">Idle</span>
+    </div>
+    <div class="card-body">
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="checkOffline()">🔍 Перевірити SW</button>
+        <button class="btn btn-ghost btn-sm" onclick="forceCacheTest()">💾 Тест кешу</button>
+      </div>
+      <div class="output" id="out-offline">Перевіряємо Service Worker…</div>
+    </div>
+  </div>
+
+  <!-- ── 5. PUSH ── -->
+  <div class="card" id="card-push">
+    <div class="card-head">
+      <div class="card-icon">🔔</div>
+      <div class="card-info">
+        <h2>Push-сповіщення</h2>
+        <p>Notification API → дозвіл → показ</p>
+      </div>
+      <span class="status-badge s-idle" id="badge-push">Idle</span>
+    </div>
+    <div class="card-body">
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="requestPush()">🔔 Запит дозволу</button>
+        <button class="btn btn-ghost btn-sm" id="btn-send-notif" onclick="sendTestNotif()" style="display:none">📤 Тест сповіщення</button>
+      </div>
+      <div class="output" id="out-push">Натисни для запиту дозволу на сповіщення</div>
+    </div>
+  </div>
+
+  <!-- ── SEND TO n8n ── -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">⚡</div>
+      <div class="card-info">
+        <h2>Відправити в n8n</h2>
+        <p>Всі зібрані дані → webhook → PostgreSQL</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="summary-grid" id="summary-grid">
+        <div class="sum-cell" id="sum-camera"><div class="ico">📷</div><div class="lbl">Фото</div><div class="val" id="sv-camera">—</div></div>
+        <div class="sum-cell" id="sum-audio"><div class="ico">🎤</div><div class="lbl">Аудіо</div><div class="val" id="sv-audio">—</div></div>
+        <div class="sum-cell" id="sum-geo"><div class="ico">📍</div><div class="lbl">Гео</div><div class="val" id="sv-geo">—</div></div>
+        <div class="sum-cell" id="sum-offline"><div class="ico">📶</div><div class="lbl">SW</div><div class="val" id="sv-offline">—</div></div>
+        <div class="sum-cell" id="sum-push"><div class="ico">🔔</div><div class="lbl">Push</div><div class="val" id="sv-push">—</div></div>
+      </div>
+      <div class="send-row">
+        <p id="send-hint">Заповни хоча б одну перевірку та вкажи webhook URL</p>
+        <button class="btn btn-primary" id="btn-send" onclick="sendToWebhook()">Надіслати ↗</button>
+      </div>
+      <div class="output" id="out-send" style="display:none"></div>
+    </div>
+  </div>
+
+</main>
+
+<div class="footer">GhostAudit Probe v1.0 · перевірка PWA-можливостей</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────
+const state = {
+  photoB64: null, photoSize: null,
+  audioBlob: null, audioDuration: null, audioB64: null,
+  lat: null, lng: null, accuracy: null,
+  swReady: false,
+  pushPermission: Notification.permission
+};
+
+let mediaStream = null;
+let mediaRecorder = null;
+let audioChunks = [];
+let recInterval = null;
+let recStart = null;
+let watchId = null;
+
+// ─── UTILS ───────────────────────────────────────────────
+function badge(id, cls, text) {
+  const el = document.getElementById('badge-' + id);
+  el.className = 'status-badge s-' + cls;
+  el.textContent = text;
+}
+function out(id, text, cls = '') {
+  const el = document.getElementById('out-' + id);
+  el.textContent = text;
+  el.className = 'output' + (cls ? ' ' + cls : '');
+}
+function blobToB64(blob) {
+  return new Promise(res => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.readAsDataURL(blob);
+  });
+}
+function fmtBytes(n) {
+  if (n < 1024) return n + ' B';
+  if (n < 1024*1024) return (n/1024).toFixed(1) + ' KB';
+  return (n/1024/1024).toFixed(2) + ' MB';
+}
+function updateSummary() {
+  const cam = document.getElementById('sum-camera');
+  const sv_cam = document.getElementById('sv-camera');
+  if (state.photoB64) { cam.className='sum-cell ok'; sv_cam.textContent=state.photoSize||'✓'; }
+
+  const aud = document.getElementById('sum-audio');
+  const sv_aud = document.getElementById('sv-audio');
+  if (state.audioBlob) { aud.className='sum-cell ok'; sv_aud.textContent=(state.audioDuration||0)+'с'; }
+
+  const geo = document.getElementById('sum-geo');
+  const sv_geo = document.getElementById('sv-geo');
+  if (state.lat) { geo.className='sum-cell ok'; sv_geo.textContent='✓'; }
+
+  const sw = document.getElementById('sum-offline');
+  const sv_sw = document.getElementById('sv-offline');
+  if (state.swReady) { sw.className='sum-cell ok'; sv_sw.textContent='✓'; }
+
+  const push = document.getElementById('sum-push');
+  const sv_push = document.getElementById('sv-push');
+  const pc = state.pushPermission;
+  if (pc === 'granted') { push.className='sum-cell ok'; sv_push.textContent='✓'; }
+  else if (pc === 'denied') { push.className='sum-cell err'; sv_push.textContent='✗'; }
+}
+
+// ─── ONLINE STATUS ───────────────────────────────────────
+function updateOnlinePill() {
+  const pill = document.getElementById('online-pill');
+  if (navigator.onLine) {
+    pill.textContent = '● Online';
+    pill.style.color = 'var(--success)';
+  } else {
+    pill.textContent = '● Offline';
+    pill.style.color = 'var(--warn)';
+  }
+}
+window.addEventListener('online', updateOnlinePill);
+window.addEventListener('offline', updateOnlinePill);
+updateOnlinePill();
+
+// ─── 1. CAMERA ───────────────────────────────────────────
+async function startCamera() {
+  badge('camera', 'active', 'Starting…');
+  out('camera', 'Запит доступу до камери…');
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    const video = document.getElementById('camera-preview');
+    video.srcObject = mediaStream;
+    video.style.display = 'block';
+    document.getElementById('btn-photo').style.display = 'inline-flex';
+    document.getElementById('btn-stop-camera').style.display = 'inline-flex';
+    badge('camera', 'active', 'Live');
+    out('camera', `✓ Камера активна · ${mediaStream.getVideoTracks()[0].label}`);
+  } catch(e) {
+    badge('camera', 'err', 'Error');
+    out('camera', '✗ ' + e.message, 'err');
+  }
+}
+
+function takePhoto() {
+  const video = document.getElementById('camera-preview');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  canvas.toBlob(async blob => {
+    state.photoB64 = await blobToB64(blob);
+    state.photoSize = fmtBytes(blob.size);
+    const img = document.getElementById('photo-preview');
+    img.src = URL.createObjectURL(blob);
+    img.style.display = 'block';
+    badge('camera', 'ok', 'OK');
+    out('camera', `✓ Фото збережено · ${canvas.width}×${canvas.height}px · ${state.photoSize}`, 'ok');
+    updateSummary();
+  }, 'image/jpeg', 0.85);
+}
+
+function stopCamera() {
+  if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+  document.getElementById('camera-preview').style.display = 'none';
+  document.getElementById('btn-photo').style.display = 'none';
+  document.getElementById('btn-stop-camera').style.display = 'none';
+  if (!state.photoB64) badge('camera', 'idle', 'Idle');
+}
+
+// ─── 2. AUDIO ────────────────────────────────────────────
+async function toggleRecording() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+    return;
+  }
+  badge('audio', 'active', 'Rec…');
+  out('audio', 'Запит мікрофону…');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      clearInterval(recInterval);
+      document.getElementById('rec-timer').style.display = 'none';
+      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      state.audioBlob = blob;
+      state.audioDuration = Math.round((Date.now() - recStart) / 1000);
+      state.audioB64 = await blobToB64(blob);
+      const audio = document.getElementById('audio-playback');
+      audio.src = URL.createObjectURL(blob);
+      audio.style.display = 'block';
+      document.getElementById('btn-clear-audio').style.display = 'inline-flex';
+      document.getElementById('btn-rec').textContent = '🔴 Запис';
+      badge('audio', 'ok', 'OK');
+      out('audio', `✓ Записано ${state.audioDuration}с · ${fmtBytes(blob.size)}`, 'ok');
+      updateSummary();
+    };
+    recStart = Date.now();
+    mediaRecorder.start();
+    let secs = 0;
+    const timer = document.getElementById('rec-timer');
+    timer.style.display = 'block';
+    recInterval = setInterval(() => { secs++; timer.textContent = `⏱ ${secs} сек`; }, 1000);
+    document.getElementById('btn-rec').textContent = '■ Стоп';
+    out('audio', '🔴 Запис… натисни «Стоп» для завершення');
+  } catch(e) {
+    badge('audio', 'err', 'Error');
+    out('audio', '✗ ' + e.message, 'err');
+  }
+}
+
+function clearAudio() {
+  state.audioBlob = null; state.audioB64 = null; state.audioDuration = null;
+  document.getElementById('audio-playback').style.display = 'none';
+  document.getElementById('btn-clear-audio').style.display = 'none';
+  badge('audio', 'idle', 'Idle');
+  out('audio', 'Натисни «Запис» щоб розпочати');
+  updateSummary();
+}
+
+// ─── 3. GEOLOCATION ──────────────────────────────────────
+function getGeo() {
+  badge('geo', 'active', 'Loading…');
+  out('geo', 'Визначаємо позицію…');
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      state.lat = pos.coords.latitude.toFixed(6);
+      state.lng = pos.coords.longitude.toFixed(6);
+      state.accuracy = Math.round(pos.coords.accuracy);
+      badge('geo', 'ok', 'OK');
+      out('geo', `✓ ${state.lat}, ${state.lng}\n± ${state.accuracy}m · altitude: ${pos.coords.altitude ? pos.coords.altitude.toFixed(1)+'m' : 'N/A'}`, 'ok');
+      updateSummary();
+    },
+    err => {
+      badge('geo', 'err', 'Error');
+      out('geo', '✗ ' + err.message, 'err');
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+}
+
+function watchGeo() {
+  document.getElementById('btn-watch').style.display = 'none';
+  document.getElementById('btn-stop-watch').style.display = 'inline-flex';
+  badge('geo', 'active', 'Watch');
+  watchId = navigator.geolocation.watchPosition(
+    pos => {
+      state.lat = pos.coords.latitude.toFixed(6);
+      state.lng = pos.coords.longitude.toFixed(6);
+      state.accuracy = Math.round(pos.coords.accuracy);
+      out('geo', `👁 ${state.lat}, ${state.lng}\n± ${state.accuracy}m · оновлення ${new Date().toLocaleTimeString()}`, 'ok');
+      updateSummary();
+    },
+    err => { out('geo', '✗ ' + err.message, 'err'); badge('geo', 'err', 'Error'); },
+    { enableHighAccuracy: true }
+  );
+}
+
+function stopWatch() {
+  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+  document.getElementById('btn-watch').style.display = 'inline-flex';
+  document.getElementById('btn-stop-watch').style.display = 'none';
+  if (state.lat) badge('geo', 'ok', 'OK');
+  else badge('geo', 'idle', 'Idle');
+}
+
+// ─── 4. OFFLINE / SW ─────────────────────────────────────
+async function checkOffline() {
+  badge('offline', 'active', 'Checking…');
+  out('offline', 'Перевіряємо…');
+
+  const lines = [];
+  lines.push(`navigator.onLine: ${navigator.onLine ? '✓ true' : '✗ false'}`);
+  lines.push(`serviceWorker API: ${'serviceWorker' in navigator ? '✓ підтримується' : '✗ не підтримується'}`);
+
+  if ('serviceWorker' in navigator) {
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (reg) {
+      lines.push(`SW статус: ✓ зареєстровано`);
+      lines.push(`SW scope: ${reg.scope}`);
+      lines.push(`SW стан: ${reg.active ? 'active' : reg.installing ? 'installing' : reg.waiting ? 'waiting' : 'unknown'}`);
+      state.swReady = true;
+    } else {
+      lines.push(`SW статус: ✗ не зареєстровано`);
+    }
+  }
+
+  const cacheNames = await caches.keys();
+  lines.push(`Кеші: ${cacheNames.length ? cacheNames.join(', ') : 'порожньо'}`);
+
+  badge('offline', state.swReady ? 'ok' : 'warn', state.swReady ? 'OK' : 'Warn');
+  out('offline', lines.join('\n'), state.swReady ? 'ok' : '');
+  updateSummary();
+}
+
+async function forceCacheTest() {
+  badge('offline', 'active', 'Testing…');
+  try {
+    const cache = await caches.open('ga-probe-v1');
+    const keys = await cache.keys();
+    out('offline', `✓ Кеш «ga-probe-v1»: ${keys.length} елемент(ів)\n${keys.map(r => '  · '+r.url).join('\n')}`, 'ok');
+  } catch(e) {
+    out('offline', '✗ ' + e.message, 'err');
+  }
+}
+
+// ─── 5. PUSH ─────────────────────────────────────────────
+async function requestPush() {
+  badge('push', 'active', 'Waiting…');
+  out('push', 'Запит дозволу…');
+
+  if (!('Notification' in window)) {
+    badge('push', 'err', 'N/A');
+    out('push', '✗ Notification API не підтримується в цьому браузері', 'err');
+    return;
+  }
+
+  const perm = await Notification.requestPermission();
+  state.pushPermission = perm;
+
+  if (perm === 'granted') {
+    badge('push', 'ok', 'Granted');
+    document.getElementById('btn-send-notif').style.display = 'inline-flex';
+    out('push', '✓ Дозвіл отримано. Натисни «Тест сповіщення»', 'ok');
+  } else if (perm === 'denied') {
+    badge('push', 'err', 'Denied');
+    out('push', '✗ Дозвіл заблоковано. Розблокуй у налаштуваннях браузера', 'err');
+  } else {
+    badge('push', 'warn', 'Default');
+    out('push', '⚠ Дозвіл не надано. Спробуй ще раз');
+  }
+  updateSummary();
+}
+
+async function sendTestNotif() {
+  if (Notification.permission !== 'granted') { await requestPush(); return; }
+
+  const sw = await navigator.serviceWorker.ready;
+  await sw.showNotification('GhostAudit Probe 👻', {
+    body: `Тест о ${new Date().toLocaleTimeString()} — все працює!`,
+    icon: '👻',
+    tag: 'ga-test',
+    vibrate: [100, 50, 100],
+    requireInteraction: false,
+    data: { ts: Date.now() }
+  });
+  out('push', `✓ Сповіщення надіслано о ${new Date().toLocaleTimeString()}`, 'ok');
+}
+
+// ─── SEND TO n8n ─────────────────────────────────────────
+async function sendToWebhook() {
+  const url = document.getElementById('webhook-url').value.trim();
+  if (!url) {
+    alert('Вкажи URL n8n webhook у полі зверху');
+    return;
+  }
+
+  const payload = {
+    timestamp: new Date().toISOString(),
+    device: {
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      language: navigator.language,
+      online: navigator.onLine,
+      connection: navigator.connection ? {
+        type: navigator.connection.effectiveType,
+        downlink: navigator.connection.downlink
+      } : null
+    },
+    camera: state.photoB64 ? {
+      size: state.photoSize,
+      b64_preview: state.photoB64.substring(0, 64) + '…[truncated]',
+      b64_length: state.photoB64.length
+    } : null,
+    audio: state.audioBlob ? {
+      duration_sec: state.audioDuration,
+      size_bytes: state.audioBlob.size,
+      b64_length: state.audioB64?.length || 0
+    } : null,
+    geo: state.lat ? {
+      lat: parseFloat(state.lat),
+      lng: parseFloat(state.lng),
+      accuracy_m: state.accuracy
+    } : null,
+    sw_ready: state.swReady,
+    push_permission: state.pushPermission,
+    probe_version: '1.0'
+  };
+
+  const sendOut = document.getElementById('out-send');
+  sendOut.style.display = 'block';
+  sendOut.className = 'output';
+  sendOut.textContent = 'Відправляємо…';
+  document.getElementById('btn-send').disabled = true;
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const text = await res.text();
+    sendOut.className = 'output ok';
+    sendOut.textContent = `✓ ${res.status} ${res.statusText}\n${text.substring(0, 200)}`;
+    document.getElementById('send-hint').textContent = `Надіслано о ${new Date().toLocaleTimeString()}`;
+  } catch(e) {
+    sendOut.className = 'output err';
+    sendOut.textContent = `✗ ${e.message}\n\nПереконайся що:\n1. n8n запущено\n2. Webhook активний\n3. CORS дозволений (або localhost)`;
+  } finally {
+    document.getElementById('btn-send').disabled = false;
+  }
+}
+
+// ─── SERVICE WORKER REGISTRATION ─────────────────────────
+async function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    console.log('SW registered:', reg.scope);
+    checkOffline();
+  } catch(e) {
+    console.warn('SW reg failed:', e);
+    checkOffline();
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+registerSW();
+</script>
+</body>
+</html>
