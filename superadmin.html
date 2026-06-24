@@ -56,6 +56,44 @@
   --shadow:   0 2px 8px rgba(13,13,11,.06), 0 8px 32px rgba(13,13,11,.08);
 }
 
+
+/* ─── Objects map/filter ─────────────────────────────────── */
+.obj-filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--bg2)}
+.obj-chips{display:flex;gap:4px;flex-wrap:wrap}
+.obj-chip{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--line2);color:var(--text3);cursor:pointer;background:var(--bg3);transition:all var(--tr)}
+.obj-chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.obj-chip.ac-museum{background:#2db86a;border-color:#2db86a;color:#fff}
+.obj-chip.ac-church{background:#a064d2;border-color:#a064d2;color:#fff}
+.obj-chip.ac-park{background:#22a36a;border-color:#22a36a;color:#fff}
+.obj-chip.ac-historic{background:var(--blue);border-color:var(--blue);color:#fff}
+.obj-chip.ac-tourism{background:var(--amber);border-color:var(--amber);color:var(--ink)}
+.obj-search{flex:1;min-width:120px;max-width:220px;font-size:12px;padding:5px 10px;border:1px solid var(--line2);border-radius:var(--radius-sm);background:var(--bg3);color:var(--text);font-family:var(--sans)}
+.obj-search:focus{outline:none;border-color:var(--accent)}
+.obj-count{font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:auto}
+.obj-split{display:grid;grid-template-columns:42% 1fr;height:500px;border-top:1px solid var(--line)}
+@media(max-width:900px){.obj-split{grid-template-columns:1fr;height:auto}#obj-map-el{height:280px}}
+.obj-tbl-pane{border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
+.obj-tbl-head{display:grid;grid-template-columns:1fr 68px 80px 28px;padding:7px 12px;border-bottom:1px solid var(--line);background:var(--bg3)}
+.obj-tbl-head span{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
+.obj-tbl-scroll{flex:1;overflow-y:auto}
+.obj-tbl-row{display:grid;grid-template-columns:1fr 68px 80px 28px;padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer;transition:background var(--tr);align-items:center}
+.obj-tbl-row:hover{background:var(--bg3)}
+.obj-tbl-row.map-hi{background:rgba(200,98,42,.08)}
+.obj-row-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:6px}
+.obj-row-cat{font-size:10px;padding:2px 6px;border-radius:10px;font-weight:500;display:inline-block}
+.obj-pdots{display:flex;gap:3px;align-items:center}
+.obj-pdot{width:7px;height:7px;border-radius:50%}
+.obj-pdot.done{background:var(--green)}
+.obj-pdot.empty{background:var(--line2)}
+.obj-pdot.gen{background:var(--amber)}
+.obj-focus-btn{width:22px;height:22px;border:1px solid var(--line2);border-radius:5px;background:transparent;color:var(--text3);cursor:pointer;font-size:11px;transition:all var(--tr);display:flex;align-items:center;justify-content:center}
+.obj-focus-btn:hover{border-color:var(--accent);color:var(--accent)}
+#obj-map-wrap{position:relative;background:var(--bg3)}
+#obj-map-el{width:100%;height:100%}
+.obj-map-legend{position:absolute;bottom:10px;left:10px;background:rgba(8,12,20,.85);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:6px 10px;display:flex;flex-direction:column;gap:3px;z-index:1000;pointer-events:none}
+[data-theme="light"] .obj-map-legend{background:rgba(255,255,255,.92);border:1px solid var(--line2)}
+.obj-map-leg-row{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text2)}
+.obj-map-leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -1184,97 +1222,6 @@ input[type=range]::-webkit-slider-thumb {
   min-width: 0;
 }
 
-/* ─── Objects split map/table ──────────────────────────────── */
-.obj-filter-bar {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  padding: 10px 16px; border-bottom: 1px solid var(--line);
-  background: var(--bg2);
-}
-.obj-chips { display: flex; gap: 4px; flex-wrap: wrap; }
-.obj-chip {
-  font-size: 11px; padding: 4px 10px; border-radius: 20px;
-  border: 1px solid var(--line2); color: var(--text3);
-  cursor: pointer; background: var(--bg3); transition: all var(--tr);
-}
-.obj-chip:hover { color: var(--text2); }
-.obj-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-.obj-chip.ac-museum  { background: #2db86a; border-color: #2db86a; color: #fff; }
-.obj-chip.ac-church  { background: #a064d2; border-color: #a064d2; color: #fff; }
-.obj-chip.ac-park    { background: #22a36a; border-color: #22a36a; color: #fff; }
-.obj-chip.ac-historic{ background: var(--blue); border-color: var(--blue); color: #fff; }
-.obj-chip.ac-tourism { background: var(--amber); border-color: var(--amber); color: var(--ink); }
-.obj-search {
-  flex: 1; min-width: 120px; max-width: 220px; font-size: 12px;
-  padding: 5px 10px; border: 1px solid var(--line2);
-  border-radius: var(--radius-sm); background: var(--bg3); color: var(--text);
-  font-family: var(--sans);
-}
-.obj-search:focus { outline: none; border-color: var(--accent); }
-.obj-count { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-left: auto; }
-.obj-split {
-  display: grid; grid-template-columns: 42% 1fr; height: 500px;
-  border-top: 1px solid var(--line);
-}
-@media (max-width: 900px) {
-  .obj-split { grid-template-columns: 1fr; height: auto; }
-  #obj-map-el { height: 280px; }
-}
-.obj-tbl-pane {
-  border-right: 1px solid var(--line);
-  display: flex; flex-direction: column; overflow: hidden;
-}
-.obj-tbl-head {
-  display: grid; grid-template-columns: 1fr 68px 80px 28px;
-  padding: 7px 12px; border-bottom: 1px solid var(--line);
-  background: var(--bg3);
-}
-.obj-tbl-head span {
-  font-size: 10px; font-weight: 500; color: var(--text3);
-  text-transform: uppercase; letter-spacing: .04em;
-}
-.obj-tbl-scroll { flex: 1; overflow-y: auto; }
-.obj-tbl-row {
-  display: grid; grid-template-columns: 1fr 68px 80px 28px;
-  padding: 8px 12px; border-bottom: 1px solid var(--line);
-  cursor: pointer; transition: background var(--tr); align-items: center;
-}
-.obj-tbl-row:hover { background: var(--bg3); }
-.obj-tbl-row.map-hi { background: rgba(200,98,42,.08); }
-.obj-row-name {
-  font-size: 12px; font-weight: 500; color: var(--text);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 6px;
-}
-.obj-row-cat {
-  font-size: 10px; padding: 2px 6px; border-radius: 10px;
-  font-weight: 500; display: inline-block;
-}
-.obj-pdots { display: flex; gap: 3px; align-items: center; }
-.obj-pdot { width: 7px; height: 7px; border-radius: 50%; }
-.obj-pdot.done  { background: var(--green); }
-.obj-pdot.empty { background: var(--line2); }
-.obj-pdot.gen   { background: var(--amber); }
-.obj-focus-btn {
-  width: 22px; height: 22px; border: 1px solid var(--line2);
-  border-radius: 5px; background: transparent; color: var(--text3);
-  cursor: pointer; font-size: 11px; transition: all var(--tr);
-  display: flex; align-items: center; justify-content: center;
-}
-.obj-focus-btn:hover { border-color: var(--accent); color: var(--accent); }
-#obj-map-wrap { position: relative; background: var(--bg3); }
-#obj-map-el { width: 100%; height: 100%; }
-.obj-map-legend {
-  position: absolute; bottom: 10px; left: 10px;
-  background: rgba(8,12,20,.85); border: 1px solid rgba(255,255,255,.08);
-  border-radius: var(--radius-sm); padding: 6px 10px;
-  display: flex; flex-direction: column; gap: 3px;
-  z-index: 1000; pointer-events: none;
-}
-[data-theme="light"] .obj-map-legend {
-  background: rgba(255,255,255,.92); border: 1px solid var(--line2);
-}
-.obj-map-leg-row { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text2); }
-.obj-map-leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
 
 .objects-sidebar-panel {
   position: sticky;
@@ -1657,29 +1604,8 @@ input[type=range]::-webkit-slider-thumb {
     <div id="objects-content" style="display:none">
       <div class="objects-layout">
 
-        <!-- Results + Saved objects -->
+        <!-- Saved objects — split map/table -->
         <div style="grid-column:1/-1">
-          <div class="parse-inline-panel">
-            <!-- Tabs -->
-            <div class="parse-tabs">
-              <button class="parse-tab active" id="ptab-places" onclick="setParseTab('places')" id="t-parse-tab-places">Places Search</button>
-              <button class="parse-tab" id="ptab-google" onclick="setParseTab('google')">Google Web</button>
-                <span id="t-parse-results-title"></span>
-                <span style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-left:8px" id="parse-count"></span>
-              </div>
-              <div class="btn-group">
-                <button class="btn btn-ghost btn-sm" onclick="legacySelectAllObjects()" id="t-select-all-btn"></button>
-                <button class="btn btn-primary btn-sm" id="btn-save-objects" onclick="legacySaveSelectedObjects()" disabled>
-                  <span id="t-save-selected-btn"></span>
-                </button>
-              </div>
-            </div>
-            <div class="panel-body" style="padding:12px">
-              <div class="objects-grid" id="parse-objects-grid"></div>
-            </div>
-          </div>
-
-          <!-- Saved objects — split map/table -->
           <div class="panel" id="saved-objects-panel">
             <div class="panel-head">
               <div class="panel-title" id="t-saved-objects-title"></div>
@@ -1696,19 +1622,17 @@ input[type=range]::-webkit-slider-thumb {
                 </button>
               </div>
             </div>
-
-            <!-- Filter bar -->
             <div class="obj-filter-bar">
               <div class="obj-chips" id="obj-cat-chips">
-                <div class="obj-chip active" onclick="setObjCat('all',this)">Всі</div>
+                <div class="obj-chip active" onclick="setObjCat('all',this)" id="t-chip-all">Всі</div>
                 <div class="obj-chip" onclick="setObjCat('historic',this)" id="t-chip-historic"></div>
-                <div class="obj-chip" onclick="setObjCat('museum',this)"   id="t-chip-museum"></div>
-                <div class="obj-chip" onclick="setObjCat('church',this)"   id="t-chip-church"></div>
-                <div class="obj-chip" onclick="setObjCat('park',this)"     id="t-chip-park"></div>
-                <div class="obj-chip" onclick="setObjCat('tourism',this)"  id="t-chip-tourism"></div>
+                <div class="obj-chip" onclick="setObjCat('museum',this)" id="t-chip-museum"></div>
+                <div class="obj-chip" onclick="setObjCat('church',this)" id="t-chip-church"></div>
+                <div class="obj-chip" onclick="setObjCat('park',this)" id="t-chip-park"></div>
+                <div class="obj-chip" onclick="setObjCat('tourism',this)" id="t-chip-tourism"></div>
               </div>
               <div class="obj-chips" id="obj-pipe-chips">
-                <div class="obj-chip active" onclick="setObjPipe('all',this)"   id="t-chip-pipe-all"></div>
+                <div class="obj-chip active" onclick="setObjPipe('all',this)" id="t-chip-pipe-all"></div>
                 <div class="obj-chip" onclick="setObjPipe('notxt',this)" id="t-chip-pipe-notxt"></div>
                 <div class="obj-chip" onclick="setObjPipe('noaud',this)" id="t-chip-pipe-noaud"></div>
                 <div class="obj-chip" onclick="setObjPipe('ready',this)" id="t-chip-pipe-ready"></div>
@@ -1716,8 +1640,6 @@ input[type=range]::-webkit-slider-thumb {
               <input class="obj-search" id="obj-search" placeholder="Пошук..." oninput="setObjQ(this.value)">
               <span class="obj-count" id="obj-count"></span>
             </div>
-
-            <!-- Split -->
             <div class="obj-split">
               <div class="obj-tbl-pane">
                 <div class="obj-tbl-head">
@@ -1733,18 +1655,17 @@ input[type=range]::-webkit-slider-thumb {
                 <div class="obj-map-legend" id="obj-map-legend"></div>
               </div>
             </div>
-
-            <!-- hidden tbody for bulk-delete compat -->
             <table style="display:none"><tbody id="saved-objects-tbody"></tbody></table>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-</main>
-
-              <div class="panel-title">
+        <!-- PARSE PANEL (inSkill-style, full width above results) -->
+        <div style="grid-column:1/-1">
+          <div class="parse-inline-panel">
+            <!-- Tabs -->
+            <div class="parse-tabs">
+              <button class="parse-tab active" id="ptab-places" onclick="setParseTab('places')" id="t-parse-tab-places">Places Search</button>
+              <button class="parse-tab" id="ptab-google" onclick="setParseTab('google')">Google Web</button>
             </div>
 
             <!-- Places Search tab -->
@@ -1818,11 +1739,12 @@ input[type=range]::-webkit-slider-thumb {
           </div>
         </div>
 
-        <!-- PARSE PANEL (inSkill-style, full width above results) -->
-        <div style="grid-column:1/-1">
-          <!-- Parse results (old card grid, hidden now — kept for saveSelectedObjects compat) -->
-          <div class="panel" id="parse-results-panel" style="margin-bottom:16px;display:none">
-            <div class="panel-head">
+      </div>
+    </div>
+  </section>
+
+</main>
+
 
 
 <!-- MODAL: Add Object -->
@@ -2327,8 +2249,7 @@ const i18n = {
     'cat-tourism': 'Атракції',
     'no-objects': 'Об\'єкти ще не додані',
     'no-objects-sub': 'Виберіть зону на карті та запустіть парсинг',
-    'pipe-all':'Всі стани','pipe-notxt':'Без тексту','pipe-noaud':'Без аудіо','pipe-ready':'Готові',
-    'confirm-delete-obj':'Видалити об\'єкт?','deleted':'Видалено','edit':'Редагувати',
+    'pipe-all':'Всі стани','pipe-notxt':'Без тексту','pipe-noaud':'Без аудіо','pipe-ready':'Готові','edit':'Редагувати',
     'no-requests': 'Заявок немає',
     'pending-lbl': 'очікує',
     'active-lbl': 'активний',
@@ -2461,8 +2382,7 @@ const i18n = {
     'cat-tourism': 'Аттракции',
     'no-objects': 'Объекты ещё не добавлены',
     'no-objects-sub': 'Выберите зону на карте и запустите парсинг',
-    'pipe-all':'Все состояния','pipe-notxt':'Без текста','pipe-noaud':'Без аудио','pipe-ready':'Готовые',
-    'confirm-delete-obj':'Удалить объект?','deleted':'Удалено','edit':'Редактировать',
+    'pipe-all':'Все состояния','pipe-notxt':'Без текста','pipe-noaud':'Без аудио','pipe-ready':'Готовые','edit':'Редактировать',
     'no-requests': 'Заявок нет',
     'pending-lbl': 'ожидает',
     'active-lbl': 'активный',
@@ -2595,8 +2515,7 @@ const i18n = {
     'cat-tourism': 'Attractions',
     'no-objects': 'No objects added yet',
     'no-objects-sub': 'Select a zone on the map and run parsing',
-    'pipe-all':'All states','pipe-notxt':'No text','pipe-noaud':'No audio','pipe-ready':'Ready',
-    'confirm-delete-obj':'Delete object?','deleted':'Deleted','edit':'Edit',
+    'pipe-all':'All states','pipe-notxt':'No text','pipe-noaud':'No audio','pipe-ready':'Ready','edit':'Edit',
     'no-requests': 'No requests',
     'pending-lbl': 'pending',
     'active-lbl': 'active',
@@ -2686,15 +2605,15 @@ function renderLang() {
     't-google-hint':      'google-hint',
     't-google-run-btn':   'parse-run',
     't-saved-objects-title': 'saved-objects-title',
-    't-chip-historic':    'cat-historic',
-    't-chip-museum':      'cat-museum',
-    't-chip-church':      'cat-church',
-    't-chip-park':        'cat-park',
-    't-chip-tourism':     'cat-tourism',
-    't-chip-pipe-all':    'pipe-all',
-    't-chip-pipe-notxt':  'pipe-notxt',
-    't-chip-pipe-noaud':  'pipe-noaud',
-    't-chip-pipe-ready':  'pipe-ready',
+    't-chip-historic':   'cat-historic',
+    't-chip-museum':     'cat-museum',
+    't-chip-church':     'cat-church',
+    't-chip-park':       'cat-park',
+    't-chip-tourism':    'cat-tourism',
+    't-chip-pipe-all':   'pipe-all',
+    't-chip-pipe-notxt': 'pipe-notxt',
+    't-chip-pipe-noaud': 'pipe-noaud',
+    't-chip-pipe-ready': 'pipe-ready',
     't-refresh-btn':      'refresh',
     't-obj-th-name':      'obj-th-name',
     't-obj-th-cat':       'obj-th-cat',
@@ -3616,17 +3535,12 @@ function onCitySelect() {
   if (!cityId) { document.getElementById('objects-content').style.display = 'none'; return; }
   currentCity = allCitiesList.find(c => c.id == cityId);
   document.getElementById('objects-content').style.display = 'block';
-  // Центрируем obj-карту на городе
   if (objMap && currentCity) {
     objMap.setView([currentCity.center_lat, currentCity.center_lng], 13);
     setTimeout(() => objMap.invalidateSize(), 200);
   }
-  // Сброс фильтров при смене города
-  objActiveCat = 'all'; objActivePipe = 'all'; objSearchQ = '';
-  const srch = document.getElementById('obj-search');
-  if (srch) srch.value = '';
-  document.querySelectorAll('#obj-cat-chips .obj-chip').forEach((c,i)=>c.classList.toggle('active',i===0));
-  document.querySelectorAll('#obj-pipe-chips .obj-chip').forEach((c,i)=>c.classList.toggle('active',i===0));
+  objActiveCat='all'; objActivePipe='all'; objSearchQ='';
+  const srch=document.getElementById('obj-search'); if(srch) srch.value='';
   loadSavedObjects();
 }
 
@@ -3661,46 +3575,32 @@ function setRowGenerating(objId, type, isOn) {
 }
 
 // ── Map state ─────────────────────────────────────────────────
-let objMap       = null;
-let objMarkers   = new Map();
-let objActiveCat = 'all';
-let objActivePipe= 'all';
-let objSearchQ   = '';
-let objActiveId  = null;
-
-const OBJ_COLORS = {
-  historic:'#6496dc', museum:'#2db86a', church:'#a064d2',
-  park:'#22a36a', restaurant:'#c8622a', tourism:'#e89e22'
-};
-const OBJ_CAT_BG = {
-  historic:'rgba(100,150,220,.15)', museum:'rgba(45,184,106,.15)',
-  church:'rgba(160,100,210,.15)',   park:'rgba(34,163,106,.15)',
-  restaurant:'rgba(200,98,42,.15)', tourism:'rgba(232,158,34,.15)'
-};
+let objMap = null, objMarkers = new Map();
+let objActiveCat = 'all', objActivePipe = 'all', objSearchQ = '';
+let objActiveId = null;
+const OBJ_COLORS = {historic:'#6496dc',museum:'#2db86a',church:'#a064d2',park:'#22a36a',restaurant:'#c8622a',tourism:'#e89e22'};
+const OBJ_CAT_BG = {historic:'rgba(100,150,220,.15)',museum:'rgba(45,184,106,.15)',church:'rgba(160,100,210,.15)',park:'rgba(34,163,106,.15)',restaurant:'rgba(200,98,42,.15)',tourism:'rgba(232,158,34,.15)'};
 
 function objFiltered() {
   return savedObjects.filter(o => {
     if (objActiveCat !== 'all' && o.category !== objActiveCat) return false;
-    const hasText  = o.cards && o.cards.some(c => c.text_status === 'generated' || c.text_status === 'ready' || c.status === 'generated' || c.status === 'ready');
+    const hasText  = o.cards && o.cards.some(c => c.text_status==='generated'||c.text_status==='ready'||c.status==='generated'||c.status==='ready');
     const hasAudio = o.audio_count > 0 || (o.cards && o.cards.some(c => c.has_audio));
-    if (objActivePipe === 'notxt'  && hasText)              return false;
-    if (objActivePipe === 'noaud'  && hasAudio)             return false;
-    if (objActivePipe === 'ready'  && (!hasText||!hasAudio))return false;
+    if (objActivePipe==='notxt' && hasText)               return false;
+    if (objActivePipe==='noaud' && hasAudio)              return false;
+    if (objActivePipe==='ready' && (!hasText||!hasAudio)) return false;
     if (objSearchQ && !o.name.toLowerCase().includes(objSearchQ.toLowerCase())) return false;
     return true;
   });
 }
-
 function setObjCat(cat, el) {
   objActiveCat = cat;
-  document.querySelectorAll('#obj-cat-chips .obj-chip').forEach(c =>
-    c.className = 'obj-chip' + (c === el ? ' active' : ''));
+  document.querySelectorAll('#obj-cat-chips .obj-chip').forEach(c => c.className = 'obj-chip' + (c===el?' active':''));
   renderObjView();
 }
 function setObjPipe(pipe, el) {
   objActivePipe = pipe;
-  document.querySelectorAll('#obj-pipe-chips .obj-chip').forEach(c =>
-    c.className = 'obj-chip' + (c === el ? ' active' : ''));
+  document.querySelectorAll('#obj-pipe-chips .obj-chip').forEach(c => c.className = 'obj-chip' + (c===el?' active':''));
   renderObjView();
 }
 function setObjQ(q) { objSearchQ = q; renderObjView(); }
@@ -3708,32 +3608,24 @@ function setObjQ(q) { objSearchQ = q; renderObjView(); }
 function initObjMap() {
   if (objMap) return;
   const center = currentCity ? [currentCity.center_lat, currentCity.center_lng] : [49.5883, 34.5514];
-  objMap = L.map('obj-map-el', { center, zoom: 13 });
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OSM' }).addTo(objMap);
+  objMap = L.map('obj-map-el', {center, zoom:13});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OSM'}).addTo(objMap);
   setTimeout(() => objMap.invalidateSize(), 300);
 }
-
-function objMarkerIcon(cat, active) {
-  const col = OBJ_COLORS[cat] || '#888';
-  const s = active ? 14 : 10;
+function objIcon(cat, active) {
+  const col = OBJ_COLORS[cat]||'#888', s = active?14:10;
   const ring = active ? `box-shadow:0 0 0 5px ${col}33;` : '';
-  return L.divIcon({ className:'', iconAnchor:[s/2,s/2],
-    html:`<div style="width:${s}px;height:${s}px;border-radius:50%;background:${col};border:2px solid #fff;${ring}"></div>` });
+  return L.divIcon({className:'',iconAnchor:[s/2,s/2],
+    html:`<div style="width:${s}px;height:${s}px;border-radius:50%;background:${col};border:2px solid #fff;${ring}"></div>`});
 }
-
 function renderObjView() {
   const list = objFiltered();
-  const countEl = document.getElementById('obj-count');
-  if (countEl) countEl.textContent = list.length + ' / ' + savedObjects.length;
-
-  // ── Table ──────────────────────────────────────────────────
+  const ce = document.getElementById('obj-count');
+  if (ce) ce.textContent = list.length + ' / ' + savedObjects.length;
   const scroll = document.getElementById('obj-tbl-scroll');
   if (!scroll) return;
-
   if (!savedObjects.length) {
-    scroll.innerHTML = `<div class="empty-state" style="padding:32px 16px;text-align:center">
-      <div class="empty-title">${t('no-objects')}</div>
-      <div class="empty-sub">${t('no-objects-sub')}</div></div>`;
+    scroll.innerHTML = `<div class="empty-state" style="padding:32px;text-align:center"><div class="empty-title">${t('no-objects')}</div><div class="empty-sub">${t('no-objects-sub')}</div></div>`;
   } else if (!list.length) {
     scroll.innerHTML = `<div style="padding:24px;text-align:center;font-size:12px;color:var(--text3)">Нічого не знайдено</div>`;
   } else {
@@ -3742,56 +3634,56 @@ function renderObjView() {
       const hasAudio = o.audio_count > 0 || (o.cards && o.cards.some(c => c.has_audio));
       const genText  = generatingRows.has(o.id+'-text');
       const genAudio = generatingRows.has(o.id+'-audio');
-      const col = OBJ_COLORS[o.category] || '#888';
-      const bg  = OBJ_CAT_BG[o.category] || 'rgba(136,136,136,.12)';
+      const col = OBJ_COLORS[o.category]||'#888';
+      const bg  = OBJ_CAT_BG[o.category]||'rgba(136,136,136,.12)';
       return `<div class="obj-tbl-row${objActiveId===o.id?' map-hi':''}" data-id="${o.id}"
-          onclick="focusObj(${o.id})"
-          onmouseenter="hoverMarker(${o.id},true)"
-          onmouseleave="hoverMarker(${o.id},false)">
-        <div class="obj-row-name" title="${o.name}">${o.name}</div>
+        onclick="focusObj(${o.id})"
+        onmouseenter="hoverMark(${o.id},true)"
+        onmouseleave="hoverMark(${o.id},false)">
+        <div class="obj-row-name" title="${o.name.replace(/"/g,'&quot;')}">${o.name}</div>
         <div><span class="obj-row-cat" style="background:${bg};color:${col}">${o.category}</span></div>
         <div class="obj-pdots">
           <div class="obj-pdot done"></div>
           <div class="obj-pdot ${genText?'gen':(hasText?'done':'empty')}"></div>
           <div class="obj-pdot ${genAudio?'gen':(hasAudio?'done':'empty')}"></div>
         </div>
-        <button class="obj-focus-btn" onclick="event.stopPropagation();focusObj(${o.id})" title="На карті">⌖</button>
+        <button class="obj-focus-btn" onclick="event.stopPropagation();focusObj(${o.id})">⌖</button>
       </div>`;
     }).join('');
   }
-
-  // ── Markers ────────────────────────────────────────────────
-  if (!objMap) { initObjMap(); setTimeout(()=>renderObjMarkers(list), 400); return; }
-  renderObjMarkers(list);
+  if (!objMap) { initObjMap(); setTimeout(()=>renderMarkers(list),400); }
+  else renderMarkers(list);
 }
-
-function renderObjMarkers(list) {
-  const visIds = new Set(list.map(o => o.id));
+function renderMarkers(list) {
+  const vis = new Set(list.map(o=>o.id));
   savedObjects.forEach(o => {
-    if (!o.latitude || !o.longitude) return;
-    const active  = objActiveId === o.id;
-    const visible = visIds.has(o.id);
+    if (!o.latitude||!o.longitude) return;
+    const active = objActiveId===o.id;
     if (objMarkers.has(o.id)) {
       const m = objMarkers.get(o.id);
-      if (visible) { m.setIcon(objMarkerIcon(o.category, active)); if (!objMap.hasLayer(m)) m.addTo(objMap); }
+      if (vis.has(o.id)) { m.setIcon(objIcon(o.category,active)); if (!objMap.hasLayer(m)) m.addTo(objMap); }
       else if (objMap.hasLayer(m)) objMap.removeLayer(m);
-    } else if (visible) {
-      const m = L.marker([o.latitude, o.longitude], { icon: objMarkerIcon(o.category, active) }).addTo(objMap);
-      m.on('click',     () => focusObj(o.id));
-      m.on('mouseover', () => hoverMarker(o.id, true));
-      m.on('mouseout',  () => hoverMarker(o.id, false));
-      m.bindPopup(() => buildPopup(o), { maxWidth:220 });
-      objMarkers.set(o.id, m);
+    } else if (vis.has(o.id)) {
+      const m = L.marker([o.latitude,o.longitude],{icon:objIcon(o.category,active)}).addTo(objMap);
+      m.on('click',()=>focusObj(o.id));
+      m.on('mouseover',()=>hoverMark(o.id,true));
+      m.on('mouseout', ()=>hoverMark(o.id,false));
+      m.bindPopup(()=>buildPopup(o),{maxWidth:220});
+      objMarkers.set(o.id,m);
     }
   });
-  renderObjLegend(list);
+  // Легенда
+  const leg = document.getElementById('obj-map-legend');
+  if (leg) {
+    const cats = [...new Set(list.map(o=>o.category))];
+    leg.innerHTML = cats.map(c=>`<div class="obj-map-leg-row"><div class="obj-map-leg-dot" style="background:${OBJ_COLORS[c]||'#888'}"></div><span>${t('cat-'+c)||c}</span></div>`).join('');
+  }
 }
-
 function buildPopup(o) {
-  const hasText  = o.cards && o.cards.some(c => c.text_status==='generated'||c.text_status==='ready');
+  const hasText  = o.cards && o.cards.some(c=>c.text_status==='generated'||c.text_status==='ready');
   const hasAudio = o.audio_count > 0;
-  const col = OBJ_COLORS[o.category] || '#888';
-  const oStr = JSON.stringify(o).replace(/'/g,"&#39;");
+  const col = OBJ_COLORS[o.category]||'#888';
+  const oEnc = encodeURIComponent(JSON.stringify(o));
   const wrap = document.createElement('div');
   wrap.style.cssText = 'min-width:165px;font-family:var(--sans)';
   wrap.innerHTML = `
@@ -3804,87 +3696,57 @@ function buildPopup(o) {
       <span style="font-size:10px;color:var(--text3);margin-left:3px">${hasText&&hasAudio?'готово':hasText?'без аудіо':'без тексту'}</span>
     </div>
     <div style="display:flex;gap:4px;flex-wrap:wrap">
-      <button class="btn btn-ghost btn-sm" onclick='openEditObjModal(${oStr})'>
+      <button class="btn btn-ghost btn-sm" onclick="openEditObjModal(JSON.parse(decodeURIComponent('${oEnc}')))">
         <svg width="10" height="10" viewBox="0 0 11 11" fill="none"><path d="M1.5 9.5h2l5-5-2-2-5 5v2z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
         ${t('edit')||'Редагувати'}
       </button>
-      <button class="btn btn-amber btn-sm" onclick='openGenTextModal(${oStr})'>${t('gen-text')}</button>
-      <button class="btn btn-ghost btn-sm" onclick='openGenAudioModal(${oStr})'>${t('gen-audio')}</button>
-      <button class="btn btn-danger btn-sm" onclick='deleteSingleObj(${o.id})'>
+      <button class="btn btn-amber btn-sm" onclick="openGenTextModal(JSON.parse(decodeURIComponent('${oEnc}')))">${t('gen-text')}</button>
+      <button class="btn btn-ghost btn-sm" onclick="openGenAudioModal(JSON.parse(decodeURIComponent('${oEnc}')))">${t('gen-audio')}</button>
+      <button class="btn btn-danger btn-sm" onclick="delObj(${o.id})">
         <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4 3v7h4V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>`;
   return wrap;
 }
-
 function focusObj(id) {
   objActiveId = id;
-  const o = savedObjects.find(x => x.id === id);
-  document.querySelectorAll('.obj-tbl-row').forEach(r =>
-    r.classList.toggle('map-hi', parseInt(r.dataset.id) === id));
+  const o = savedObjects.find(x=>x.id===id);
+  document.querySelectorAll('.obj-tbl-row').forEach(r=>r.classList.toggle('map-hi',parseInt(r.dataset.id)===id));
   const row = document.querySelector(`.obj-tbl-row[data-id="${id}"]`);
-  if (row) row.scrollIntoView({ block:'nearest', behavior:'smooth' });
-  objMarkers.forEach((m, mid) => {
-    const ob = savedObjects.find(x => x.id === mid);
-    if (ob) m.setIcon(objMarkerIcon(ob.category, mid === id));
-  });
-  if (o && o.latitude && o.longitude && objMap) {
-    objMap.setView([o.latitude, o.longitude], Math.max(objMap.getZoom(), 15), { animate:true });
-    const m = objMarkers.get(id);
-    if (m) setTimeout(() => m.openPopup(), 300);
+  if (row) row.scrollIntoView({block:'nearest',behavior:'smooth'});
+  objMarkers.forEach((m,mid)=>{ const ob=savedObjects.find(x=>x.id===mid); if(ob) m.setIcon(objIcon(ob.category,mid===id)); });
+  if (o&&o.latitude&&o.longitude&&objMap) {
+    objMap.setView([o.latitude,o.longitude],Math.max(objMap.getZoom(),15),{animate:true});
+    const m=objMarkers.get(id); if(m) setTimeout(()=>m.openPopup(),300);
   }
 }
-
-function hoverMarker(id, on) {
-  const m = objMarkers.get(id);
-  const o = savedObjects.find(x => x.id === id);
-  if (!m || !o) return;
-  const col = OBJ_COLORS[o.category] || '#888';
-  const s = on ? 13 : (objActiveId===id ? 14 : 10);
-  const ring = on||objActiveId===id ? `box-shadow:0 0 0 5px ${col}44;` : '';
-  m.setIcon(L.divIcon({ className:'', iconAnchor:[s/2,s/2],
-    html:`<div style="width:${s}px;height:${s}px;border-radius:50%;background:${col};border:2px solid #fff;${ring}transition:all .15s"></div>` }));
+function hoverMark(id,on) {
+  const m=objMarkers.get(id), o=savedObjects.find(x=>x.id===id);
+  if(!m||!o) return;
+  const col=OBJ_COLORS[o.category]||'#888', s=on?13:(objActiveId===id?14:10);
+  const ring=on||objActiveId===id?`box-shadow:0 0 0 5px ${col}44;`:'';
+  m.setIcon(L.divIcon({className:'',iconAnchor:[s/2,s/2],
+    html:`<div style="width:${s}px;height:${s}px;border-radius:50%;background:${col};border:2px solid #fff;${ring}transition:all .15s"></div>`}));
 }
-
-function renderObjLegend(list) {
-  const el = document.getElementById('obj-map-legend');
-  if (!el) return;
-  const cats = [...new Set(list.map(o => o.category))];
-  el.innerHTML = cats.map(cat => `
-    <div class="obj-map-leg-row">
-      <div class="obj-map-leg-dot" style="background:${OBJ_COLORS[cat]||'#888'}"></div>
-      <span>${t('cat-'+cat)||cat}</span>
-    </div>`).join('');
-}
-
-async function deleteSingleObj(id) {
-  if (!await customConfirm(t('confirm-delete-obj')||'Видалити об\'єкт?', t('delete')||'Видалити')) return;
+async function delObj(id) {
+  if (!await customConfirm("Видалити об'єкт?","Видалити")) return;
   try {
-    await apiObjects('objects', 'delete', { object_id: id });
-    toast(t('deleted')||'Видалено', 'success');
-    if (objMap && objMarkers.has(id)) {
-      objMap.removeLayer(objMarkers.get(id));
-      objMarkers.delete(id);
-    }
+    await apiObjects('objects','delete',{object_id:id});
+    toast('Видалено','success');
+    if(objMap&&objMarkers.has(id)){objMap.removeLayer(objMarkers.get(id));objMarkers.delete(id);}
     loadSavedObjects();
-  } catch(e) { toast(e.message, 'error'); }
+  } catch(e){toast(e.message,'error');}
 }
 
 function renderSavedObjects(objects) {
   savedObjects = objects;
   updateBulkBar();
-  // hidden tbody для bulk-delete совместимости
   const tb = document.getElementById('saved-objects-tbody');
-  if (tb) tb.innerHTML = objects.map(o =>
-    `<tr><td><input type="checkbox" class="obj-check obj-row-check" data-id="${o.id}" onchange="onObjCheckChange()"></td></tr>`
-  ).join('');
-  // Сброс маркеров при смене города
+  if (tb) tb.innerHTML = objects.map(o=>`<tr><td><input type="checkbox" class="obj-check obj-row-check" data-id="${o.id}" onchange="onObjCheckChange()"></td></tr>`).join('');
   if (objMap) {
-    objMarkers.forEach(m => { if (objMap.hasLayer(m)) objMap.removeLayer(m); });
-    objMarkers.clear();
-    objActiveId = null;
+    objMarkers.forEach(m=>{if(objMap.hasLayer(m))objMap.removeLayer(m);}); objMarkers.clear(); objActiveId=null;
   }
-  if (!objMap) setTimeout(() => { initObjMap(); renderObjView(); }, 200);
+  if (!objMap) setTimeout(()=>{initObjMap();renderObjView();},200);
   else renderObjView();
 }
 
