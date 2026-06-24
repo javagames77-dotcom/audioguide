@@ -582,160 +582,38 @@ input[type=range]::-webkit-slider-thumb {
 .lang-toggle.on { background: rgba(42,184,122,.1); border-color: rgba(42,184,122,.3); color: var(--green); }
 
 /* ═══════════════════════════════════════
-   MAP (leaflet base)
+   MAP
 ═══════════════════════════════════════ */
+#parse-map {
+  width: 100%;
+  max-width: 100%;
+  height: 400px;
+  overflow: hidden;
+  background: var(--bg3);
+  display: block;
+}
+@media (max-width: 768px) {
+  #parse-map { height: 240px; }
+  .objects-sidebar-panel { position: static; }
+}
+
 .leaflet-container {
   background: #101820;
   font-family: var(--sans);
 }
 .leaflet-tile { filter: brightness(.8) saturate(.7) hue-rotate(200deg); }
 
-/* ═══════════════════════════════════════
-   PARSE PANEL (inSkill-style)
-═══════════════════════════════════════ */
-.parse-inline-panel {
-  background: var(--bg2);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 16px 20px;
-  margin-bottom: 16px;
-}
-.parse-tabs {
-  display: flex;
-  gap: 2px;
-  background: var(--bg3);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 2px;
-  margin-bottom: 14px;
-  width: fit-content;
-}
-.parse-tab {
-  padding: 5px 14px;
-  border: none;
-  background: transparent;
-  border-radius: 5px;
+.map-hint {
+  font-size: 12px;
   color: var(--text3);
-  font-size: 12px;
-  font-weight: 500;
-  font-family: var(--sans);
-  cursor: pointer;
-  transition: all var(--tr);
-}
-.parse-tab.active {
-  background: var(--bg2);
-  color: var(--text);
-  box-shadow: 0 1px 3px rgba(0,0,0,.1);
-}
-.parse-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 130px auto;
-  gap: 10px;
-  align-items: end;
-  margin-bottom: 12px;
-}
-@media (max-width: 768px) {
-  .parse-form-grid { grid-template-columns: 1fr; }
-}
-.parse-form-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  margin-bottom: 4px;
-}
-.parse-form-input {
-  width: 100%;
-  padding: 7px 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-family: var(--sans);
-  background: var(--bg3);
-  color: var(--text);
-  outline: none;
-  transition: border-color var(--tr);
-}
-.parse-form-input:focus { border-color: var(--line2); }
-#parse-map-new {
-  height: 220px;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: var(--bg3);
-  margin-bottom: 10px;
-}
-.parse-map-coords {
-  font-size: 11px;
-  color: var(--text3);
-  font-family: var(--mono);
-  background: var(--bg3);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 5px 10px;
-  margin-bottom: 10px;
-  display: none;
-}
-.parse-radius-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-.parse-radius-slider {
-  flex: 1;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
-.parse-radius-val {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text);
-  min-width: 48px;
-  text-align: right;
-  font-family: var(--mono);
-}
-.parse-result-list {
-  max-height: 260px;
-  overflow-y: auto;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  margin-bottom: 10px;
-}
-.parse-result-list::-webkit-scrollbar { width: 4px; }
-.parse-result-list::-webkit-scrollbar-track { background: var(--bg3); }
-.parse-result-list::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
-.parse-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  border-bottom: 1px solid var(--line);
-  font-size: 12px;
-  flex-direction: column;
-  align-items: flex-start;
-}
-.parse-item:last-child { border-bottom: none; }
-.parse-item:hover { background: var(--bg3); }
-.parse-item-row { display: flex; align-items: center; gap: 10px; width: 100%; }
-.parse-item input[type=checkbox] {
-  width: 13px; height: 13px;
-  accent-color: var(--accent);
-  flex-shrink: 0;
-  cursor: pointer;
-}
-.parse-item-name { font-weight: 500; color: var(--text); flex: 1; }
-.parse-item-city { font-size: 11px; color: var(--text3); margin-right: 4px; }
-.parse-save-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
   margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* ═══════════════════════════════════════
-   OBJECT CARDS (parse results — saved)
+   OBJECT CARDS (parse results)
 ═══════════════════════════════════════ */
 .objects-grid {
   display: grid;
@@ -1184,6 +1062,191 @@ input[type=range]::-webkit-slider-thumb {
   min-width: 0;
 }
 
+/* ═══════════════════════════════════════
+   OBJECTS MAP VIEW
+═══════════════════════════════════════ */
+.obj-map-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg2);
+}
+.obj-map-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.obj-map-chip {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--line2);
+  color: var(--text3);
+  cursor: pointer;
+  background: var(--bg3);
+  transition: all var(--tr);
+  white-space: nowrap;
+}
+.obj-map-chip:hover { color: var(--text2); border-color: var(--line2); }
+.obj-map-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.obj-map-chip.active-museum  { background: #2db86a; border-color: #2db86a; color: #fff; }
+.obj-map-chip.active-church  { background: #a064d2; border-color: #a064d2; color: #fff; }
+.obj-map-chip.active-park    { background: #22a36a; border-color: #22a36a; color: #fff; }
+.obj-map-chip.active-historic{ background: var(--blue); border-color: var(--blue); color: #fff; }
+.obj-map-chip.active-tourism { background: var(--amber); border-color: var(--amber); color: #fff; }
+.obj-map-search {
+  flex: 1;
+  min-width: 120px;
+  max-width: 220px;
+  font-size: 12px;
+  padding: 5px 10px;
+  border: 1px solid var(--line2);
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  color: var(--text);
+  font-family: var(--sans);
+}
+.obj-map-search:focus { outline: none; border-color: var(--accent); }
+.obj-map-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  white-space: nowrap;
+  margin-left: auto;
+}
+.obj-split-layout {
+  display: grid;
+  grid-template-columns: 42% 1fr;
+  height: 480px;
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 900px) {
+  .obj-split-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  #obj-map-container { height: 300px; }
+}
+.obj-table-pane {
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.obj-table-head {
+  display: grid;
+  grid-template-columns: 1fr 72px 88px 28px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg3);
+}
+.obj-table-head span {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.obj-table-scroll {
+  flex: 1;
+  overflow-y: auto;
+}
+.obj-table-row {
+  display: grid;
+  grid-template-columns: 1fr 72px 88px 28px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background var(--tr);
+  align-items: center;
+}
+.obj-table-row:hover { background: var(--bg3); }
+.obj-table-row.map-active { background: rgba(200,98,42,.08); }
+.obj-row-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 6px;
+}
+.obj-row-cat {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 500;
+  display: inline-block;
+}
+.obj-pipe-dots {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+.obj-pipe-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+}
+.obj-pipe-dot.done  { background: var(--green); }
+.obj-pipe-dot.empty { background: var(--line2); }
+.obj-pipe-dot.gen   { background: var(--amber); }
+.obj-focus-btn {
+  width: 22px; height: 22px;
+  border: 1px solid var(--line2);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  transition: all var(--tr);
+}
+.obj-focus-btn:hover { border-color: var(--accent); color: var(--accent); }
+#obj-map-container {
+  position: relative;
+  background: var(--bg3);
+}
+#obj-map-leaflet {
+  width: 100%;
+  height: 100%;
+}
+.obj-map-legend {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(8,12,20,.85);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1000;
+  pointer-events: none;
+}
+[data-theme="light"] .obj-map-legend {
+  background: rgba(255,255,255,.92);
+  border: 1px solid var(--line2);
+}
+.obj-map-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--text2);
+  white-space: nowrap;
+}
+.obj-map-leg-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 
 .objects-sidebar-panel {
   position: sticky;
@@ -1340,13 +1403,7 @@ input[type=range]::-webkit-slider-thumb {
 <!-- ═══ TOPBAR ═══ -->
 <header class="topbar">
   <div class="topbar-logo">
-    <svg width="130" height="40" viewBox="0 0 152 56" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="21" cy="28" r="5" fill="#e89e22"/>
-      <path d="M21 28 Q21 15 31 15 Q41 15 41 28 Q41 41 31 41" fill="none" stroke="rgba(232,158,34,0.6)" stroke-width="2" stroke-linecap="round"/>
-      <path d="M21 28 Q21 8 35 8 Q49 8 49 28 Q49 48 35 48" fill="none" stroke="rgba(232,158,34,0.22)" stroke-width="1.2" stroke-linecap="round"/>
-      <text x="60" y="30" font-family="Fraunces,Georgia,serif" font-size="24" font-style="italic" font-weight="700" fill="#ffffff" letter-spacing="-0.5">whispr</text>
-      <text x="60" y="46" font-family="DM Mono,monospace" font-size="12" fill="rgba(232,158,34,0.85)" letter-spacing="2.5">.city</text>
-    </svg>
+    <svg width="150" height="44" viewBox="60 108 160 55" xmlns="http://www.w3.org/2000/svg"><path d="M82 130 Q82 108 100 108 Q118 108 118 130" fill="none" stroke="#c8622a" stroke-width="2.5" stroke-linecap="round"/><rect x="77" y="129" width="10" height="18" rx="4" fill="#c8622a"/><rect x="113" y="129" width="10" height="18" rx="4" fill="#c8622a"/><text x="146" y="129" font-family="Georgia,serif" font-size="28" font-weight="700" fill="#ffffff">gid</text><text x="147" y="149" font-family="sans-serif" font-size="11" fill="#c8622a" letter-spacing="2">poltava.ua</text></svg>
   </div>
   <div class="topbar-right">
     <div class="lang-sw">
@@ -1572,89 +1629,64 @@ input[type=range]::-webkit-slider-thumb {
     <div id="objects-content" style="display:none">
       <div class="objects-layout">
 
-        <!-- PARSE PANEL (inSkill-style, full width above results) -->
-        <div style="grid-column:1/-1">
-          <div class="parse-inline-panel">
-            <!-- Tabs -->
-            <div class="parse-tabs">
-              <button class="parse-tab active" id="ptab-places" onclick="setParseTab('places')" id="t-parse-tab-places">Places Search</button>
-              <button class="parse-tab" id="ptab-google" onclick="setParseTab('google')">Google Web</button>
+        <!-- LEFT: Map + Parse controls -->
+        <div>
+          <div class="panel" style="margin-bottom:16px">
+            <div class="panel-head">
+              <div class="panel-title" id="t-parse-panel-title"></div>
             </div>
+            <div class="panel-body" style="padding:0">
+              <!-- Map -->
+              <div id="parse-map"></div>
+              <div style="padding:0 20px">
+              <div class="map-hint">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" opacity=".5"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.1"/><path d="M6.5 4v3M6.5 9h.01" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+                <span id="t-map-hint"></span>
+              </div>
 
-            <!-- Places Search tab -->
-            <div id="parse-places-section">
-              <div class="parse-form-grid">
-                <div>
-                  <div class="parse-form-label" id="t-parse-query-label"></div>
-                  <input class="parse-form-input" id="parseSearchQuery" id="t-parse-query-ph" placeholder="Костел, фортеця, музей..." onkeydown="if(event.key==='Enter')runParseSearch()">
-                </div>
-                <div>
-                  <div class="parse-form-label" id="t-parse-city-label"></div>
-                  <div style="display:flex;gap:6px">
-                    <input class="parse-form-input" id="parseCityInput" placeholder="Полтава..." onkeydown="if(event.key==='Enter')geocodeParseCity()">
-                    <button class="btn btn-ghost btn-sm" onclick="geocodeParseCity()" style="white-space:nowrap" id="t-parse-find-btn"></button>
-                  </div>
-                </div>
-                <div>
-                  <div class="parse-form-label"><span id="t-parse-radius-label"></span>: <span id="parseRadiusVal" style="font-family:var(--mono)">5</span> <span id="t-parse-km"></span></div>
-                  <input type="range" class="parse-radius-slider" id="parseRadius" min="500" max="15000" step="500" value="5000" oninput="onParseRadiusChange()" style="width:100%;margin-top:6px">
-                </div>
-                <div style="align-self:flex-end">
-                  <button class="btn btn-primary btn-sm" onclick="runParseSearch()" id="runParseSearchBtn" disabled>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 8l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-                    <span id="t-parse-run-btn"></span>
-                  </button>
+              <!-- Radius -->
+              <div style="margin-top:14px">
+                <div class="form-label" id="t-radius-label"></div>
+                <div class="range-wrap" style="margin-top:8px">
+                  <input type="range" id="radius-slider" min="100" max="2000" step="100" value="500" oninput="onRadiusChange()">
+                  <div class="range-val"><span id="radius-val">500</span>м</div>
                 </div>
               </div>
-              <div id="parse-map-new"></div>
-              <div class="parse-map-coords" id="parseMapCoords"></div>
-            </div>
 
-            <!-- Google Web tab -->
-            <div id="parse-google-section" style="display:none">
-              <div class="parse-form-grid" style="grid-template-columns:1fr 1fr auto">
-                <div>
-                  <div class="parse-form-label" id="t-google-query-label"></div>
-                  <input class="parse-form-input" id="googleParseQuery" placeholder="церкви, пам'ятники архітектури..." onkeydown="if(event.key==='Enter')runGoogleParseSearch()">
-                </div>
-                <div>
-                  <div class="parse-form-label" id="t-google-city-label"></div>
-                  <input class="parse-form-input" id="googleParseCity" placeholder="Полтава, Харків..." onkeydown="if(event.key==='Enter')runGoogleParseSearch()">
-                </div>
-                <div style="align-self:flex-end">
-                  <button class="btn btn-primary btn-sm" onclick="runGoogleParseSearch()" id="runGoogleParseBtn">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 8l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-                    <span id="t-google-run-btn"></span>
-                  </button>
-                </div>
+              <!-- Categories -->
+              <div style="margin-top:14px">
+                <div class="form-label" id="t-categories-label"></div>
+                <div class="check-group" id="categories-group" style="margin-top:8px"></div>
               </div>
-              <div style="font-size:11px;color:var(--text3);margin-bottom:10px" id="t-google-hint"></div>
-            </div>
 
-            <!-- Results -->
-            <div id="parseResultsBlock" style="display:none;margin-top:14px">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-                <div style="font-size:12px;font-weight:500;color:var(--text)" id="parseResultTitle"></div>
-                <label style="font-size:12px;color:var(--text3);cursor:pointer;display:flex;align-items:center;gap:5px">
-                  <input type="checkbox" id="parseSelectAll" onchange="selectAllParseItems(this.checked)" style="width:13px;height:13px;accent-color:var(--accent)">
-                  <span id="t-parse-select-all"></span>
-                </label>
+              <!-- Count -->
+              <div style="margin-top:14px">
+                <div class="form-label" id="t-count-label"></div>
+                <div class="range-wrap" style="margin-top:8px">
+                  <input type="range" id="count-slider" min="5" max="50" step="5" value="15" oninput="onCountChange()">
+                  <div class="range-val"><span id="count-val">15</span></div>
+                </div>
               </div>
-              <div class="parse-result-list" id="parseList"></div>
-              <div class="parse-save-bar">
-                <button class="btn btn-primary btn-sm" onclick="saveParseSelectedObjects()">
-                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span id="t-parse-save-btn"></span>
-                </button>
-                <span style="font-size:12px;color:var(--text3)" id="parseSelCount"></span>
+
+              <!-- Coords display -->
+              <div style="margin-top:12px;padding:10px 12px;background:var(--bg3);border-radius:var(--radius-sm);font-family:var(--mono);font-size:11px;color:var(--text3)">
+                <span id="t-coords-label"></span>:
+                <span id="coords-display" style="color:var(--amber)">—</span>
               </div>
+
+              </div><!-- /map-content-wrap -->
+              <div style="padding:0 20px 20px">
+              <button class="btn btn-primary btn-lg" id="btn-parse" onclick="startParse()" style="margin-top:14px;width:100%" disabled>
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M5 7.5h5M8 5.5l2 2-2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span id="t-parse-btn"></span>
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Results + Saved objects -->
-        <div style="grid-column:1/-1">
-          <!-- Parse results (old card grid, hidden now — kept for saveSelectedObjects compat) -->
+        <!-- RIGHT: Results + Saved objects -->
+        <div>
+          <!-- Parse results -->
           <div class="panel" id="parse-results-panel" style="margin-bottom:16px;display:none">
             <div class="panel-head">
               <div class="panel-title">
@@ -1662,8 +1694,8 @@ input[type=range]::-webkit-slider-thumb {
                 <span style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-left:8px" id="parse-count"></span>
               </div>
               <div class="btn-group">
-                <button class="btn btn-ghost btn-sm" onclick="legacySelectAllObjects()" id="t-select-all-btn"></button>
-                <button class="btn btn-primary btn-sm" id="btn-save-objects" onclick="legacySaveSelectedObjects()" disabled>
+                <button class="btn btn-ghost btn-sm" onclick="selectAllObjects()" id="t-select-all-btn"></button>
+                <button class="btn btn-primary btn-sm" id="btn-save-objects" onclick="saveSelectedObjects()" disabled id2="btn-save-obj">
                   <span id="t-save-selected-btn"></span>
                 </button>
               </div>
@@ -1673,7 +1705,7 @@ input[type=range]::-webkit-slider-thumb {
             </div>
           </div>
 
-          <!-- Saved objects -->
+          <!-- Saved objects — split map/table view -->
           <div class="panel" id="saved-objects-panel">
             <div class="panel-head">
               <div class="panel-title" id="t-saved-objects-title"></div>
@@ -1690,22 +1722,51 @@ input[type=range]::-webkit-slider-thumb {
                 </button>
               </div>
             </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th style="width:32px"><input type="checkbox" class="obj-check" id="obj-check-all" onchange="toggleAllObjects(this)"></th>
-                    <th id="t-obj-th-name"></th>
-                    <th id="t-obj-th-cat"></th>
-                    <th id="t-obj-th-pipeline"></th>
-                    <th id="t-obj-th-actions"></th>
-                  </tr>
-                </thead>
-                <tbody id="saved-objects-tbody">
-                  <tr><td colspan="5" class="loading-row"><div class="spinner-sm"></div></td></tr>
-                </tbody>
-              </table>
+
+            <!-- Filter bar -->
+            <div class="obj-map-filter-bar">
+              <div class="obj-map-chips" id="obj-cat-chips">
+                <div class="obj-map-chip active" data-cat="all"      onclick="setObjCatFilter('all',this)">Всі</div>
+                <div class="obj-map-chip"         data-cat="historic" onclick="setObjCatFilter('historic',this)" id="t-chip-historic"></div>
+                <div class="obj-map-chip"         data-cat="museum"   onclick="setObjCatFilter('museum',this)"   id="t-chip-museum"></div>
+                <div class="obj-map-chip"         data-cat="church"   onclick="setObjCatFilter('church',this)"   id="t-chip-church"></div>
+                <div class="obj-map-chip"         data-cat="park"     onclick="setObjCatFilter('park',this)"     id="t-chip-park"></div>
+                <div class="obj-map-chip"         data-cat="tourism"  onclick="setObjCatFilter('tourism',this)"  id="t-chip-tourism"></div>
+              </div>
+              <div class="obj-map-chips" id="obj-pipe-chips" style="margin-left:4px">
+                <div class="obj-map-chip active" data-pipe="all"   onclick="setObjPipeFilter('all',this)"   id="t-chip-pipe-all"></div>
+                <div class="obj-map-chip"         data-pipe="notxt" onclick="setObjPipeFilter('notxt',this)" id="t-chip-pipe-notxt"></div>
+                <div class="obj-map-chip"         data-pipe="noaud" onclick="setObjPipeFilter('noaud',this)" id="t-chip-pipe-noaud"></div>
+                <div class="obj-map-chip"         data-pipe="ready" onclick="setObjPipeFilter('ready',this)" id="t-chip-pipe-ready"></div>
+              </div>
+              <input class="obj-map-search" id="obj-map-search" placeholder="Пошук..." oninput="setObjSearch(this.value)">
+              <span class="obj-map-count" id="obj-map-count"></span>
             </div>
+
+            <!-- Split: table left, map right -->
+            <div class="obj-split-layout">
+              <!-- Table pane -->
+              <div class="obj-table-pane">
+                <div class="obj-table-head">
+                  <span id="t-obj-th-name"></span>
+                  <span id="t-obj-th-cat"></span>
+                  <span id="t-obj-th-pipeline"></span>
+                  <span></span>
+                </div>
+                <div class="obj-table-scroll" id="obj-table-scroll"></div>
+              </div>
+
+              <!-- Map pane -->
+              <div id="obj-map-container">
+                <div id="obj-map-leaflet"></div>
+                <div class="obj-map-legend" id="obj-map-legend"></div>
+              </div>
+            </div>
+
+            <!-- Legacy tbody kept hidden for bulk-delete compat -->
+            <table style="display:none">
+              <tbody id="saved-objects-tbody"></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -2151,25 +2212,6 @@ const i18n = {
     'select-city-label': 'Оберіть місто',
     'city-select-placeholder': '— Оберіть місто —',
     'parse-panel-title': 'Зона парсингу',
-    'parse-tab-places': 'Пошук Places',
-    'parse-tab-google': 'Google Web',
-    'parse-query-label': 'Запит',
-    'parse-city-label': 'Місто',
-    'parse-radius-label': 'Радіус',
-    'parse-km': 'км',
-    'parse-find': 'Знайти',
-    'parse-run': 'Знайти',
-    'parse-query-required': 'Введіть запит',
-    'no-city-found': 'Місто не знайдено',
-    'parse-error': 'Помилка парсингу',
-    'parse-found': 'Знайдено:',
-    'parse-select-all': 'Вибрати всі',
-    'parse-save': 'Додати вибрані',
-    'parse-selected': 'вибрано',
-    'parse-select-required': 'Нічого не вибрано',
-    'google-query-label': 'Запит',
-    'google-city-label': 'Місто',
-    'google-hint': 'Пошук по сайтах та каталогах — знаходить об\'єкти яких немає в Google Maps',
     'map-hint': 'Клікніть на карту щоб задати центр зони',
     'radius-label': 'Радіус пошуку',
     'categories-label': 'Категорії об\'єктів',
@@ -2218,6 +2260,14 @@ const i18n = {
     'cat-tourism': 'Атракції',
     'no-objects': 'Об\'єкти ще не додані',
     'no-objects-sub': 'Виберіть зону на карті та запустіть парсинг',
+    'pipe-all': 'Всі стани',
+    'pipe-notxt': 'Без тексту',
+    'pipe-noaud': 'Без аудіо',
+    'pipe-ready': 'Готові',
+    'no-filter-results': 'Нічого не знайдено',
+    'no-audio-lbl': 'без аудіо',
+    'no-text-lbl': 'без тексту',
+    'ready-lbl': 'готово',
     'no-requests': 'Заявок немає',
     'pending-lbl': 'очікує',
     'active-lbl': 'активний',
@@ -2283,25 +2333,6 @@ const i18n = {
     'select-city-label': 'Выберите город',
     'city-select-placeholder': '— Выберите город —',
     'parse-panel-title': 'Зона парсинга',
-    'parse-tab-places': 'Поиск Places',
-    'parse-tab-google': 'Google Web',
-    'parse-query-label': 'Запрос',
-    'parse-city-label': 'Город',
-    'parse-radius-label': 'Радиус',
-    'parse-km': 'км',
-    'parse-find': 'Найти',
-    'parse-run': 'Найти',
-    'parse-query-required': 'Введите запрос',
-    'no-city-found': 'Город не найден',
-    'parse-error': 'Ошибка парсинга',
-    'parse-found': 'Найдено:',
-    'parse-select-all': 'Выбрать все',
-    'parse-save': 'Добавить выбранные',
-    'parse-selected': 'выбрано',
-    'parse-select-required': 'Ничего не выбрано',
-    'google-query-label': 'Запрос',
-    'google-city-label': 'Город',
-    'google-hint': 'Поиск по сайтам и каталогам — находит объекты которых нет в Google Maps',
     'map-hint': 'Кликните на карту чтобы задать центр зоны',
     'radius-label': 'Радиус поиска',
     'categories-label': 'Категории объектов',
@@ -2350,6 +2381,14 @@ const i18n = {
     'cat-tourism': 'Аттракции',
     'no-objects': 'Объекты ещё не добавлены',
     'no-objects-sub': 'Выберите зону на карте и запустите парсинг',
+    'pipe-all': 'Все состояния',
+    'pipe-notxt': 'Без текста',
+    'pipe-noaud': 'Без аудио',
+    'pipe-ready': 'Готовые',
+    'no-filter-results': 'Ничего не найдено',
+    'no-audio-lbl': 'без аудио',
+    'no-text-lbl': 'без текста',
+    'ready-lbl': 'готово',
     'no-requests': 'Заявок нет',
     'pending-lbl': 'ожидает',
     'active-lbl': 'активный',
@@ -2415,25 +2454,6 @@ const i18n = {
     'select-city-label': 'Select a city',
     'city-select-placeholder': '— Select city —',
     'parse-panel-title': 'Parse zone',
-    'parse-tab-places': 'Places Search',
-    'parse-tab-google': 'Google Web',
-    'parse-query-label': 'Query',
-    'parse-city-label': 'City',
-    'parse-radius-label': 'Radius',
-    'parse-km': 'km',
-    'parse-find': 'Find',
-    'parse-run': 'Find',
-    'parse-query-required': 'Enter a query',
-    'no-city-found': 'City not found',
-    'parse-error': 'Parse error',
-    'parse-found': 'Found:',
-    'parse-select-all': 'Select all',
-    'parse-save': 'Add selected',
-    'parse-selected': 'selected',
-    'parse-select-required': 'Nothing selected',
-    'google-query-label': 'Query',
-    'google-city-label': 'City',
-    'google-hint': 'Web search across sites and directories — finds objects not in Google Maps',
     'map-hint': 'Click on the map to set the zone center',
     'radius-label': 'Search radius',
     'categories-label': 'Object categories',
@@ -2482,6 +2502,14 @@ const i18n = {
     'cat-tourism': 'Attractions',
     'no-objects': 'No objects added yet',
     'no-objects-sub': 'Select a zone on the map and run parsing',
+    'pipe-all': 'All states',
+    'pipe-notxt': 'No text',
+    'pipe-noaud': 'No audio',
+    'pipe-ready': 'Ready',
+    'no-filter-results': 'Nothing found',
+    'no-audio-lbl': 'no audio',
+    'no-text-lbl': 'no text',
+    'ready-lbl': 'ready',
     'no-requests': 'No requests',
     'pending-lbl': 'pending',
     'active-lbl': 'active',
@@ -2555,22 +2583,26 @@ function renderLang() {
     't-obj-sub':          'obj-sub',
     't-select-city-label':'select-city-label',
     't-city-select-placeholder': 'city-select-placeholder',
+    't-parse-panel-title':'parse-panel-title',
+    't-map-hint':         'map-hint',
+    't-radius-label':     'radius-label',
+    't-categories-label': 'categories-label',
+    't-coords-label':     'coords-label',
+    't-count-label':      'count-label',
+    't-parse-btn':        'parse-btn',
     't-parse-results-title': 'parse-results-title',
     't-select-all-btn':   'select-all',
     't-save-selected-btn':'save-selected',
-    't-parse-query-label':'parse-query-label',
-    't-parse-city-label': 'parse-city-label',
-    't-parse-radius-label':'parse-radius-label',
-    't-parse-km':         'parse-km',
-    't-parse-find-btn':   'parse-find',
-    't-parse-run-btn':    'parse-run',
-    't-parse-select-all': 'parse-select-all',
-    't-parse-save-btn':   'parse-save',
-    't-google-query-label':'google-query-label',
-    't-google-city-label': 'google-city-label',
-    't-google-hint':      'google-hint',
-    't-google-run-btn':   'parse-run',
     't-saved-objects-title': 'saved-objects-title',
+    't-chip-historic':   'cat-historic',
+    't-chip-museum':     'cat-museum',
+    't-chip-church':     'cat-church',
+    't-chip-park':       'cat-park',
+    't-chip-tourism':    'cat-tourism',
+    't-chip-pipe-all':   'pipe-all',
+    't-chip-pipe-notxt': 'pipe-notxt',
+    't-chip-pipe-noaud': 'pipe-noaud',
+    't-chip-pipe-ready': 'pipe-ready',
     't-refresh-btn':      'refresh',
     't-obj-th-name':      'obj-th-name',
     't-obj-th-cat':       'obj-th-cat',
@@ -3243,227 +3275,32 @@ async function saveCity() {
 /* ═══════════════════════════════════════
    OBJECTS SECTION
 ═══════════════════════════════════════ */
-// ── Parse state ──────────────────────────────────────────────
 let parseMap     = null;
-let parseMapMarker = null;
-let parseMapCircle = null;
-let parseLat     = null;
-let parseLng     = null;
-let parseData    = [];
-let parseCityName = '';
+let parseMarker  = null;
+let parseCircle  = null;
+let parseCoords  = null;
+let parseObjects = [];
 let currentCity  = null;
 
-// ── Parse tab switch ─────────────────────────────────────────
-function setParseTab(tab) {
-  document.getElementById('ptab-places').classList.toggle('active', tab === 'places');
-  document.getElementById('ptab-google').classList.toggle('active', tab === 'google');
-  document.getElementById('parse-places-section').style.display = tab === 'places' ? '' : 'none';
-  document.getElementById('parse-google-section').style.display = tab === 'google' ? '' : 'none';
-  document.getElementById('parseResultsBlock').style.display = 'none';
-  if (tab === 'places' && !parseMap) initNewParseMap();
-}
+const CATEGORIES = [
+  { id: 'historic',   key: 'cat-historic' },
+  { id: 'museum',     key: 'cat-museum'   },
+  { id: 'church',     key: 'cat-church'   },
+  { id: 'restaurant', key: 'cat-restaurant' },
+  { id: 'park',       key: 'cat-park'     },
+  { id: 'tourism',    key: 'cat-tourism'  },
+];
 
-// ── Init map ─────────────────────────────────────────────────
-function initNewParseMap() {
-  const el = document.getElementById('parse-map-new');
-  if (!el || parseMap) return;
-  parseMap = L.map('parse-map-new', { center: [49.5883, 34.5514], zoom: 11 });
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(parseMap);
-  parseMap.on('click', e => {
-    parseLat = e.latlng.lat; parseLng = e.latlng.lng;
-    if (parseMapMarker) parseMap.removeLayer(parseMapMarker);
-    if (parseMapCircle) parseMap.removeLayer(parseMapCircle);
-    const r = parseInt(document.getElementById('parseRadius').value);
-    parseMapMarker = L.marker(e.latlng, {
-      icon: L.divIcon({ className: '', html: `<div style="width:12px;height:12px;border-radius:50%;background:#c8622a;border:2px solid #fff;box-shadow:0 0 0 4px rgba(200,98,42,.25)"></div>`, iconAnchor: [6,6] })
-    }).addTo(parseMap);
-    parseMapCircle = L.circle(e.latlng, { radius: r, color: '#c8622a', fillColor: '#c8622a', fillOpacity: .06, weight: 1.5 }).addTo(parseMap);
-    const coordEl = document.getElementById('parseMapCoords');
-    coordEl.style.display = 'block';
-    coordEl.textContent = `${parseLat.toFixed(5)}, ${parseLng.toFixed(5)}`;
-    document.getElementById('runParseSearchBtn').disabled = false;
-  });
-  setTimeout(() => parseMap.invalidateSize(), 300);
+function renderCategories() {
+  const group = document.getElementById('categories-group');
+  if (!group) return;
+  group.innerHTML = CATEGORIES.map(c => `
+    <div class="check-item checked" data-cat="${c.id}" onclick="this.classList.toggle('checked')">${t(c.key)}</div>
+  `).join('');
 }
-
-// ── Radius change ─────────────────────────────────────────────
-function onParseRadiusChange() {
-  const r = parseInt(document.getElementById('parseRadius').value);
-  document.getElementById('parseRadiusVal').textContent = Math.round(r / 1000);
-  if (parseMapCircle && parseLat) {
-    parseMap.removeLayer(parseMapCircle);
-    parseMapCircle = L.circle([parseLat, parseLng], { radius: r, color: '#c8622a', fillColor: '#c8622a', fillOpacity: .06, weight: 1.5 }).addTo(parseMap);
-  }
-}
-
-// ── Geocode city for parse ────────────────────────────────────
-async function geocodeParseCity() {
-  const city = document.getElementById('parseCityInput').value.trim();
-  if (!city) return;
-  try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1&countrycodes=ua`, {
-      headers: { 'User-Agent': 'GidPoltava/1.0', 'Accept-Language': 'uk' }
-    });
-    const data = await res.json();
-    if (data && data[0]) {
-      parseLat = parseFloat(data[0].lat);
-      parseLng = parseFloat(data[0].lon);
-      parseCityName = city;
-      if (!parseMap) initNewParseMap();
-      setTimeout(() => {
-        parseMap.invalidateSize();
-        parseMap.setView([parseLat, parseLng], 12);
-        if (parseMapMarker) parseMap.removeLayer(parseMapMarker);
-        const r = parseInt(document.getElementById('parseRadius').value);
-        parseMapMarker = L.marker([parseLat, parseLng], {
-          icon: L.divIcon({ className: '', html: `<div style="width:12px;height:12px;border-radius:50%;background:#c8622a;border:2px solid #fff;box-shadow:0 0 0 4px rgba(200,98,42,.25)"></div>`, iconAnchor: [6,6] })
-        }).addTo(parseMap);
-        parseMapCircle = L.circle([parseLat, parseLng], { radius: r, color: '#c8622a', fillColor: '#c8622a', fillOpacity: .06, weight: 1.5 }).addTo(parseMap);
-        const coordEl = document.getElementById('parseMapCoords');
-        coordEl.style.display = 'block';
-        coordEl.textContent = `${parseLat.toFixed(5)}, ${parseLng.toFixed(5)}`;
-        document.getElementById('runParseSearchBtn').disabled = false;
-      }, 200);
-    } else {
-      toast(t('no-city-found'), 'error');
-    }
-  } catch(e) { toast(e.message, 'error'); }
-}
-
-// ── Places Search (Google Places via apiObjects) ──────────────
-async function runParseSearch() {
-  if (!parseLat || !parseLng) return;
-  const query = document.getElementById('parseSearchQuery').value.trim();
-  if (!query) { toast(t('parse-query-required'), 'error'); return; }
-  const btn = document.getElementById('runParseSearchBtn');
-  btn.disabled = true;
-  btn.innerHTML = `<div class="spinner-sm"></div>`;
-  try {
-    const city = document.getElementById('parseCityInput').value.trim();
-    parseCityName = city;
-    const res = await apiObjects('objects', 'parse.search', {
-      city: city,
-      lat: parseLat,
-      lng: parseLng,
-      radius: parseInt(document.getElementById('parseRadius').value),
-      query: query
-    });
-    if (res.success) {
-      parseData = res.places || [];
-      showParseResults();
-    } else {
-      toast(res.error || t('parse-error'), 'error');
-    }
-  } catch(e) { toast(e.message, 'error'); }
-  btn.disabled = false;
-  btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 8l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> ${t('parse-run')}`;
-}
-
-// ── Google Web Search ─────────────────────────────────────────
-async function runGoogleParseSearch() {
-  const query = document.getElementById('googleParseQuery').value.trim();
-  const city  = document.getElementById('googleParseCity').value.trim();
-  if (!query) { toast(t('parse-query-required'), 'error'); return; }
-  if (!city)  { toast(t('no-city-found'), 'error'); return; }
-  const btn = document.getElementById('runGoogleParseBtn');
-  btn.disabled = true;
-  btn.innerHTML = `<div class="spinner-sm"></div>`;
-  try {
-    parseCityName = city;
-    const res = await apiObjects('objects', 'parse.google', { query, city, num: 10 });
-    if (res.success) {
-      parseData = res.places || [];
-      showParseResults();
-    } else {
-      toast(res.error || t('parse-error'), 'error');
-    }
-  } catch(e) { toast(e.message, 'error'); }
-  btn.disabled = false;
-  btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 8l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> ${t('parse-run')}`;
-}
-
-// ── Render parse results ──────────────────────────────────────
-function showParseResults() {
-  const block = document.getElementById('parseResultsBlock');
-  const list  = document.getElementById('parseList');
-  document.getElementById('parseResultTitle').textContent = `${t('parse-found')} ${parseData.length}`;
-  list.innerHTML = parseData.map((p, i) => {
-    const hasDetails = p.website || p.phone || p.address || p.instagram;
-    return `<div class="parse-item">
-      <div class="parse-item-row">
-        <input type="checkbox" checked data-idx="${i}" onchange="updateParseSelCount()">
-        <span class="parse-item-name">${p.name}</span>
-        <span class="parse-item-city">${p.city || ''}</span>
-        ${p.google_rating ? `<span style="font-size:10px;color:var(--text3)">★${p.google_rating}</span>` : ''}
-        ${hasDetails ? `<button onclick="toggleParsePreview(${i})" style="border:none;background:none;cursor:pointer;color:var(--text3);font-size:10px;padding:0 4px;flex-shrink:0" id="pprev-btn-${i}">▼</button>` : ''}
-      </div>
-      ${hasDetails ? `<div id="pprev-${i}" style="display:none;padding:5px 0 2px 22px;width:100%;border-top:1px solid var(--line);margin-top:4px">
-        ${p.phone    ? `<div style="font-size:11px;color:var(--text2);margin-bottom:2px">📞 ${p.phone}</div>` : ''}
-        ${p.website  ? `<div style="font-size:11px;margin-bottom:2px"><a href="${p.website}" target="_blank" style="color:var(--blue);text-decoration:none">${p.website}</a></div>` : ''}
-        ${p.instagram? `<div style="font-size:11px;margin-bottom:2px"><a href="${p.instagram}" target="_blank" style="color:#c8622a;text-decoration:none">${p.instagram}</a></div>` : ''}
-        ${p.address  ? `<div style="font-size:11px;color:var(--text3)">${p.address}</div>` : ''}
-      </div>` : ''}
-    </div>`;
-  }).join('');
-  block.style.display = 'block';
-  updateParseSelCount();
-}
-
-function toggleParsePreview(i) {
-  const el  = document.getElementById('pprev-' + i);
-  const btn = document.getElementById('pprev-btn-' + i);
-  if (!el) return;
-  const open = el.style.display === 'none';
-  el.style.display = open ? 'block' : 'none';
-  btn.textContent  = open ? '▲' : '▼';
-}
-
-function selectAllParseItems(checked) {
-  document.querySelectorAll('#parseList input[type=checkbox]').forEach(c => c.checked = checked);
-  updateParseSelCount();
-}
-
-function updateParseSelCount() {
-  const n = document.querySelectorAll('#parseList input[type=checkbox]:checked').length;
-  document.getElementById('parseSelCount').textContent = n + ' ' + t('parse-selected');
-}
-
-// ── Save parse selected → apiObjects('objects','save') ────────
-async function saveParseSelectedObjects() {
-  const cityId = document.getElementById('obj-city-select').value;
-  if (!cityId) { toast(t('city-select-placeholder'), 'error'); return; }
-  const selected = [...document.querySelectorAll('#parseList input[type=checkbox]:checked')]
-    .map(c => parseData[parseInt(c.dataset.idx)]).filter(Boolean)
-    .map(p => ({
-      name:      p.name,
-      category:  p.type || 'tourism',
-      latitude:  p.lat  || null,
-      longitude: p.lng  || null,
-      radius:    100,
-      osm_id:    p.google_place_id ? 'gplaces_' + p.google_place_id : 'parse_' + Date.now()
-    }));
-  if (!selected.length) { toast(t('parse-select-required'), 'error'); return; }
-  const btn = document.getElementById('parseResultsBlock').querySelector('button');
-  btn.disabled = true;
-  try {
-    const res = await apiObjects('objects', 'save', {
-      city_id: parseInt(cityId),
-      objects: selected
-    });
-    if (res.success) {
-      toast(`${t('save-selected')}: ${res.objects.length}`, 'success');
-      document.getElementById('parseResultsBlock').style.display = 'none';
-      parseData = [];
-      loadSavedObjects();
-    } else { toast(res.error, 'error'); }
-  } catch(e) { toast(e.message, 'error'); }
-  btn.disabled = false;
-}
-
-// ── Legacy stub ───────────────────────────────────────────────
-function renderCategories() { /* no-op: categories removed from parse panel */ }
 
 function initObjectsSection() {
+  renderCategories();
   if (!allCitiesList.length) {
     apiMain('cities', 'list').then(res => {
       allCitiesList = res.cities || [];
@@ -3472,7 +3309,14 @@ function initObjectsSection() {
   } else {
     populateCitySelect();
   }
-  if (!parseMap) setTimeout(() => initNewParseMap(), 200);
+  if (!parseMap) {
+    // Инициализируем сразу без timeout чтобы Leaflet не ломал grid
+    parseMap = L.map('parse-map', { center: [49.5883, 34.5514], zoom: 14 });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(parseMap);
+    parseMap.on('click', onMapClick);
+    // После рендера DOM — пересчитываем размер
+    setTimeout(() => { parseMap.invalidateSize(); parseMap.invalidateSize(); }, 300);
+  }
 }
 
 function populateCitySelect() {
@@ -3492,23 +3336,138 @@ function onCitySelect() {
   if (!cityId) { document.getElementById('objects-content').style.display = 'none'; return; }
   currentCity = allCitiesList.find(c => c.id == cityId);
   document.getElementById('objects-content').style.display = 'block';
-  // Центрируем parse map на выбранном городе
-  if (parseMap && currentCity) {
-    setTimeout(() => {
-      parseMap.invalidateSize();
-      parseMap.setView([currentCity.center_lat, currentCity.center_lng], 12);
-    }, 200);
+  // Центрируем объект-карту на городе
+  if (objMap && currentCity) {
+    objMap.setView([currentCity.center_lat, currentCity.center_lng], 13);
+    setTimeout(() => objMap.invalidateSize(), 200);
   }
+  // Сбрасываем фильтры при смене города
+  objActiveCat = 'all'; objActivePipe = 'all'; objSearchQ = '';
+  const searchEl = document.getElementById('obj-map-search');
+  if (searchEl) searchEl.value = '';
+  document.querySelectorAll('#obj-cat-chips .obj-map-chip').forEach((c,i) => c.classList.toggle('active', i===0));
+  document.querySelectorAll('#obj-pipe-chips .obj-map-chip').forEach((c,i) => c.classList.toggle('active', i===0));
   loadSavedObjects();
 }
 
+function onMapClick(e) {
+  parseCoords = e.latlng;
+  const radius = parseInt(document.getElementById('radius-slider').value);
+  if (parseMarker) parseMarker.remove();
+  if (parseCircle) parseCircle.remove();
+  parseMarker = L.marker(e.latlng, {
+    icon: L.divIcon({ className: '', html: `<div style="width:12px;height:12px;border-radius:50%;background:#c8622a;border:2px solid #fff;box-shadow:0 0 0 4px rgba(200,98,42,.25)"></div>`, iconAnchor: [6,6] })
+  }).addTo(parseMap);
+  parseCircle = L.circle(e.latlng, { radius, color: '#c8622a', fillColor: '#c8622a', fillOpacity: .06, weight: 1.5 }).addTo(parseMap);
+  document.getElementById('coords-display').textContent = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+  document.getElementById('btn-parse').disabled = false;
+}
 
+function onRadiusChange() {
+  const radius = parseInt(document.getElementById('radius-slider').value);
+  document.getElementById('radius-val').textContent = radius;
+  if (parseCircle && parseCoords) parseCircle.setRadius(radius);
+}
 
+function onCountChange() {
+  document.getElementById('count-val').textContent = document.getElementById('count-slider').value;
+}
 
+async function startParse() {
+  if (!parseCoords || !currentCity) return;
+  const btn = document.getElementById('btn-parse');
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner-sm"></div> ${t('loading')}`;
 
+  const cats = [...document.querySelectorAll('#categories-group .check-item.checked')].map(el => el.dataset.cat);
 
+  try {
+    const res = await apiObjects('objects', 'parse', {
+      city_name: currentCity.name,
+      country:   currentCity.country,
+      lat:       parseCoords.lat,
+      lng:       parseCoords.lng,
+      radius:    parseInt(document.getElementById('radius-slider').value),
+      count:     parseInt(document.getElementById('count-slider').value),
+      categories: cats
+    });
 
+    if (res.success && res.places) {
+      parseObjects = res.places;
+      renderParseResults(parseObjects);
+    } else {
+      toast(res.error || 'Parse error', 'error');
+    }
+  } catch(e) { toast(e.message, 'error'); }
 
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M5 7.5h5M8 5.5l2 2-2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> ${t('parse-btn')}`;
+}
+
+function renderParseResults(places) {
+  const panel = document.getElementById('parse-results-panel');
+  const grid  = document.getElementById('parse-objects-grid');
+  const count = document.getElementById('parse-count');
+  panel.style.display = 'block';
+  count.textContent   = places.length;
+
+  grid.innerHTML = places.map((p, i) => `
+    <div class="obj-card selected" data-idx="${i}" onclick="toggleObjectCard(this)">
+      <div class="obj-check"></div>
+      <div class="obj-content">
+        <div class="obj-name">${p.name}</div>
+        <div class="obj-cat">${p.category}</div>
+        ${p.tags?.description ? `<div class="obj-desc">${p.tags.description}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+  updateSaveBtn();
+}
+
+function toggleObjectCard(el) { el.classList.toggle('selected'); updateSaveBtn(); }
+
+function selectAllObjects() {
+  const cards = document.querySelectorAll('.obj-card');
+  const allSel = [...cards].every(c => c.classList.contains('selected'));
+  cards.forEach(c => c.classList.toggle('selected', !allSel));
+  updateSaveBtn();
+}
+
+function updateSaveBtn() {
+  const btn = document.getElementById('btn-save-objects');
+  if (btn) btn.disabled = document.querySelectorAll('.obj-card.selected').length === 0;
+}
+
+async function saveSelectedObjects() {
+  const selected = [...document.querySelectorAll('.obj-card.selected')]
+    .map(el => parseObjects[parseInt(el.dataset.idx)]);
+
+  if (!selected.length || !currentCity) return;
+
+  const btn = document.getElementById('btn-save-objects');
+  btn.disabled = true;
+
+  try {
+    const res = await apiObjects('objects', 'save', {
+      city_id: parseInt(document.getElementById('obj-city-select').value),
+      objects: selected.map(p => ({
+        name:      p.name,
+        category:  p.category,
+        latitude:  p.latitude,
+        longitude: p.longitude,
+        radius:    100,
+        osm_id:    p.osm_id
+      }))
+    });
+    if (res.success) {
+      toast(`${t('save-selected')}: ${res.objects.length}`, 'success');
+      document.getElementById('parse-results-panel').style.display = 'none';
+      parseObjects = [];
+      loadSavedObjects();
+    } else { toast(res.error, 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
+  btn.disabled = false;
+}
 
 async function loadSavedObjects() {
   const cityId = document.getElementById('obj-city-select').value;
@@ -3532,41 +3491,253 @@ function setRowGenerating(objId, type, isOn) {
   if (existing) renderSavedObjects(savedObjects);
 }
 
+// ── Objects map state ────────────────────────────────────────
+let objMap = null;
+let objMapMarkers = new Map(); // id → L.marker
+let objActiveCat  = 'all';
+let objActivePipe = 'all';
+let objSearchQ    = '';
+let objActiveId   = null;
+
+const OBJ_CAT_COLORS = {
+  historic:   '#6496dc',
+  museum:     '#2db86a',
+  church:     '#a064d2',
+  park:       '#22a36a',
+  restaurant: '#c8622a',
+  tourism:    '#e89e22',
+};
+const OBJ_CAT_BG = {
+  historic:   'rgba(100,150,220,.15)',
+  museum:     'rgba(45,184,106,.15)',
+  church:     'rgba(160,100,210,.15)',
+  park:       'rgba(34,163,106,.15)',
+  restaurant: 'rgba(200,98,42,.15)',
+  tourism:    'rgba(232,158,34,.15)',
+};
+
+function objFilteredList() {
+  return savedObjects.filter(o => {
+    if (objActiveCat !== 'all' && o.category !== objActiveCat) return false;
+    const hasText  = o.cards && o.cards.some(c => c.text_status === 'generated' || c.text_status === 'ready' || c.status === 'generated' || c.status === 'ready');
+    const hasAudio = o.audio_count > 0 || (o.cards && o.cards.some(c => c.has_audio || c.audio_count > 0));
+    if (objActivePipe === 'notxt'  && hasText)             return false;
+    if (objActivePipe === 'noaud'  && hasAudio)            return false;
+    if (objActivePipe === 'ready'  && (!hasText||!hasAudio)) return false;
+    if (objSearchQ && !o.name.toLowerCase().includes(objSearchQ.toLowerCase())) return false;
+    return true;
+  });
+}
+
+function setObjCatFilter(cat, el) {
+  objActiveCat = cat;
+  document.querySelectorAll('#obj-cat-chips .obj-map-chip').forEach(c => {
+    c.classList.remove('active','active-historic','active-museum','active-church','active-park','active-tourism');
+  });
+  if (cat === 'all') el.classList.add('active');
+  else el.classList.add('active-' + cat);
+  renderObjSplitView();
+}
+
+function setObjPipeFilter(pipe, el) {
+  objActivePipe = pipe;
+  document.querySelectorAll('#obj-pipe-chips .obj-map-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderObjSplitView();
+}
+
+function setObjSearch(q) {
+  objSearchQ = q;
+  renderObjSplitView();
+}
+
+function initObjMap() {
+  if (objMap) return;
+  const el = document.getElementById('obj-map-leaflet');
+  if (!el) return;
+  const center = currentCity ? [currentCity.center_lat, currentCity.center_lng] : [49.5883, 34.5514];
+  objMap = L.map('obj-map-leaflet', { center, zoom: 13 });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(objMap);
+  setTimeout(() => objMap.invalidateSize(), 300);
+}
+
+function makeObjMarkerIcon(cat, active) {
+  const col = OBJ_CAT_COLORS[cat] || '#888';
+  const size = active ? 14 : 10;
+  const ring = active ? `box-shadow:0 0 0 5px ${col}33;` : '';
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${col};border:2px solid #fff;${ring}transition:all .2s"></div>`,
+    iconAnchor: [size/2, size/2]
+  });
+}
+
+function renderObjSplitView() {
+  const list = objFilteredList();
+  const countEl = document.getElementById('obj-map-count');
+  if (countEl) countEl.textContent = list.length + ' / ' + savedObjects.length;
+
+  // ── Table ──────────────────────────────────────────────────
+  const scroll = document.getElementById('obj-table-scroll');
+  if (!scroll) return;
+
+  if (!savedObjects.length) {
+    scroll.innerHTML = `<div class="empty-state" style="padding:32px 16px;text-align:center">
+      <div class="empty-title">${t('no-objects')}</div>
+      <div class="empty-sub">${t('no-objects-sub')}</div>
+    </div>`;
+  } else if (!list.length) {
+    scroll.innerHTML = `<div style="padding:24px 16px;text-align:center;font-size:12px;color:var(--text3)">${t('no-filter-results') || 'Нічого не знайдено'}</div>`;
+  } else {
+    const ids = new Set(list.map(o => o.id));
+    scroll.innerHTML = list.map(o => {
+      const hasText  = o.cards && o.cards.some(c => c.text_status === 'generated' || c.text_status === 'ready' || c.status === 'generated' || c.status === 'ready');
+      const hasAudio = o.audio_count > 0 || (o.cards && o.cards.some(c => c.has_audio || c.audio_count > 0));
+      const genText  = generatingRows.has(o.id + '-text');
+      const genAudio = generatingRows.has(o.id + '-audio');
+      const col    = OBJ_CAT_COLORS[o.category] || '#888';
+      const bg     = OBJ_CAT_BG[o.category]     || 'rgba(136,136,136,.12)';
+      const isActive = objActiveId === o.id;
+      return `<div class="obj-table-row${isActive?' map-active':''}" data-id="${o.id}"
+          onclick="focusObjOnMap(${o.id})"
+          onmouseenter="highlightObjMarker(${o.id},true)"
+          onmouseleave="highlightObjMarker(${o.id},false)">
+        <div class="obj-row-name" title="${o.name}">${o.name}</div>
+        <div><span class="obj-row-cat" style="background:${bg};color:${col}">${o.category}</span></div>
+        <div class="obj-pipe-dots">
+          <div class="obj-pipe-dot done" title="збережено"></div>
+          <div class="obj-pipe-dot ${genText?'gen':(hasText?'done':'empty')}" title="текст"></div>
+          <div class="obj-pipe-dot ${genAudio?'gen':(hasAudio?'done':'empty')}" title="аудіо"></div>
+        </div>
+        <button class="obj-focus-btn" onclick="event.stopPropagation();focusObjOnMap(${o.id})" title="На карті">⌖</button>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Map markers ────────────────────────────────────────────
+  if (!objMap) { initObjMap(); return; }
+
+  const visibleIds = new Set(list.map(o => o.id));
+
+  // Обновляем/создаём маркеры
+  savedObjects.forEach(o => {
+    if (!o.latitude || !o.longitude) return;
+    const visible = visibleIds.has(o.id);
+    const active  = objActiveId === o.id;
+    if (objMapMarkers.has(o.id)) {
+      const m = objMapMarkers.get(o.id);
+      if (visible) {
+        m.setIcon(makeObjMarkerIcon(o.category, active));
+        if (!objMap.hasLayer(m)) m.addTo(objMap);
+      } else {
+        if (objMap.hasLayer(m)) objMap.removeLayer(m);
+      }
+    } else if (visible) {
+      const col = OBJ_CAT_COLORS[o.category] || '#888';
+      const m = L.marker([o.latitude, o.longitude], { icon: makeObjMarkerIcon(o.category, active) })
+        .addTo(objMap);
+      m.on('click', () => focusObjOnMap(o.id));
+      m.on('mouseover', () => highlightObjMarker(o.id, true));
+      m.on('mouseout',  () => highlightObjMarker(o.id, false));
+      // Popup
+      const hasText  = o.cards && o.cards.some(c => c.text_status === 'generated' || c.text_status === 'ready');
+      const hasAudio = o.audio_count > 0;
+      const pipeHtml = `<div style="display:flex;gap:3px;margin:4px 0 8px">
+        <div style="width:7px;height:7px;border-radius:50%;background:var(--green)"></div>
+        <div style="width:7px;height:7px;border-radius:50%;background:${hasText?'var(--green)':'var(--line2)'}"></div>
+        <div style="width:7px;height:7px;border-radius:50%;background:${hasAudio?'var(--green)':'var(--line2)'}"></div>
+        <span style="font-size:10px;color:var(--text3);margin-left:3px">${hasText&&hasAudio?t('ready-lbl')||'готово':hasText?t('no-audio-lbl')||'без аудіо':t('no-text-lbl')||'без тексту'}</span>
+      </div>`;
+      m.bindPopup(`
+        <div style="min-width:160px;font-family:var(--sans)">
+          <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px">${o.name}</div>
+          <div style="font-size:11px;color:${col};margin-bottom:2px">${o.category}</div>
+          ${pipeHtml}
+          <div style="display:flex;gap:5px">
+            <button class="btn btn-amber btn-sm" onclick='openGenTextModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'>${t('gen-text')}</button>
+            <button class="btn btn-ghost btn-sm" onclick='openGenAudioModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'>${t('gen-audio')}</button>
+          </div>
+        </div>
+      `, { maxWidth: 220 });
+      objMapMarkers.set(o.id, m);
+    }
+  });
+
+  // Легенда
+  renderObjMapLegend(list);
+}
+
+function renderObjMapLegend(list) {
+  const legendEl = document.getElementById('obj-map-legend');
+  if (!legendEl) return;
+  const cats = [...new Set(list.map(o => o.category))];
+  legendEl.innerHTML = cats.map(cat => {
+    const col = OBJ_CAT_COLORS[cat] || '#888';
+    return `<div class="obj-map-leg-item">
+      <div class="obj-map-leg-dot" style="background:${col}"></div>
+      <span>${t('cat-'+cat) || cat}</span>
+    </div>`;
+  }).join('');
+}
+
+function focusObjOnMap(id) {
+  objActiveId = id;
+  const o = savedObjects.find(x => x.id === id);
+  // Подсветить строку в таблице
+  document.querySelectorAll('.obj-table-row').forEach(r => {
+    r.classList.toggle('map-active', parseInt(r.dataset.id) === id);
+  });
+  // Прокрутить строку в видимость
+  const row = document.querySelector(`.obj-table-row[data-id="${id}"]`);
+  if (row) row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  // Обновить маркеры
+  objMapMarkers.forEach((m, mid) => {
+    const obj = savedObjects.find(x => x.id === mid);
+    if (obj) m.setIcon(makeObjMarkerIcon(obj.category, mid === id));
+  });
+  // Панировать карту и открыть popup
+  if (o && o.latitude && o.longitude && objMap) {
+    objMap.setView([o.latitude, o.longitude], Math.max(objMap.getZoom(), 15), { animate: true });
+    const m = objMapMarkers.get(id);
+    if (m) setTimeout(() => m.openPopup(), 300);
+  }
+}
+
+function highlightObjMarker(id, on) {
+  const m = objMapMarkers.get(id);
+  const o = savedObjects.find(x => x.id === id);
+  if (m && o) {
+    const col = OBJ_CAT_COLORS[o.category] || '#888';
+    const size = on ? 13 : (objActiveId === id ? 14 : 10);
+    const ring = on || objActiveId === id ? `box-shadow:0 0 0 5px ${col}44;` : '';
+    m.setIcon(L.divIcon({
+      className: '',
+      html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${col};border:2px solid #fff;${ring}transition:all .15s"></div>`,
+      iconAnchor: [size/2, size/2]
+    }));
+  }
+}
+
 function renderSavedObjects(objects) {
   savedObjects = objects;
   updateBulkBar();
+  // Обновляем hidden tbody для bulk-delete совместимости
   const tb = document.getElementById('saved-objects-tbody');
-  if (!objects.length) {
-    tb.innerHTML = `<tr><td colspan="5"><div class="empty-state">
-      <div class="empty-title">${t('no-objects')}</div>
-      <div class="empty-sub">${t('no-objects-sub')}</div>
-    </div></td></tr>`;
-    return;
+  if (tb) {
+    tb.innerHTML = objects.map(o =>
+      `<tr><td><input type="checkbox" class="obj-check obj-row-check" data-id="${o.id}" onchange="onObjCheckChange()"></td></tr>`
+    ).join('');
   }
-  tb.innerHTML = objects.map(o => {
-    const hasText  = o.cards && o.cards.some(c => c.status === 'generated' || c.status === 'ready' || c.text_status === 'generated' || c.text_status === 'ready');
-    const hasAudio = o.audio_count > 0 || (o.cards && o.cards.some(c => c.has_audio || c.audio_count > 0));
-    const genText  = generatingRows.has(o.id + '-text');
-    const genAudio = generatingRows.has(o.id + '-audio');
-
-    return `<tr data-obj-id="${o.id}">
-      <td style="width:32px"><input type="checkbox" class="obj-check obj-row-check" data-id="${o.id}" onchange="onObjCheckChange()"></td>
-      <td class="td-name">${o.name}</td>
-      <td><span class="pill pill-draft">${o.category}</span></td>
-      <td><div class="pipeline-row">
-        <span class="pipe-step done">saved</span>
-        <span class="pipe-arrow">›</span>
-        <span class="pipe-step ${genText?'generating':(hasText?'done':'empty')}">${t('gen-text')}</span>
-        <span class="pipe-arrow">›</span>
-        <span class="pipe-step ${genAudio?'generating':(hasAudio?'done':'empty')}">${t('gen-audio')}</span>
-      </div></td>
-      <td><div class="btn-group">
-        <button class="btn btn-ghost btn-sm" onclick='openEditObjModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 9.5h2l5-5-2-2-5 5v2z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <button class="btn btn-amber btn-sm" onclick='openGenTextModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'>${genText?'<div class=\"spinner-sm\"></div> ':''}${t('gen-text')}</button>
-        <button class="btn btn-ghost btn-sm" onclick='openGenAudioModal(${JSON.stringify(o).replace(/'/g,"&#39;")})'>${genAudio?'<div class=\"spinner-sm\"></div> ':''}${t('gen-audio')}</button>
-      </div></td>
-    </tr>`;
-  }).join('');
+  // Инициализируем карту если нужно
+  if (!objMap) {
+    setTimeout(() => { initObjMap(); renderObjSplitView(); }, 200);
+  } else {
+    // Сбрасываем старые маркеры при смене города
+    objMapMarkers.forEach(m => { if (objMap.hasLayer(m)) objMap.removeLayer(m); });
+    objMapMarkers.clear();
+    objActiveId = null;
+    renderObjSplitView();
+  }
 }
 
 function onObjCheckChange() {
@@ -4053,7 +4224,7 @@ function toggleTheme() {
   document.getElementById('theme-icon-dark').style.display  = newTheme === 'light' ? 'none' : '';
   document.getElementById('theme-icon-light').style.display = newTheme === 'light' ? '' : 'none';
   // Обновляем карту Leaflet
-  if (parseMap) setTimeout(() => { parseMap.invalidateSize(); }, 100);
+  if (parseMap) setTimeout(() => parseMap.invalidateSize(), 100);
 }
 
 function initTheme() {
