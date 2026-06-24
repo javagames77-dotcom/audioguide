@@ -3858,7 +3858,7 @@ function renderObjLegend(list) {
 }
 
 async function deleteSingleObj(id) {
-  if (!await customConfirm(t('confirm-delete-obj')||'Видалити об'єкт?', t('delete')||'Видалити')) return;
+  if (!await customConfirm(t('confirm-delete-obj')||'Видалити об\'єкт?', t('delete')||'Видалити')) return;
   try {
     await apiObjects('objects', 'delete', { object_id: id });
     toast(t('deleted')||'Видалено', 'success');
